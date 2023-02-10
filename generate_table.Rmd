@@ -1,0 +1,134 @@
+---
+title: "Generate Table from XML Files"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(xml2)
+
+```
+
+
+```{r}
+
+##########################################################
+# ITERATE THROUGH ALL FILES AND EXTRACT GIVEN VARIABLES
+##########################################################
+
+
+# Reference for Field Names
+# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
+
+# path assumes zip-file is unzipped in smith-capstone-23 directory
+files <- dir( "./ballet_990_released_20230208",
+              full.names = TRUE)
+
+# variables to extract from each xml file
+variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
+                          "//Return//ReturnHeader//Filer//EIN", 
+                          "//Return//ReturnHeader//ReturnTypeCd",
+                          "//Return//ReturnHeader//TaxPeriodBeginDt",
+                          "//Return//ReturnHeader//TaxPeriodEndDt",
+                          "//AmendedReturnInd",
+                          "//Return//ReturnHeader//BusinessName")
+
+
+
+get_df <- function(variables, filename, include_paths = TRUE) {
+  
+  # create column names with just the variables (no paths)
+  variables_no_path <- gsub("*.*\\/", "", variables )
+  
+  xml_file <- read_xml(filename)
+  xml_file <- xml_ns_strip(xml_file)
+  
+  # extract each variable; if it isn't present, put NA 
+  extracted <- map(variables, ~{
+    value <- xml_find_all(
+      xml_file, 
+      xpath =.x)
+    value <- ifelse(length(value) ==0, 
+                    NA, 
+                    xml_text(value)) })
+  
+   names(extracted) <- variables_no_path
+   
+   extracted <- extracted %>%
+     as_tibble()
+ 
+ 
+   # add columns with the paths to each variable within the xml file
+   if(include_paths) {
+      paths <- map(variables, ~ {
+        value <- xml_find_all(
+          xml_file, 
+          xpath = paste0(.x)) 
+         value <- ifelse(length(value) ==0, 
+                      NA, 
+                      xml_path(value)) })
+      
+      names(paths) <- paste0(variables_no_path, "_path")
+      
+      extracted <- extracted %>%
+        bind_cols(as_tibble(paths)) 
+  
+   }
+  
+   
+   # handle case where prefix 'irs' is in front
+   if(nrow(as.data.frame(extracted)) == 0){
+     
+       extracted <- map(variables_no_path, ~ {
+        value <- xml_find_all(xml_file, 
+                              xpath = paste0("//irs:", .x)) %>%
+          xml_text() })
+        names(extracted) <- variables_no_path
+     
+        if(include_paths) {
+        paths <- map(variables, ~ {
+          value <- xml_find_all(
+            xml_file, 
+            xpath = paste0(.x)) %>%
+            xml_path() })
+        
+        names(paths) <- paste0(variables_no_path, "_path")
+        
+      extracted <-  extracted %>%
+        bind_cols(as_tibble(paths)) 
+     }
+   }
+   
+ # add name of file to data frame
+ extracted %>%
+   mutate(filename = gsub("*.*\\/", "", filename))
+}
+
+
+
+if(!file.exists("./data")) {dir.create("./data")}
+
+all_data <- map_df(files, ~
+                     get_df(variables = variables_to_extract,
+                     filename = .x)) 
+
+all_data <- all_data %>%
+  mutate(ReturnDate = as.Date(ReturnTs,
+                              format = "%Y-%m-%d"))
+
+saveRDS(all_data, "./data/data_990.RDS")
+
+```
+
+```{r}
+
+all_data %>% filter(!is.na(AmendedReturnInd))
+
+```
