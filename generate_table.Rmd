@@ -202,15 +202,6 @@ saveRDS(all_data, "./data/data_990.RDS")
 ```
 
 
-```{r troubleshooting, include=FALSE,eval=FALSE}
-
-# some files have irs prefix; this needs special handling
-
-filename <-  "./ballet_990_released_20230208/201940149349301304_public.xml"
-test <- get_df(filename = filename, variables=variables_to_extract)
-
-```
-
 ```{r function to generate table}
 
 make_table <- function(..., title = "") {
