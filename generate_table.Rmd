@@ -164,6 +164,7 @@ get_df <- function(variables,
 # https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
 
 # path assumes zip-file is unzipped in smith-capstone-23 directory
+# generates vector of the full paths to all files in the ballet_990_released_20230208 directory
 files <- dir( "./ballet_990_released_20230208",
               full.names = TRUE)
 
@@ -177,13 +178,17 @@ variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",
                           "//Return//ReturnHeader//BusinessName")
 
 
-
+# if data directory does not exist in current directory, create it 
 if(!file.exists("./data")) {dir.create("./data")}
 
+# iterate over all xml files in the directory and extract data
+# each iteration generates one row of the data frame
 all_data <- map_df(files, ~
                      get_df(variables = variables_to_extract,
                      filename = .x)) 
 
+# clean timestamp and dates
+# fiscal year is defined as the year of TaxPeriodEndDt
 all_data <- all_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
@@ -198,6 +203,7 @@ all_data <- all_data %>%
 # check all files are present in data frame
 # nrow(all_data) == length(files)
 
+# save RDS file to data directory
 saveRDS(all_data, "./data/data_990.RDS")
 
 ```
@@ -205,6 +211,7 @@ saveRDS(all_data, "./data/data_990.RDS")
 
 ```{r function to generate table}
 
+# make kable table with consistent formatting
 make_table <- function(..., title = "") {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
                   title,
@@ -223,7 +230,6 @@ make_table <- function(..., title = "") {
 # load table of data from parsed xml files
 
 all_data <- readRDS("./data/data_990.RDS")
-
 
 
 
