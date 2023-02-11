@@ -14,8 +14,9 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 ```{css,echo=FALSE}
 
-#sidebar h2 { background: #3B5561 !important;
-}
+\\ CSS for formatting of the knitted html file; changing default colors of readthedown
+
+#sidebar h2 { background: #3B5561 !important;}
 #main .nav-pills > li.active > a,
 #main .nav-pills > li.active > a:hover,
 #main .nav-pills > li.active > a:focus {
@@ -26,20 +27,17 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
     background-color: #22983B;
 }
 
+// font color to dark blue 
 h1, h2, h3, h4, h5, h6, legend {
     color: #334B56;
 }
-
-#nav-top span.glyphicon {
-    color: #22983B;
-}
-
 
 
 #table-of-contents h2 {
     background-color: #3B5561;
 }
 
+// expand content to screenwidth rather than cutting it off 
 #content{
 max-width:2300px;
 }
@@ -62,31 +60,12 @@ library(forcats)
 
 # Generating Table for All Files
 
-```{r,eval=TRUE, class.source = "fold-show" }
+```{r get_df function for extracting data from xml files,eval=TRUE, class.source = "fold-show" }
 
 
 ##########################################################
 # ITERATE THROUGH ALL FILES AND EXTRACT GIVEN VARIABLES
 ##########################################################
-
-
-# Reference for Field Names
-# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
-
-# path assumes zip-file is unzipped in smith-capstone-23 directory
-files <- dir( "./ballet_990_released_20230208",
-              full.names = TRUE)
-
-# variables to extract from each xml file
-variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
-                          "//Return//ReturnHeader//Filer//EIN", 
-                          "//Return//ReturnHeader//ReturnTypeCd",
-                          "//Return//ReturnHeader//TaxPeriodBeginDt",
-                          "//Return//ReturnHeader//TaxPeriodEndDt",
-                          "//AmendedReturnInd",
-                          "//Return//ReturnHeader//BusinessName")
-
-
 
 
 #' @param variables character vector of variables to extract from the xml files
@@ -174,6 +153,28 @@ get_df <- function(variables,
  extracted %>%
    mutate(filename = gsub("*.*\\/", "", filename))
 }
+
+
+```
+
+```{r}
+
+
+# Reference for Field Names
+# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
+
+# path assumes zip-file is unzipped in smith-capstone-23 directory
+files <- dir( "./ballet_990_released_20230208",
+              full.names = TRUE)
+
+# variables to extract from each xml file
+variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
+                          "//Return//ReturnHeader//Filer//EIN", 
+                          "//Return//ReturnHeader//ReturnTypeCd",
+                          "//Return//ReturnHeader//TaxPeriodBeginDt",
+                          "//Return//ReturnHeader//TaxPeriodEndDt",
+                          "//AmendedReturnInd",
+                          "//Return//ReturnHeader//BusinessName")
 
 
 
