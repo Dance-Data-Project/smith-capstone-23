@@ -14,8 +14,9 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 ```{css,echo=FALSE}
 
-#sidebar h2 { background: #3B5561 !important;
-}
+\\ CSS for formatting of the knitted html file; changing default colors of readthedown
+
+#sidebar h2 { background: #3B5561 !important;}
 #main .nav-pills > li.active > a,
 #main .nav-pills > li.active > a:hover,
 #main .nav-pills > li.active > a:focus {
@@ -26,20 +27,17 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
     background-color: #22983B;
 }
 
+// font color to dark blue 
 h1, h2, h3, h4, h5, h6, legend {
     color: #334B56;
 }
-
-#nav-top span.glyphicon {
-    color: #22983B;
-}
-
 
 
 #table-of-contents h2 {
     background-color: #3B5561;
 }
 
+// expand content to screenwidth rather than cutting it off 
 #content{
 max-width:2300px;
 }
@@ -62,31 +60,12 @@ library(forcats)
 
 # Generating Table for All Files
 
-```{r,eval=TRUE, class.source = "fold-show" }
+```{r get_df function for extracting data from xml files,eval=TRUE, class.source = "fold-show" }
 
 
 ##########################################################
 # ITERATE THROUGH ALL FILES AND EXTRACT GIVEN VARIABLES
 ##########################################################
-
-
-# Reference for Field Names
-# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
-
-# path assumes zip-file is unzipped in smith-capstone-23 directory
-files <- dir( "./ballet_990_released_20230208",
-              full.names = TRUE)
-
-# variables to extract from each xml file
-variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
-                          "//Return//ReturnHeader//Filer//EIN", 
-                          "//Return//ReturnHeader//ReturnTypeCd",
-                          "//Return//ReturnHeader//TaxPeriodBeginDt",
-                          "//Return//ReturnHeader//TaxPeriodEndDt",
-                          "//AmendedReturnInd",
-                          "//Return//ReturnHeader//BusinessName")
-
-
 
 
 #' @param variables character vector of variables to extract from the xml files
@@ -176,13 +155,40 @@ get_df <- function(variables,
 }
 
 
+```
 
+```{r}
+
+
+# Reference for Field Names
+# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
+
+# path assumes zip-file is unzipped in smith-capstone-23 directory
+# generates vector of the full paths to all files in the ballet_990_released_20230208 directory
+files <- dir( "./ballet_990_released_20230208",
+              full.names = TRUE)
+
+# variables to extract from each xml file
+variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
+                          "//Return//ReturnHeader//Filer//EIN", 
+                          "//Return//ReturnHeader//ReturnTypeCd",
+                          "//Return//ReturnHeader//TaxPeriodBeginDt",
+                          "//Return//ReturnHeader//TaxPeriodEndDt",
+                          "//AmendedReturnInd",
+                          "//Return//ReturnHeader//BusinessName")
+
+
+# if data directory does not exist in current directory, create it 
 if(!file.exists("./data")) {dir.create("./data")}
 
+# iterate over all xml files in the directory and extract data
+# each iteration generates one row of the data frame
 all_data <- map_df(files, ~
                      get_df(variables = variables_to_extract,
                      filename = .x)) 
 
+# clean timestamp and dates
+# fiscal year is defined as the year of TaxPeriodEndDt
 all_data <- all_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
@@ -197,22 +203,15 @@ all_data <- all_data %>%
 # check all files are present in data frame
 # nrow(all_data) == length(files)
 
+# save RDS file to data directory
 saveRDS(all_data, "./data/data_990.RDS")
 
 ```
 
 
-```{r troubleshooting, include=FALSE,eval=FALSE}
-
-# some files have irs prefix; this needs special handling
-
-filename <-  "./ballet_990_released_20230208/201940149349301304_public.xml"
-test <- get_df(filename = filename, variables=variables_to_extract)
-
-```
-
 ```{r function to generate table}
 
+# make kable table with consistent formatting
 make_table <- function(..., title = "") {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
                   title,
@@ -231,7 +230,6 @@ make_table <- function(..., title = "") {
 # load table of data from parsed xml files
 
 all_data <- readRDS("./data/data_990.RDS")
-
 
 
 
