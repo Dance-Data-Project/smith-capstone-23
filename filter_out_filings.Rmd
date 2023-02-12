@@ -1,8 +1,11 @@
 ---
 title: "Filtering out Filings"
 author: "Rose Evard"
-date: "2023-02-12"
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -28,6 +31,11 @@ short_years_filings <- filter_data %>%
   select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) %>%
   mutate(year_len = difftime(TaxPeriodEndDt, TaxPeriodBeginDt, units = "days")) %>%
   filter(year_len < 364)
+
+##Tabling it for the HTML
+short_years_filings %>%
+  kbl(caption = "Short fiscal years") %>%
+  kable_material()
 ```
 
 There is only one company which has a short fiscal year: 742371103
@@ -44,8 +52,7 @@ filter_data %>%
   arrange(TaxPeriodBeginDt) %>%
   mutate(year_len = difftime(TaxPeriodEndDt, TaxPeriodBeginDt, units = "days"),
     before =  lag(TaxPeriodEndDt, n =1),
-        gap = interval(before, TaxPeriodBeginDt),
-        gap = as.numeric(gap, "days")) %>%
+        gap = difftime(before, TaxPeriodBeginDt, units = "days"))%>%
   select(TaxPeriodBeginDt,TaxPeriodEndDt, year_len, gap) %>%
   kbl(caption = "Fiscal year length and fiscal gaps for EIN 742371103") %>%
   kable_material() %>%
