@@ -10,3 +10,20 @@ library(tidyverse)
 all_data <- readRDS("./data/data_990.RDS")
 ```
 
+Things to Filter: 
+- Amended 990 Forms  
+- Removing 990T  
+- Change in fiscal year (will require research)
+
+## Detecting Groups who Changed Fiscal Year  
+Prior to choosing how we keep ones with change of fiscal year (bridge the gap, short year), we need to detect those who did change their fiscal year.   
+
+## Filtering Amended 990s and 990T  
+
+```{r, filtering}
+## Retain only 990, 990 EZ's that are not marked as amended
+filter_data <- all_data %>%
+  filter(is.na(AmendedReturnInd)) %>%
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ")
+```
+
