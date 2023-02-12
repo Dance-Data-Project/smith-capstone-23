@@ -1,0 +1,68 @@
+---
+title: "Filtering out Filings"
+author: "Rose Evard"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(kableExtra)
+all_data <- readRDS("./data/data_990.RDS")
+```
+
+## Filtering Amended 990s and 990T  
+
+```{r, filtering}
+## Retain only 990, 990 EZ's that are not marked as amended
+filter_data <- all_data %>%
+  filter(is.na(AmendedReturnInd)) %>%
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ")
+```
+
+## Detecting Groups who Changed Fiscal Year  
+
+```{r identify bridging}
+#Finding all companies with any short or abnormally long fiscal years  
+#Note that there were not any long ones
+short_years_filings <- filter_data %>%
+  select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) %>%
+  mutate(year_len = difftime(TaxPeriodEndDt, TaxPeriodBeginDt, units = "days")) %>%
+  filter(year_len < 364 | year_len > 365)
+
+##Tabling it for the HTML
+short_years_filings %>%
+  kbl(caption = "Short fiscal years") %>%
+  kable_material()
+```
+
+There is only one company which has a short fiscal year: 742371103
+
+## Investigating single short fiscal year  
+
+```{r}
+#Filtering to 742371103, utilizing some of Quinn's code to graph gaps
+filter_data %>%
+  filter(EIN == 742371103) %>%
+  select(EIN, 
+       TaxPeriodBeginDt, 
+       TaxPeriodEndDt) %>%
+  arrange(TaxPeriodBeginDt) %>%
+  mutate(year_len = difftime(TaxPeriodEndDt, TaxPeriodBeginDt, units = "days"),
+    before =  lag(TaxPeriodEndDt, n =1),
+        gap = difftime(before, TaxPeriodBeginDt, units = "days"))%>%
+  select(TaxPeriodBeginDt,TaxPeriodEndDt, year_len, gap) %>%
+  kbl(caption = "Fiscal year length and fiscal gaps for EIN 742371103") %>%
+  kable_material() %>%
+  row_spec(row = 5, background = "red", color = "white", bold = TRUE)
+```
+
+As the shorter fiscal year is still a significant portion of the year, 302 days, I feel it should not be filtered.  
+
+```{r}
+saveRDS(filter_data, "./data/data_filter_990.RDS")
+```
+
