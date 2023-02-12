@@ -26,11 +26,12 @@ filter_data <- all_data %>%
 ## Detecting Groups who Changed Fiscal Year  
 
 ```{r identify bridging}
-#Finding all companies with any short fiscal years
+#Finding all companies with any short or abnormally long fiscal years  
+#Note that there were not any long ones
 short_years_filings <- filter_data %>%
   select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) %>%
   mutate(year_len = difftime(TaxPeriodEndDt, TaxPeriodBeginDt, units = "days")) %>%
-  filter(year_len < 364)
+  filter(year_len < 364 | year_len > 365)
 
 ##Tabling it for the HTML
 short_years_filings %>%
