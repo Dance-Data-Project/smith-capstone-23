@@ -22,9 +22,14 @@ library(forcats)
 
 ```{r extracting endowment information}
 
+##########################################################
+# ITERATE THROUGH ALL FILES AND ENDOWMENT  VARIABLES
+##########################################################
+
+#' @param filename string containing full path to xml file to be read
+
 ##Based off of Quinn's strategy to extract metadata
-get_endowment <- function(filename, 
-                   include_paths = TRUE) {
+get_endowment <- function(filename) {
   
   # Retrieving the same endowment information for all 
   variables <- c("//Return//ReturnHeader//ReturnTs", 
@@ -125,9 +130,24 @@ get_endowment <- function(filename,
 }
 ```
 
+
 ```{r}
-test_path <- "nycb_fy2020.xml"
-test_output <- get_endowment(test_path)
-#test_output
+##Applying get_endowment to entire output 
+files <- dir( "./ballet_990_released_20230208",
+              full.names = TRUE)
+
+endowment_data <- map_df(files, ~
+                     get_endowment(.x)) 
+
+endowment_datatest <- endowment_data %>%
+  mutate(ReturnTs = as.Date(ReturnTs,
+                              format = "%Y-%m-%d")) %>%
+  mutate(across(2:TermEndowmentBalanceEOYPct,
+                as.numeric)) %>%
+  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd),
+                as.logical)) %>%
+  rename(ReturnDate = ReturnTs)
+  
+saveRDS(all_data, "./data/endowment_data_990.RDS")
 ```
 
