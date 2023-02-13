@@ -140,7 +140,7 @@ endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
 
 ## Adjusting data type
-endowment_datatest <- endowment_data %>%
+endowment_data <- endowment_data %>%
   mutate(ReturnTs = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
   mutate(across(2:TermEndowmentBalanceEOYPct,
@@ -150,5 +150,23 @@ endowment_datatest <- endowment_data %>%
   rename(ReturnDate = ReturnTs)
   
 saveRDS(all_data, "./data/endowment_data_990.RDS")
+```
+
+```{r}
+##Graphing difference between beginning and end periods
+endowment_data %>%
+  select(ReturnDate, EIN, CYBeginningYearBalanceAmt, CYEndYearBalanceAmt) %>%
+  pivot_longer(cols = c(CYBeginningYearBalanceAmt, CYEndYearBalanceAmt), names_to = "Period", values_to = "Balance") %>%
+  mutate(Period = as.factor(Period)) %>%
+  mutate(Year = substr(ReturnDate, 1, 4)) %>%
+  ggplot(aes(x = Period, y = Balance, group = EIN)) +
+  facet_wrap(~Year) +
+  geom_point(alpha = 0.5) + 
+  geom_line(alpha = 0.5) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 35, hjust =1),
+        legend.position = "none") +
+  labs(title = "Comparing Fiscal Year Beginning and End Endowment Totals") +
+  scale_y_continuous(labels = scales::label_dollar())
 ```
 
