@@ -139,6 +139,7 @@ files <- dir( "./ballet_990_released_20230208",
 endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
 
+## Adjusting data type
 endowment_datatest <- endowment_data %>%
   mutate(ReturnTs = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
