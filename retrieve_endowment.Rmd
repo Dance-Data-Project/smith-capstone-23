@@ -1,0 +1,133 @@
+---
+title: "Retrieve Endowment Funds"
+author: "Rose Evard"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+---
+
+```{r}
+
+library(tidyverse)
+library(xml2)
+library(kableExtra)
+library(lubridate)
+library(forcats)
+
+
+```
+
+
+```{r extracting endowment information}
+
+##Based off of Quinn's strategy to extract metadata
+get_endowment <- function(filename, 
+                   include_paths = TRUE) {
+  
+  # Retrieving the same endowment information for all 
+  variables <- c("//Return//ReturnHeader//ReturnTs", 
+                 "//Return//ReturnHeader//Filer//EIN", 
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//EndYearBalanceAmt",
+                
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//BoardDesignatedBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//PrmnntEndowmentBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//TermEndowmentBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
+                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd"
+                 )
+  
+  # Column name; order matters, needs to align with retrieval order
+  variables_no_path <- c("ReturnTs", 
+                         "EIN",
+                        "CYBeginningYearBalanceAmt", 
+                        "CYContributionsAmt", 
+                        "CYInvestmentEarningsOrLossesAmt",
+                        "CYOtherExpendituresAmt",
+                        "CYEndYearBalanceAmt",
+                        
+                        "CYM1BeginningYearBalanceAmt", 
+                        "CYM1ContributionsAmt", 
+                        "CYM1InvestmentEarningsOrLossesAmt",
+                        "CYM1OtherExpendituresAmt",
+                        "CYM1EndYearBalanceAmt",
+                        
+                        "CYM2BeginningYearBalanceAmt", 
+                        "CYM2ContributionsAmt", 
+                        "CYM2InvestmentEarningsOrLossesAmt",
+                        "CYM2OtherExpendituresAmt",
+                        "CYM2EndYearBalanceAmt",
+                        
+                        "CYM3BeginningYearBalanceAmt", 
+                        "CYM3ContributionsAmt", 
+                        "CYM3InvestmentEarningsOrLossesAmt",
+                        "CYM3OtherExpendituresAmt",
+                        "CYM3EndYearBalanceAmt",
+                        
+                        "CYM4BeginningYearBalanceAmt", 
+                        "CYM4ContributionsAmt", 
+                        "CYM4InvestmentEarningsOrLossesAmt",
+                        "CYM4OtherExpendituresAmt",
+                        "CYM4EndYearBalanceAmt",
+                        
+                        "BoardDesignatedBalanceEOYPct",
+                        "PrmnntEndowmentBalanceEOYPct",
+                        "TermEndowmentBalanceEOYPct",
+                        "EndowmentsHeldUnrelatedOrgInd",
+                        "EndowmentsHeldRelatedOrgInd"
+                        )
+  
+  xml_file <- read_xml(filename)
+  xml_file <- xml_ns_strip(xml_file)
+  
+  # extract each variable; if it isn't present, put NA 
+  extracted <- map(variables, ~{
+    value <- xml_find_all(
+      xml_file, 
+      xpath =.x)
+    value <- ifelse(length(value) ==0, 
+                    NA, 
+                    xml_text(value)) })
+  
+   names(extracted) <- variables_no_path
+   
+   extracted <- extracted %>%
+     as_tibble()
+}
+```
+
+```{r}
+test_path <- "nycb_fy2020.xml"
+test_output <- get_endowment(test_path)
+#test_output
+```
+
