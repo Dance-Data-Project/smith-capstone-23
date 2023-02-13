@@ -20,6 +20,7 @@ library(forcats)
 ```
 
 
+## Extracting Endowments  
 ```{r extracting endowment information}
 
 ##########################################################
@@ -34,6 +35,7 @@ get_endowment <- function(filename) {
   # Retrieving the same endowment information for all 
   variables <- c("//Return//ReturnHeader//ReturnTs", 
                  "//Return//ReturnHeader//Filer//EIN", 
+                 "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
@@ -74,6 +76,7 @@ get_endowment <- function(filename) {
   # Column name; order matters, needs to align with retrieval order
   variables_no_path <- c("ReturnTs", 
                          "EIN",
+                         "DonorRstrOrQuasiEndowmentsInd",
                         "CYBeginningYearBalanceAmt", 
                         "CYContributionsAmt", 
                         "CYInvestmentEarningsOrLossesAmt",
@@ -130,6 +133,12 @@ get_endowment <- function(filename) {
 }
 ```
 
+```{r}
+test_path <- "nycb_fy2020.xml"
+test <- get_endowment(test_path)
+```
+
+> An important question: Does ZERO in a boolean situation mean false or mean NA?  There are cases where 1s and 0s are coded for T/F.
 
 ```{r}
 ##Applying get_endowment to entire output 
@@ -143,10 +152,10 @@ endowment_data <- map_df(files, ~
 endowment_data <- endowment_data %>%
   mutate(ReturnTs = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
-  mutate(across(2:TermEndowmentBalanceEOYPct,
+  mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
                 as.numeric)) %>%
-  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd),
-                as.logical)) %>%
+  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
+                ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
   rename(ReturnDate = ReturnTs)
   
 saveRDS(all_data, "./data/endowment_data_990.RDS")
@@ -170,3 +179,5 @@ endowment_data %>%
   scale_y_continuous(labels = scales::label_dollar())
 ```
 
+
+## Determining W
