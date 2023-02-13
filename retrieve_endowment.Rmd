@@ -70,7 +70,10 @@ get_endowment <- function(filename) {
                  "//Return//ReturnData//IRS990ScheduleD//PrmnntEndowmentBalanceEOYPct",
                  "//Return//ReturnData//IRS990ScheduleD//TermEndowmentBalanceEOYPct",
                  "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
-                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd"
+                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd",
+                 
+                 "//AmendedReturnInd",
+                 "//Return//ReturnHeader//ReturnTypeCd"
                  )
   
   # Column name; order matters, needs to align with retrieval order
@@ -111,7 +114,10 @@ get_endowment <- function(filename) {
                         "PrmnntEndowmentBalanceEOYPct",
                         "TermEndowmentBalanceEOYPct",
                         "EndowmentsHeldUnrelatedOrgInd",
-                        "EndowmentsHeldRelatedOrgInd"
+                        "EndowmentsHeldRelatedOrgInd",
+                        
+                        "AmendedReturnInd",
+                        "ReturnTypeCd"
                         )
   
   xml_file <- read_xml(filename)
@@ -150,15 +156,19 @@ endowment_data <- map_df(files, ~
 
 ## Adjusting data type
 endowment_data <- endowment_data %>%
-  mutate(ReturnTs = as.Date(ReturnTs,
+  mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
   mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
                 as.numeric)) %>%
   mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
                 ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
-  rename(ReturnDate = ReturnTs)
-  
-saveRDS(all_data, "./data/endowment_data_990.RDS")
+  filter(is.na(AmendedReturnInd)) %>% #Filtering out data
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
+  select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
+```
+
+```{r saving data}
+saveRDS(endowment_data, "./data/endowment_data_990.RDS")
 ```
 
 ```{r}
@@ -180,4 +190,30 @@ endowment_data %>%
 ```
 
 
-## Determining W
+## Determining Which Needed to File Schedule D for Endowment
+
+Not all those that fill out schedule D do so for endowment, so I focused on Question 10 "Did the organization, directly or through a related organization, hold assets in temporarily restricted endowments, permanent endowments, or quasi endowments?  If "yes," complete Schedule D, Part V".  
+
+```{r}
+##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
+##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
+fill_d <- endowment_data %>%
+ mutate(FilledSchD = ifelse(rowSums(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct), na.rm = TRUE) != 0, TRUE, FALSE)) %>%
+  select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, FilledSchD)
+
+##Counting those that needed to fill schedule D
+endowment_data %>%
+  group_by(DonorRstrOrQuasiEndowmentsInd) %>%
+  summarize(n = n()) %>%
+  kbl(caption = "Total EINs checked YES on Q10") %>%
+  kable_material()
+
+##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
+fill_d %>%
+  group_by(DonorRstrOrQuasiEndowmentsInd, FilledSchD) %>%
+  summarize(n = n()) %>%
+  kbl(caption = "990 Q10 answer and If They Filled out Schedule D") %>%
+  kable_material()
+```
+
+> Editor's note: Prior to filtering the data for 990T and amended files, there were ones that marked Q10 as true, approximately 20 of them.  
