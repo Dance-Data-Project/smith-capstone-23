@@ -1,0 +1,223 @@
+---
+title: "Data Dictionary"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(xml2)
+```
+
+## Useful Resources for Reference
+
+* [example form](https://www.irs.gov/pub/irs-pdf/f990sd.pdf)
+* [variable definitions w/ reference to which questions they are derived from]( http://www.irsx.info/metadata/forms.html#ReturnHeader990x)
+
+## More Information on Variables
+
+
+## Reformatting Variable Names to be More Readable for Future Plots and Tables
+
+```{r}
+
+# resources:
+# example form: https://www.irs.gov/pub/irs-pdf/f990sd.pdf
+
+
+# same variables as extracted for the endowment data
+variables_no_path <- c("ReturnTs", 
+                       "EIN",
+                       "DonorRstrOrQuasiEndowmentsInd",
+                       "CYBeginningYearBalanceAmt", 
+                       "CYContributionsAmt", 
+                       "CYInvestmentEarningsOrLossesAmt",
+                       "CYOtherExpendituresAmt",
+                       "CYEndYearBalanceAmt",
+                       
+                       "CYM1BeginningYearBalanceAmt", 
+                       "CYM1ContributionsAmt", 
+                       "CYM1InvestmentEarningsOrLossesAmt",
+                       "CYM1OtherExpendituresAmt",
+                       "CYM1EndYearBalanceAmt",
+                       
+                       "CYM2BeginningYearBalanceAmt", 
+                       "CYM2ContributionsAmt", 
+                       "CYM2InvestmentEarningsOrLossesAmt",
+                       "CYM2OtherExpendituresAmt",
+                       "CYM2EndYearBalanceAmt",
+                       
+                       "CYM3BeginningYearBalanceAmt", 
+                       "CYM3ContributionsAmt", 
+                       "CYM3InvestmentEarningsOrLossesAmt",
+                       "CYM3OtherExpendituresAmt",
+                       "CYM3EndYearBalanceAmt",
+                       
+                       "CYM4BeginningYearBalanceAmt", 
+                       "CYM4ContributionsAmt", 
+                       "CYM4InvestmentEarningsOrLossesAmt",
+                       "CYM4OtherExpendituresAmt",
+                       "CYM4EndYearBalanceAmt",
+                       
+                       "BoardDesignatedBalanceEOYPct",
+                       "PrmnntEndowmentBalanceEOYPct",
+                       "TermEndowmentBalanceEOYPct",
+                       "EndowmentsHeldUnrelatedOrgInd",
+                       "EndowmentsHeldRelatedOrgInd",
+                       
+                       "AmendedReturnInd",
+                       "ReturnTypeCd"
+)
+
+
+readable_names <- tibble(original_variable = variables_no_path) %>%
+  # add clearer interpretation of the time period given
+  mutate(time_period = case_when(
+    grepl("CYM1", original_variable) ~ "(1 year before current)",
+    grepl("CYM3", original_variable) ~ "(2 years before current)",
+    grepl("CYM3", original_variable) ~ "(3 years before current)",
+    grepl("CY", original_variable) ~ "(current year)"
+  )) %>%
+  # remove time period since separate column holds that information
+  mutate(variable = gsub("CYM1|CYM2|CYM3|CYM4|CY", "", original_variable),
+         # split into words where there is capitalization
+         var_split = gsub("([[:upper:]])", " \\1", variable),
+         # change shortened words to readable format
+         readable = gsub("E I N", "EIN", var_split) %>%
+           gsub("Rstr", "Restricted",.) %>%
+           gsub("Amt", "Amount", .) %>%
+           gsub("Ind", "Index", .) %>%
+           gsub("Org", "Organization", .) %>%
+           gsub("Pct", "Percentage", .) %>%
+           gsub("E O Y", "End of Year", .) %>%
+           gsub("Prmnnt", "Permanent", .),
+         readable = ifelse(!is.na(time_period), 
+                           paste(readable, time_period), 
+                           readable)) %>% 
+  select(original_variable, readable)
+
+saveRDS(readable_names, "./data/readable_names.RDS")      
+
+```
+
+## All Variables Available in Schedule D
+
+To see what variables might be of interest and are well-represented in the dataset, we can look at the variable names and the number of files that have a given variable.
+
+It may be good to get a sense for the variables that are present in the most of our files. The table below ranks the variables extracted by how many files have that variable.
+
+```{r,include = FALSE, eval=FALSE}
+
+############################################
+# FUNCTION DEVELOPMENT W/ TEST EXAMPLE
+############################################
+
+files <- dir( "./ballet_990_released_20230208",
+               full.names = TRUE)
+
+example_file <- xml2::read_xml(files[10])%>% xml_ns_strip()
+
+# look at all variable names in schedule D
+IRS990ScheduleD_vars <- example_file %>% 
+  xml_find_all("//ReturnData//IRS990ScheduleD")  %>%
+  xml_contents() %>% 
+  xml_path() 
+
+# look at variable names of children nodes of the schedule D nodes
+IRS990ScheduleD_var_children <- IRS990ScheduleD_vars %>% 
+  map(~xml_find_all(example_file,
+                    xpath = gsub("/", 
+                                 "//" ,
+                                 .x, 
+                                 fixed = TRUE) ) %>%
+        xml_children() %>% 
+        xml_path()) %>%
+  unlist()
+
+# include both first level schedule D nodes and children nodes
+vars <- c(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)
+
+```
+
+```{r}
+################################################################################
+# extract variables in the IRS990ScheduleD node from the given file
+################################################################################
+# output is a dataframe with the filename and name of each variable extracted
+
+collect_sched_d_vars <- function(input_file) {
+  example_file <- xml2::read_xml(input_file)%>% xml_ns_strip()
+
+  # look at all variable names in schedule D
+  IRS990ScheduleD_vars <- example_file %>% 
+    xml_find_all("//ReturnData//IRS990ScheduleD")  %>%
+    xml_contents() %>% 
+    xml_path() 
+  
+  # look at variable names of children nodes of the schedule D nodes
+  IRS990ScheduleD_var_children <- IRS990ScheduleD_vars %>% 
+    map(~xml_find_all(example_file,
+                      xpath = gsub("/", 
+                                   "//" ,
+                                   .x, 
+                                   fixed = TRUE) ) %>%
+          xml_children() %>% 
+          xml_path()) %>%
+    unlist()
+  
+    # include both first level schedule D nodes and children nodes
+    vars <- c(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)
+    
+    tibble(variables = vars,
+           filename = input_file)
+}
+
+# file paths in the directory
+files <- dir( "./ballet_990_released_20230208",
+               full.names = TRUE)
+
+# iterate over all files and extract variables present
+# output is a data frame with a file name column and variable name column
+all_vars <- map_df(files, collect_sched_d_vars)
+
+```
+
+```{r}
+
+##################################################
+# print data frame to show frequency of different 
+# variables in the dataset 
+##################################################
+
+# version that does not include parent node
+# interpretation is more difficult 
+all_vars %>% 
+   rename(Variable = variables) %>%
+   group_by(Variable) %>% 
+   summarize(`Number of Files` = n())  %>%
+   mutate(Variable = gsub("*.*\\/", "", Variable)) %>%
+  arrange(desc(`Number of Files`))
+
+
+# sort variables by the number of files that have a given variable
+# include parent variable for ease of interpretation
+all_vars %>% 
+   rename(Variable = variables) %>%
+   group_by(Variable) %>% 
+  # number of files that have each variable
+   summarize(files = n()) %>%
+  # split variable paths
+  #second to last element is parent, last element is variable
+   mutate(Variable = strsplit(Variable, split = "/"),
+           Parent = map_chr(Variable, ~.x[length(.x)-1]),
+           Variable = map_chr(Variable, ~.x[length(.x)])) %>%
+  select(Parent, Variable, `Number of Files` = files ) %>%
+  arrange(desc(`Number of Files`))
+
+
+```
+
