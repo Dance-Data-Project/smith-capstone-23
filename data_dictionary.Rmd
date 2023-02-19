@@ -7,10 +7,22 @@ output:
     df_print: paged
     code_folding: hide
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(xml2)
+library(rvest)
+library(kableExtra)
+```
+
+```{css, echo =FALSE}
+/* expand content instead of cutting it off*/
+
+#content{
+max-width:2300px;
+}
+
 ```
 
 ## Useful Resources for Reference
@@ -19,6 +31,153 @@ library(xml2)
 * [variable definitions w/ reference to which questions they are derived from]( http://www.irsx.info/metadata/forms.html#ReturnHeader990x)
 
 ## More Information on Variables
+
+**ScheduleD Part XII Reconciliation of Expenses per Audited Financial Statements with Expenses per Return**
+
+* `ExpensesSubtotalAmt`: question from section XII, 2e:
+  * Amounts included as total expenses according to aduited financial statements, but not included on the form 990 'Other Assets' section -- this is the sum of those expenses related to donates services and use of facilities, prior year adjustments, other losses, other. The variable is taken as the sum across these kinds of expenses.
+  * If the organization didn't get audited financial statements for the reporting year of the 990, doesn't have to do Part XI (Reconciliation of Revenue per Audited Financial Statements With Revenue per Return) or XII (Reconciliation of Expenses per Audited Financial Statements With Expenses per Return. ) receive audited financial statements for the reporting year for which it is completing this Form 990, it isn't required to complete Part XI or XII, even if it prepared Form 990 in accordance with FASB ASC 958.
+  * Total expenses according to the 990 is taken to be the sum `ExpensesSubtotalAmt` + `ExpensesNotReportedAmt` = `TotalExpensesPerForm990Amt`
+* `TotExpnsEtcAuditedFinclStmtAmt`:  Total expenses and losses according to audited financial statements
+* `TotalExpensesPerForm990Amt`: total expenses reported on form 990
+
+
+**ScheduleD Part XI Reconciliation of Revenue per Audited Financial Statements with Revenue per Return**
+
+* `RevenueSubtotalAmt`: question from Part XI Line 3, total revenue, gains, and other support per audited financial statements - amounts not included on the form 990 in Part VIII (Investments—Program Related) 
+  * This result is part of the revenue reported on the form 990. Total revenue according to the 990 is taken to be the sum `RevenueSubtotalAmt` + `RevenueNotReportedAmt`, should equal `TotalRevenuePerForm990Amt`
+* `TotalRevEtcAuditedFinclStmtAmt` 
+  * Total revenue, gains and other support per audited financial statements
+
+
+```{r testing, include=FALSE,eval=FALSE}
+
+# function development for single file 
+
+varnames <- read_html("./data/html/irs_info_xi.html") 
+
+
+content_table <- varnames %>%
+  html_element("body") %>%
+  html_table() %>%
+  select(-X1, html = X2)
+
+res <- content_table %>%
+  # put EMPTY on empty lines to have separator to split on
+  mutate(html = ifelse(html == "", "EMPTY", html)) %>%
+  # remove lines without useful information
+  filter(!grepl("div|Type", html)) %>%
+  # remove class and link
+  mutate(html = gsub('<p class=.*Variable', "<p> Variable", html),
+        html= gsub('<a href.*html\">', "", html),
+        html = gsub("</a>", "", html, fixed=TRUE)) %>%
+  pull(html) %>%
+  paste0(collapse = "") 
+
+res %>%
+  strsplit(split = "EMPTY") %>%
+  unlist() %>%
+  tibble("variable_content" = .) %>%
+  filter(grepl("Variable Name", variable_content)) %>%
+  separate(variable_content, sep = "<br>",
+           into = c("var_name", 
+                    "line_number", 
+                    "description",
+                    "xpath")) %>%
+  mutate(xpath = gsub("Xpath: |</p>", "", xpath),
+         variable = gsub(".*./", "", xpath)) %>%
+  # clean variable description
+  mutate(description = gsub("Description: ", "", description),
+         description = gsub("</p>", "", description)) %>%
+  select(-var_name)
+
+```
+
+## Variable Descriptions and Corresponding Line Numbers
+
+The IRSx site has useful information linking variable descriptions to names.
+
+```{r}
+
+# extract variable names, line numbers, and descriptions from html files
+# html files are from http://www.irsx.info/metadata/forms.html#ReturnHeader990x
+get_var_info <- function(link) {
+  
+  varnames <- read_html(link) 
+  
+    
+    
+  content_table <- varnames %>%
+    html_element("body") %>%
+    html_table() %>%
+    select(-X1, html = X2)
+  
+  res <- content_table %>%
+    # put EMPTY on empty lines to have separator to split on
+    mutate(html = ifelse(html == "", "EMPTY", html)) %>%
+    # remove lines without useful information
+    filter(!grepl("div|Type", html)) %>%
+    # remove class and link
+    mutate(html = gsub('<p class=.*Variable', "<p> Variable", html),
+          html= gsub('<a href.*html\">', "", html),
+          html = gsub("</a>", "", html, fixed=TRUE)) %>%
+    pull(html) %>%
+    paste0(collapse = "") 
+  
+  res %>%
+    strsplit(split = "EMPTY") %>%
+    unlist() %>%
+    tibble("variable_content" = .) %>%
+    filter(grepl("Variable Name", variable_content)) %>%
+    separate(variable_content, sep = "<br>",
+             into = c("var_name", 
+                      "line_number", 
+                      "description",
+                      "xpath")) %>%
+    mutate(xpath = gsub("Xpath: |</p>", "", xpath),
+           variable = gsub(".*./", "", xpath)) %>%
+    # clean variable description
+    mutate(description = gsub("Description: ", "", description),
+           description = gsub("</p>", "", description)) %>%
+    select(-var_name)
+
+}
+
+```
+
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(..., title = "") {
+  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(...) %>%
+    kbl(caption = title) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+```{r}
+
+
+# iterate through all html files in html directory and extract variable information
+variable_descriptions <- map_df(dir("./data/html", full.names= TRUE), get_var_info)
+
+saveRDS(variable_descriptions, 
+        "./data/schedule_d_variable_descriptions.RDS")
+
+variable_descriptions %>%
+  select(`Variable Name` = variable,
+         `Line Number` = line_number,
+         Description = description) %>%
+  make_table() %>%
+  scroll_box(height = "450px")
+
+
+```
 
 
 ## Reformatting Variable Names to be More Readable for Future Plots and Tables
@@ -88,19 +247,22 @@ readable_names <- tibble(original_variable = variables_no_path) %>%
          var_split = gsub("([[:upper:]])", " \\1", variable),
          # change shortened words to readable format
          readable = gsub("E I N", "EIN", var_split) %>%
-           gsub("Rstr", "Restricted",.) %>%
-           gsub("Amt", "Amount", .) %>%
-           gsub("Ind", "Index", .) %>%
-           gsub("Org", "Organization", .) %>%
-           gsub("Pct", "Percentage", .) %>%
-           gsub("E O Y", "End of Year", .) %>%
-           gsub("Prmnnt", "Permanent", .),
+             gsub("Rstr", "Restricted",.) %>%
+             gsub("Amt", "Amount", .) %>%
+             gsub("Ind", "Index", .) %>%
+             gsub("Org", "Organization", .) %>%
+             gsub("Pct", "Percentage", .) %>%
+             gsub("E O Y", "End of Year", .) %>%
+             gsub("Prmnnt", "Permanent", .) %>%
+            gsub(" Ts", " Timestamp", .),
          readable = ifelse(!is.na(time_period), 
                            paste(readable, time_period), 
                            readable)) %>% 
   select(original_variable, readable)
 
-saveRDS(readable_names, "./data/readable_names.RDS")      
+saveRDS(readable_names, "./data/readable_names.RDS") 
+
+readable_names
 
 ```
 
@@ -186,7 +348,7 @@ all_vars <- map_df(files, collect_sched_d_vars)
 
 ```
 
-```{r}
+```{r,include=FALSE}
 
 ##################################################
 # print data frame to show frequency of different 
@@ -195,14 +357,18 @@ all_vars <- map_df(files, collect_sched_d_vars)
 
 # version that does not include parent node
 # interpretation is more difficult 
-all_vars %>% 
-   rename(Variable = variables) %>%
-   group_by(Variable) %>% 
-   summarize(`Number of Files` = n())  %>%
-   mutate(Variable = gsub("*.*\\/", "", Variable)) %>%
-  arrange(desc(`Number of Files`))
+# all_vars %>% 
+#    rename(Variable = variables) %>%
+#    group_by(Variable) %>% 
+#    summarize(`Number of Files` = n())  %>%
+#    mutate(Variable = gsub("*.*\\/", "", Variable)) %>%
+#   arrange(desc(`Number of Files`))
 
+```
 
+## Table of Variables by Frequency
+
+```{r}
 # sort variables by the number of files that have a given variable
 # include parent variable for ease of interpretation
 all_vars %>% 
@@ -220,4 +386,5 @@ all_vars %>%
 
 
 ```
+
 
