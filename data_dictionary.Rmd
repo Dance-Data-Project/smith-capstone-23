@@ -54,7 +54,7 @@ max-width:2300px;
 
 # function development for single file 
 
-varnames <- read_html("./data/html/irs_info_xi.html") 
+varnames <- read_html("./data_dict_html/irs_info_xi.html") 
 
 
 content_table <- varnames %>%
@@ -164,7 +164,7 @@ make_table <- function(..., title = "") {
 
 
 # iterate through all html files in html directory and extract variable information
-variable_descriptions <- map_df(dir("./data/html", full.names= TRUE), get_var_info)
+variable_descriptions <- map_df(dir("./data_dict_html", full.names= TRUE), get_var_info)
 
 saveRDS(variable_descriptions, 
         "./data/schedule_d_variable_descriptions.RDS")
