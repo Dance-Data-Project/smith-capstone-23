@@ -122,6 +122,15 @@ filter_data_amended <- filter_data %>%
   group_by(EIN, fiscal_year) %>%
   slice_max(order_by =amended_return_filled, n = 1)
 
+max_by_date <- filter_data %>%
+  mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
+  group_by(EIN, fiscal_year) %>%
+  slice_max(order_by =ReturnDate, n = 1)
+
+# check that picking max return date is the same as picking the amended one
+all.equal(filter_data_amended, max_by_date)
+
+
 # now we have 799 - 14 = 785 observtions, as we would expect, 
 # because we only took the 14 amended ones
 nrow(filter_data_amended)
