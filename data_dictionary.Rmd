@@ -17,6 +17,7 @@ library(kableExtra)
 ```
 
 ```{css, echo =FALSE}
+
 /* expand content instead of cutting it off*/
 
 #content{
@@ -95,7 +96,7 @@ res %>%
 
 ## Variable Descriptions and Corresponding Line Numbers
 
-The IRSx site has useful information linking variable descriptions to names.
+The [IRSx site](http://www.irsx.info/metadata/forms.html#ReturnHeader990x) has useful information linking variable descriptions to names. We can also look at the exact question the variable is based on to get more context for the interpretation.
 
 ```{r}
 
@@ -105,8 +106,7 @@ get_var_info <- function(link) {
   
   varnames <- read_html(link) 
   
-    
-    
+  # read html and generate table
   content_table <- varnames %>%
     html_element("body") %>%
     html_table() %>%
@@ -122,19 +122,26 @@ get_var_info <- function(link) {
           html= gsub('<a href.*html\">', "", html),
           html = gsub("</a>", "", html, fixed=TRUE)) %>%
     pull(html) %>%
+    # paste into single string so we can split where information
+    # for each variable is on a single line rather than split across
+    # multiple lines
     paste0(collapse = "") 
   
   res %>%
     strsplit(split = "EMPTY") %>%
     unlist() %>%
+    # vector where each line corresponds to info
+    # for a particular variable
     tibble("variable_content" = .) %>%
     filter(grepl("Variable Name", variable_content)) %>%
+    # separate splits a column into multiple columns
     separate(variable_content, sep = "<br>",
              into = c("var_name", 
                       "line_number", 
                       "description",
                       "xpath")) %>%
     mutate(xpath = gsub("Xpath: |</p>", "", xpath),
+           # remove up until last /
            variable = gsub(".*./", "", xpath)) %>%
     # clean variable description
     mutate(description = gsub("Description: ", "", description),
@@ -155,7 +162,8 @@ make_table <- function(..., title = "") {
    as_tibble(...) %>%
     kbl(caption = title) %>%
     kable_material() %>%
-    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+    row_spec(row=0, background = "#43494C" ,
+             color = "white", bold = TRUE)
 }
 
 ```
@@ -164,11 +172,14 @@ make_table <- function(..., title = "") {
 
 
 # iterate through all html files in html directory and extract variable information
-variable_descriptions <- map_df(dir("./data_dict_html", full.names= TRUE), get_var_info)
+variable_descriptions <- map_df(
+  dir("./data_dict_html", full.names= TRUE),
+  get_var_info)
 
 saveRDS(variable_descriptions, 
         "./data/schedule_d_variable_descriptions.RDS")
 
+# make table
 variable_descriptions %>%
   select(`Variable Name` = variable,
          `Line Number` = line_number,
@@ -232,6 +243,8 @@ variables_no_path <- c("ReturnTs",
                        "ReturnTypeCd"
 )
 
+
+# generate readable names by reformatting abbreviations and time period
 
 readable_names <- tibble(original_variable = variables_no_path) %>%
   # add clearer interpretation of the time period given
@@ -369,6 +382,7 @@ all_vars <- map_df(files, collect_sched_d_vars)
 ## Table of Variables by Frequency
 
 ```{r}
+
 # sort variables by the number of files that have a given variable
 # include parent variable for ease of interpretation
 all_vars %>% 

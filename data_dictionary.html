@@ -2947,51 +2947,59 @@ statements</li>
 </div>
 <div id="variable-descriptions-and-corresponding-line-numbers" class="section level2">
 <h2>Variable Descriptions and Corresponding Line Numbers</h2>
-<p>The IRSx site has useful information linking variable descriptions to
-names.</p>
+<p>The <a href="http://www.irsx.info/metadata/forms.html#ReturnHeader990x">IRSx
+site</a> has useful information linking variable descriptions to names.
+We can also look at the exact question the variable is based on to get
+more context for the interpretation.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract variable names, line numbers, and descriptions from html files</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># html files are from http://www.irsx.info/metadata/forms.html#ReturnHeader990x</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>get_var_info <span class="ot">&lt;-</span> <span class="cf">function</span>(link) {</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  varnames <span class="ot">&lt;-</span> <span class="fu">read_html</span>(link) </span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  content_table <span class="ot">&lt;-</span> varnames <span class="sc">%&gt;%</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_element</span>(<span class="st">&quot;body&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>X1, <span class="at">html =</span> X2)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> content_table <span class="sc">%&gt;%</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># put EMPTY on empty lines to have separator to split on</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">ifelse</span>(html <span class="sc">==</span> <span class="st">&quot;&quot;</span>, <span class="st">&quot;EMPTY&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove lines without useful information</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;div|Type&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove class and link</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;p class=.*Variable&#39;</span>, <span class="st">&quot;&lt;p&gt; Variable&quot;</span>, html),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">html=</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;a href.*html</span><span class="sc">\&quot;</span><span class="st">&gt;&#39;</span>, <span class="st">&quot;&quot;</span>, html),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/a&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, html, <span class="at">fixed=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(html) <span class="sc">%&gt;%</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="at">collapse =</span> <span class="st">&quot;&quot;</span>) </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  res <span class="sc">%&gt;%</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">strsplit</span>(<span class="at">split =</span> <span class="st">&quot;EMPTY&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="st">&quot;variable_content&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;Variable Name&quot;</span>, variable_content)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(variable_content, <span class="at">sep =</span> <span class="st">&quot;&lt;br&gt;&quot;</span>,</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>             <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;var_name&quot;</span>, </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;line_number&quot;</span>, </span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;description&quot;</span>,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;xpath&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">xpath =</span> <span class="fu">gsub</span>(<span class="st">&quot;Xpath: |&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, xpath),</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>           <span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;.*./&quot;</span>, <span class="st">&quot;&quot;</span>, xpath)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># clean variable description</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;Description: &quot;</span>, <span class="st">&quot;&quot;</span>, description),</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>           <span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, description)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>var_name)</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># read html and generate table</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  content_table <span class="ot">&lt;-</span> varnames <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_element</span>(<span class="st">&quot;body&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>X1, <span class="at">html =</span> X2)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> content_table <span class="sc">%&gt;%</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># put EMPTY on empty lines to have separator to split on</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">ifelse</span>(html <span class="sc">==</span> <span class="st">&quot;&quot;</span>, <span class="st">&quot;EMPTY&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove lines without useful information</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;div|Type&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove class and link</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;p class=.*Variable&#39;</span>, <span class="st">&quot;&lt;p&gt; Variable&quot;</span>, html),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">html=</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;a href.*html</span><span class="sc">\&quot;</span><span class="st">&gt;&#39;</span>, <span class="st">&quot;&quot;</span>, html),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/a&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, html, <span class="at">fixed=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(html) <span class="sc">%&gt;%</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># paste into single string so we can split where information</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for each variable is on a single line rather than split across</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># multiple lines</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="at">collapse =</span> <span class="st">&quot;&quot;</span>) </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  res <span class="sc">%&gt;%</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">strsplit</span>(<span class="at">split =</span> <span class="st">&quot;EMPTY&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># vector where each line corresponds to info</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for a particular variable</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="st">&quot;variable_content&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;Variable Name&quot;</span>, variable_content)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># separate splits a column into multiple columns</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(variable_content, <span class="at">sep =</span> <span class="st">&quot;&lt;br&gt;&quot;</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;var_name&quot;</span>, </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;line_number&quot;</span>, </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;description&quot;</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;xpath&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">xpath =</span> <span class="fu">gsub</span>(<span class="st">&quot;Xpath: |&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, xpath),</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>           <span class="co"># remove up until last /</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>           <span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;.*./&quot;</span>, <span class="st">&quot;&quot;</span>, xpath)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># clean variable description</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;Description: &quot;</span>, <span class="st">&quot;&quot;</span>, description),</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, description)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>var_name)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make kable table with consistent formatting</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>make_table <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">title =</span> <span class="st">&quot;&quot;</span>) {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  title <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;center&gt;&lt;span style = &#39;font-size:150%;color:black&#39;&gt;&lt;b&gt;&quot;</span>,</span>
@@ -3000,20 +3008,24 @@ names.</p>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">as_tibble</span>(...) <span class="sc">%&gt;%</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kbl</span>(<span class="at">caption =</span> title) <span class="sc">%&gt;%</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">row_spec</span>(<span class="at">row=</span><span class="dv">0</span>, <span class="at">background =</span> <span class="st">&quot;#43494C&quot;</span> , <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">row_spec</span>(<span class="at">row=</span><span class="dv">0</span>, <span class="at">background =</span> <span class="st">&quot;#43494C&quot;</span> ,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate through all html files in html directory and extract variable information</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="ot">&lt;-</span> <span class="fu">map_df</span>(<span class="fu">dir</span>(<span class="st">&quot;./data_dict_html&quot;</span>, <span class="at">full.names=</span> <span class="cn">TRUE</span>), get_var_info)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(variable_descriptions, </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;./data/schedule_d_variable_descriptions.RDS&quot;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="sc">%&gt;%</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Variable Name</span><span class="st">`</span> <span class="ot">=</span> variable,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Line Number</span><span class="st">`</span> <span class="ot">=</span> line_number,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">Description =</span> description) <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;450px&quot;</span>)</span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="ot">&lt;-</span> <span class="fu">map_df</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir</span>(<span class="st">&quot;./data_dict_html&quot;</span>, <span class="at">full.names=</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  get_var_info)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(variable_descriptions, </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;./data/schedule_d_variable_descriptions.RDS&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># make table</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Variable Name</span><span class="st">`</span> <span class="ot">=</span> variable,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Line Number</span><span class="st">`</span> <span class="ot">=</span> line_number,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Description =</span> description) <span class="sc">%&gt;%</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;450px&quot;</span>)</span></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; ">
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
@@ -3907,36 +3919,38 @@ Tables</h2>
 <span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>readable_names <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">original_variable =</span> variables_no_path) <span class="sc">%&gt;%</span></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add clearer interpretation of the time period given</span></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_period =</span> <span class="fu">case_when</span>(</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM1&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(1 year before current)&quot;</span>,</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(2 years before current)&quot;</span>,</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(3 years before current)&quot;</span>,</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CY&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(current year)&quot;</span></span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="co"># remove time period since separate column holds that information</span></span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;CYM1|CYM2|CYM3|CYM4|CY&quot;</span>, <span class="st">&quot;&quot;</span>, original_variable),</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>         <span class="co"># split into words where there is capitalization</span></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>         <span class="at">var_split =</span> <span class="fu">gsub</span>(<span class="st">&quot;([[:upper:]])&quot;</span>, <span class="st">&quot; </span><span class="sc">\\</span><span class="st">1&quot;</span>, variable),</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>         <span class="co"># change shortened words to readable format</span></span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">gsub</span>(<span class="st">&quot;E I N&quot;</span>, <span class="st">&quot;EIN&quot;</span>, var_split) <span class="sc">%&gt;%</span></span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Rstr&quot;</span>, <span class="st">&quot;Restricted&quot;</span>,.) <span class="sc">%&gt;%</span></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Amt&quot;</span>, <span class="st">&quot;Amount&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Ind&quot;</span>, <span class="st">&quot;Index&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Org&quot;</span>, <span class="st">&quot;Organization&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Pct&quot;</span>, <span class="st">&quot;Percentage&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;E O Y&quot;</span>, <span class="st">&quot;End of Year&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Prmnnt&quot;</span>, <span class="st">&quot;Permanent&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>            <span class="fu">gsub</span>(<span class="st">&quot; Ts&quot;</span>, <span class="st">&quot; Timestamp&quot;</span>, .),</span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(time_period), </span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">paste</span>(readable, time_period), </span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>                           readable)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(original_variable, readable)</span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(readable_names, <span class="st">&quot;./data/readable_names.RDS&quot;</span>) </span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co"># generate readable names by reformatting abbreviations and time period</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>readable_names <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">original_variable =</span> variables_no_path) <span class="sc">%&gt;%</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add clearer interpretation of the time period given</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_period =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM1&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(1 year before current)&quot;</span>,</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(2 years before current)&quot;</span>,</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(3 years before current)&quot;</span>,</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CY&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(current year)&quot;</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="co"># remove time period since separate column holds that information</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;CYM1|CYM2|CYM3|CYM4|CY&quot;</span>, <span class="st">&quot;&quot;</span>, original_variable),</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>         <span class="co"># split into words where there is capitalization</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>         <span class="at">var_split =</span> <span class="fu">gsub</span>(<span class="st">&quot;([[:upper:]])&quot;</span>, <span class="st">&quot; </span><span class="sc">\\</span><span class="st">1&quot;</span>, variable),</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>         <span class="co"># change shortened words to readable format</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">gsub</span>(<span class="st">&quot;E I N&quot;</span>, <span class="st">&quot;EIN&quot;</span>, var_split) <span class="sc">%&gt;%</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Rstr&quot;</span>, <span class="st">&quot;Restricted&quot;</span>,.) <span class="sc">%&gt;%</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Amt&quot;</span>, <span class="st">&quot;Amount&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Ind&quot;</span>, <span class="st">&quot;Index&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Org&quot;</span>, <span class="st">&quot;Organization&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Pct&quot;</span>, <span class="st">&quot;Percentage&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;E O Y&quot;</span>, <span class="st">&quot;End of Year&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Prmnnt&quot;</span>, <span class="st">&quot;Permanent&quot;</span>, .) <span class="sc">%&gt;%</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>            <span class="fu">gsub</span>(<span class="st">&quot; Ts&quot;</span>, <span class="st">&quot; Timestamp&quot;</span>, .),</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(time_period), </span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">paste</span>(readable, time_period), </span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>                           readable)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(original_variable, readable)</span>
 <span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>readable_names</span></code></pre></div>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(readable_names, <span class="st">&quot;./data/readable_names.RDS&quot;</span>) </span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>readable_names</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["original_variable"],"name":[1],"type":["chr"],"align":["left"]},{"label":["readable"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"ReturnTs","2":"Return Timestamp"},{"1":"EIN","2":"EIN"},{"1":"DonorRstrOrQuasiEndowmentsInd","2":"Donor Restricted Or Quasi Endowments Index"},{"1":"CYBeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYInvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYOtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYEndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"CYM1BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (1 year before current)"},{"1":"CYM1ContributionsAmt","2":"Contributions Amount (1 year before current)"},{"1":"CYM1InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (1 year before current)"},{"1":"CYM1OtherExpendituresAmt","2":"Other Expenditures Amount (1 year before current)"},{"1":"CYM1EndYearBalanceAmt","2":"End Year Balance Amount (1 year before current)"},{"1":"CYM2BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYM2ContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYM2InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYM2OtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYM2EndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"CYM3BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (2 years before current)"},{"1":"CYM3ContributionsAmt","2":"Contributions Amount (2 years before current)"},{"1":"CYM3InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (2 years before current)"},{"1":"CYM3OtherExpendituresAmt","2":"Other Expenditures Amount (2 years before current)"},{"1":"CYM3EndYearBalanceAmt","2":"End Year Balance Amount (2 years before current)"},{"1":"CYM4BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYM4ContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYM4InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYM4OtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYM4EndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"BoardDesignatedBalanceEOYPct","2":"Board Designated Balance End of Year Percentage"},{"1":"PrmnntEndowmentBalanceEOYPct","2":"Permanent Endowment Balance End of Year Percentage"},{"1":"TermEndowmentBalanceEOYPct","2":"Term Endowment Balance End of Year Percentage"},{"1":"EndowmentsHeldUnrelatedOrgInd","2":"Endowments Held Unrelated Organization Index"},{"1":"EndowmentsHeldRelatedOrgInd","2":"Endowments Held Related Organization Index"},{"1":"AmendedReturnInd","2":"Amended Return Index"},{"1":"ReturnTypeCd","2":"Return Type Cd"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
