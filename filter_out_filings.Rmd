@@ -116,12 +116,13 @@ companies_mult_filings %>%
 # 2 times in a single fiscal year
 filter_data %>% nrow() 
 
-
+# take the amended version
 filter_data_amended <- filter_data %>%
   mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
   group_by(EIN, fiscal_year) %>%
   slice_max(order_by =amended_return_filled, n = 1)
 
+# take the most recent return date
 max_by_date <- filter_data %>%
   mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
   group_by(EIN, fiscal_year) %>%
