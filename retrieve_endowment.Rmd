@@ -8,7 +8,7 @@ output:
     code_folding: hide
 ---
 
-```{r}
+```{r, message = FALSE}
 
 library(tidyverse)
 library(xml2)
@@ -16,12 +16,15 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 
+knitr::opts_chunk$set(message = FALSE)
 
 ```
 
 
 ## Extracting Endowments  
 ```{r extracting endowment information}
+
+# For variable information, see https://www.irs.gov/pub/irs-pdf/i990sd.pdf Page 4 Part V
 
 ##########################################################
 # ITERATE THROUGH ALL FILES AND ENDOWMENT  VARIABLES
@@ -139,20 +142,20 @@ get_endowment <- function(filename) {
 }
 ```
 
-```{r}
-test_path <- "nycb_fy2020.xml"
-test <- get_endowment(test_path)
-```
-
 > An important question: Does ZERO in a boolean situation mean false or mean NA?  There are cases where 1s and 0s are coded for T/F.
 
-```{r}
+```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
 files <- dir( "./ballet_990_released_20230208",
               full.names = TRUE)
 
 endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
+
+## Example Table of 0s and 1s as T/Fs
+endowment_data %>% 
+  pull(EndowmentsHeldRelatedOrgInd) %>% 
+  unique()
 
 ## Adjusting data type
 endowment_data <- endowment_data %>%
@@ -197,7 +200,7 @@ Not all those that fill out schedule D do so for endowment, so I focused on Ques
 ```{r}
 ##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
 ##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
-fill_d <- endowment_data %>%
+filed_schd_d <- endowment_data %>%
  mutate(FilledSchD = ifelse(rowSums(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct), na.rm = TRUE) != 0, TRUE, FALSE)) %>%
   select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, FilledSchD)
 
@@ -209,7 +212,7 @@ endowment_data %>%
   kable_material()
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
-fill_d %>%
+filed_schd_d %>%
   group_by(DonorRstrOrQuasiEndowmentsInd, FilledSchD) %>%
   summarize(n = n()) %>%
   kbl(caption = "990 Q10 answer and If They Filled out Schedule D") %>%
@@ -217,3 +220,4 @@ fill_d %>%
 ```
 
 > Editor's note: Prior to filtering the data for 990T and amended files, there were ones that marked Q10 as true, approximately 20 of them.  
+> Secondary Note: once the filtering updates, these tables will change.
