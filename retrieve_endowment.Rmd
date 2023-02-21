@@ -19,20 +19,32 @@ knitr::opts_chunk$set(message = FALSE)
 
 ```
 
-> An important question: Does ZERO in a boolean situation mean false or mean NA?  There are cases where 1s and 0s are coded for T/F.
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(..., title = "") {
+  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(...) %>%
+    kbl(caption = title) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+> Note: Zero was coded as false and One as true for Checkbox questions.
+
 
 ```{r retrieving endowment info}
 endowment_data <- read_rds("./data/endowment_filter_data_990.RDS")
-
-## Example Table of 0s and 1s as T/Fs
-endowment_data %>% 
-  pull(EndowmentsHeldRelatedOrgInd) %>% 
-  unique()
 ```
 
 
 ```{r}
-##Graphing difference between beginning and end periods
+##Graphing difference between beginning and end periods  
+
 endowment_data %>%
   select(ReturnDate, EIN, CYBeginningYearBalanceAmt, CYEndYearBalanceAmt) %>%
   pivot_longer(cols = c(CYBeginningYearBalanceAmt, CYEndYearBalanceAmt), names_to = "Period", values_to = "Balance") %>%
@@ -49,32 +61,57 @@ endowment_data %>%
   scale_y_continuous(labels = scales::label_dollar())
 ```
 
+## Which Years and Companies Filled out Endowments   
+```{r}
+##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
+##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
+filed_schd_d <- endowment_data %>%
+ mutate(Filled_Sch_D = ifelse(rowSums(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct), na.rm = TRUE) != 0, "Yes", "No")) %>%
+  select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, Filled_Sch_D) %>%
+  mutate(Need_Sch_D = case_when(is.na(DonorRstrOrQuasiEndowmentsInd) ~ "NA",
+                                DonorRstrOrQuasiEndowmentsInd == TRUE ~ "Yes",
+                                DonorRstrOrQuasiEndowmentsInd == FALSE ~ "No"))
+```
+
+```{r}
+filed_schd_d %>%
+  select(ReturnDate, EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  group_by(EIN) %>%
+  summarize(num_times_fil_sche_D = n()) %>%
+  arrange(desc(num_times_fil_sche_D)) %>%
+  make_table(title = "EINs that filled out Schedule D")
+```
+
+There are 47 EINs which, at one point, have filled out Schedule D. 
+
+```{r}
+filed_schd_d %>%
+  select(ReturnDate, EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  mutate(year = substr(ReturnDate, 1, 4)) %>%
+  group_by(year) %>%
+  summarize(num_sch_d_in_year = n()) %>%
+  arrange(desc(year)) %>%
+  make_table(title = "Years with an EIN filled out")
+```
+
 
 ## Determining Which Needed to File Schedule D for Endowment
 
 Not all those that fill out schedule D do so for endowment, so I focused on Question 10 "Did the organization, directly or through a related organization, hold assets in temporarily restricted endowments, permanent endowments, or quasi endowments?  If "yes," complete Schedule D, Part V".  
 
 ```{r}
-##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
-##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
-filed_schd_d <- endowment_data %>%
- mutate(FilledSchD = ifelse(rowSums(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct), na.rm = TRUE) != 0, TRUE, FALSE)) %>%
-  select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, FilledSchD)
-
 ##Counting those that needed to fill schedule D
-endowment_data %>%
-  group_by(DonorRstrOrQuasiEndowmentsInd) %>%
+filed_schd_d %>%
+  group_by(Need_Sch_D) %>%
   summarize(n = n()) %>%
-  kbl(caption = "Total EINs checked YES on Q10") %>%
-  kable_material()
+  make_table(title = "Total EINs checked YES on Q10")
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
 filed_schd_d %>%
-  group_by(DonorRstrOrQuasiEndowmentsInd, FilledSchD) %>%
+  group_by(Need_Sch_D, Filled_Sch_D) %>%
   summarize(n = n()) %>%
-  kbl(caption = "990 Q10 answer and If They Filled out Schedule D") %>%
-  kable_material()
+  make_table(title = "990 Q10 answer and If They Filled out Schedule D")
 ```
 
-> Editor's note: Prior to filtering the data for 990T and amended files, there were ones that marked Q10 as true, approximately 20 of them.  
-> Secondary Note: once the filtering updates, these tables will change.
