@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 ```{css,echo=FALSE}
 
-\\ CSS for formatting of the knitted html file; changing default colors of readthedown
+/* CSS for formatting of the knitted html file; changing default colors of readthedown */
 
 #sidebar h2 { background: #3B5561 !important;}
 #main .nav-pills > li.active > a,
@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6, legend {
     background-color: #3B5561;
 }
 
-// expand content to screenwidth rather than cutting it off 
+/* expand content to screenwidth rather than cutting it off */
 #content{
 max-width:2300px;
 }
