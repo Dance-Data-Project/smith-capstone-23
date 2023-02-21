@@ -321,11 +321,6 @@ files <- dir( "./ballet_990_released_20230208",
 endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
 
-## Example Table of 0s and 1s as T/Fs
-endowment_data %>% 
-  pull(EndowmentsHeldRelatedOrgInd) %>% 
-  unique()
-
 ##Retriving Ts and EINs for filtered data 
 filter_ids <- filter_data %>%
   select(ReturnTs, EIN)
