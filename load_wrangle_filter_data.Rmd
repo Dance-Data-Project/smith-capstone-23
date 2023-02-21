@@ -6,6 +6,10 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
 ---
 
 By the end of this file, you should have three RDS's:  
