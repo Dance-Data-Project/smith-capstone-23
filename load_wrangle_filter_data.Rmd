@@ -169,4 +169,21 @@ saveRDS(all_data, "./data/data_990.RDS")
 ```
 
 
+# Filtering the metadata table 
+
+```{r, filtering}
+## Filtering for most recent version, 
+filter_data <- all_data %>%
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
+  mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
+  group_by(EIN, fiscal_year) %>%
+  slice_max(order_by =amended_return_filled, n = 1) %>%
+  ungroup()
+```
+
+```{r}
+## Saving data
+saveRDS(filter_data, "./data/data_filter_990.RDS")
+```
+
 
