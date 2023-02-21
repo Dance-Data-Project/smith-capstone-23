@@ -58,6 +58,9 @@ library(forcats)
 
 ```
 
+> NEED TO LOAD THE DATA IN (FILTERED DATA ONLY THO)  
+
+
 # 1. Filings per Year
 
 ## Filings by Fiscal Year
