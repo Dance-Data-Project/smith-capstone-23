@@ -86,8 +86,6 @@ companies_mult_filings <- filter_data %>%
 
 companies_mult_filings %>%
   filter(form_was_amended != "Amended Once")
-
-
 ```
 
 ```{r}
