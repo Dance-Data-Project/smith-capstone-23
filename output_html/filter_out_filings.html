@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="generator" content="pandoc" />
 
-        <meta name="author" content="Quinn White" />
+        <meta name="author" content="Rose Evard" />
     
-        <meta name="date" content="2023-02-19" />
+        <meta name="date" content="2023-02-21" />
     
-    <title>Data Dictionary</title>
+    <title>Filtering out Filings</title>
 
         <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2845,32 +2845,27 @@ margin-left: 0 !important;
    </div>
    
         
-      <h1 class="title">Data Dictionary</h1>
+      <h1 class="title">Filtering out Filings</h1>
       
          <!-- readthedown authors -->
    <div id="sidebar">
-    <h2><a href="#content">Data Dictionary</a></h2>
+    <h2><a href="#content">Filtering out Filings</a></h2>
     <div id="toc">
       <ul>
-      <li><a href="#useful-resources-for-reference" id="toc-useful-resources-for-reference">Useful Resources for
-      Reference</a></li>
-      <li><a href="#more-information-on-variables" id="toc-more-information-on-variables">More Information on
-      Variables</a></li>
-      <li><a href="#variable-descriptions-and-corresponding-line-numbers" id="toc-variable-descriptions-and-corresponding-line-numbers">Variable
-      Descriptions and Corresponding Line Numbers</a></li>
-      <li><a href="#reformatting-variable-names-to-be-more-readable-for-future-plots-and-tables" id="toc-reformatting-variable-names-to-be-more-readable-for-future-plots-and-tables">Reformatting
-      Variable Names to be More Readable for Future Plots and
-      Tables</a></li>
-      <li><a href="#all-variables-available-in-schedule-d" id="toc-all-variables-available-in-schedule-d">All Variables
-      Available in Schedule D</a></li>
-      <li><a href="#table-of-variables-by-frequency" id="toc-table-of-variables-by-frequency">Table of Variables by
-      Frequency</a></li>
+      <li><a href="#filtering-amended-990s-and-990t" id="toc-filtering-amended-990s-and-990t">Filtering Amended 990s
+      and 990T</a></li>
+      <li><a href="#companies-with-multiple-filings-in-a-fiscal-year" id="toc-companies-with-multiple-filings-in-a-fiscal-year">Companies
+      with Multiple Filings in a Fiscal Year</a></li>
+      <li><a href="#detecting-groups-who-changed-fiscal-year" id="toc-detecting-groups-who-changed-fiscal-year">Detecting Groups
+      who Changed Fiscal Year</a></li>
+      <li><a href="#investigating-single-short-fiscal-year" id="toc-investigating-single-short-fiscal-year">Investigating
+      single short fiscal year</a></li>
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
-                  <p class="author"><span class="glyphicon glyphicon-user"></span> Quinn
-White</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-19</p>
+                  <p class="author"><span class="glyphicon glyphicon-user"></span> Rose
+Evard</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-21</p>
           </div>
    </div>
      
@@ -2886,151 +2881,70 @@ White</p>
 max-width:2300px;
 }
 </style>
-<div id="useful-resources-for-reference" class="section level2">
-<h2>Useful Resources for Reference</h2>
-<ul>
-<li><a href="https://www.irs.gov/pub/irs-pdf/f990sd.pdf">example
-form</a></li>
-<li><a href="http://www.irsx.info/metadata/forms.html#ReturnHeader990x">variable
-definitions w/ reference to which questions they are derived
-from</a></li>
-</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make kable table with consistent formatting</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>make_table <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">title =</span> <span class="st">&quot;&quot;</span>) {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  title <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;center&gt;&lt;span style = &#39;font-size:150%;color:black&#39;&gt;&lt;b&gt;&quot;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                  title,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;&lt;/span&gt;&lt;/b&gt;&lt;center&gt;&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">as_tibble</span>(...) <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kbl</span>(<span class="at">caption =</span> title) <span class="sc">%&gt;%</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">row_spec</span>(<span class="at">row=</span><span class="dv">0</span>, <span class="at">background =</span> <span class="st">&quot;#43494C&quot;</span> , <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div id="filtering-amended-990s-and-990t" class="section level2">
+<h2>Filtering Amended 990s and 990T</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Retain only 990, 990 EZ&#39;s that are not marked as amended</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>filter_data <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ReturnTypeCd <span class="sc">==</span> <span class="st">&quot;990&quot;</span> <span class="sc">|</span> ReturnTypeCd <span class="sc">==</span> <span class="st">&quot;990EZ&quot;</span>)</span></code></pre></div>
 </div>
-<div id="more-information-on-variables" class="section level2">
-<h2>More Information on Variables</h2>
-<p><strong>ScheduleD Part XII Reconciliation of Expenses per Audited
-Financial Statements with Expenses per Return</strong></p>
-<ul>
-<li><code>ExpensesSubtotalAmt</code>: question from section XII, 2e:
-<ul>
-<li>Amounts included as total expenses according to aduited financial
-statements, but not included on the form 990 ‘Other Assets’ section –
-this is the sum of those expenses related to donates services and use of
-facilities, prior year adjustments, other losses, other. The variable is
-taken as the sum across these kinds of expenses.</li>
-<li>If the organization didn’t get audited financial statements for the
-reporting year of the 990, doesn’t have to do Part XI (Reconciliation of
-Revenue per Audited Financial Statements With Revenue per Return) or XII
-(Reconciliation of Expenses per Audited Financial Statements With
-Expenses per Return. ) receive audited financial statements for the
-reporting year for which it is completing this Form 990, it isn’t
-required to complete Part XI or XII, even if it prepared Form 990 in
-accordance with FASB ASC 958.</li>
-<li>Total expenses according to the 990 is taken to be the sum
-<code>ExpensesSubtotalAmt</code> + <code>ExpensesNotReportedAmt</code> =
-<code>TotalExpensesPerForm990Amt</code></li>
-</ul></li>
-<li><code>TotExpnsEtcAuditedFinclStmtAmt</code>: Total expenses and
-losses according to audited financial statements</li>
-<li><code>TotalExpensesPerForm990Amt</code>: total expenses reported on
-form 990</li>
-</ul>
-<p><strong>ScheduleD Part XI Reconciliation of Revenue per Audited
-Financial Statements with Revenue per Return</strong></p>
-<ul>
-<li><code>RevenueSubtotalAmt</code>: question from Part XI Line 3, total
-revenue, gains, and other support per audited financial statements -
-amounts not included on the form 990 in Part VIII (Investments—Program
-Related)
-<ul>
-<li>This result is part of the revenue reported on the form 990. Total
-revenue according to the 990 is taken to be the sum
-<code>RevenueSubtotalAmt</code> + <code>RevenueNotReportedAmt</code>,
-should equal <code>TotalRevenuePerForm990Amt</code></li>
-</ul></li>
-<li><code>TotalRevEtcAuditedFinclStmtAmt</code>
-<ul>
-<li>Total revenue, gains and other support per audited financial
-statements</li>
-</ul></li>
-</ul>
+<div id="companies-with-multiple-filings-in-a-fiscal-year" class="section level2">
+<h2>Companies with Multiple Filings in a Fiscal Year</h2>
+<p>There are 28 companies that have multiple filings in a year. No
+company had more than 2 filings for a given fiscal year.</p>
+<p>Additionally, in cases where there were 2 filings, one was always an
+amended filing, as we would expect.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check if one of the filings was amended for </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># every company that had multiple filings  </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>companies_mult_filings <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(AmendedReturnInd, EIN, n, ReturnDate) <span class="sc">%&gt;%</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n), EIN, fiscal_year)  <span class="sc">%&gt;%</span> </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">filled_out_ammended_total_for_year =</span> <span class="fu">sum</span>(amended_return_filled)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">form_was_amended =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    filled_out_ammended_total_for_year <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Amended Once&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    filled_out_ammended_total_for_year <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">&quot;Not Amended&quot;</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    filled_out_ammended_total_for_year <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Amended More than Once&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n), EIN, fiscal_year, AmendedReturnInd) <span class="sc">%&gt;%</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(amended_return_filled, filled_out_ammended_total_for_year))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r fold-show"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>companies_mult_filings <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(form_was_amended <span class="sc">!=</span> <span class="st">&quot;Amended Once&quot;</span>)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["fiscal_year"],"name":[1],"type":["fct"],"align":["left"]},{"label":["AmendedReturnInd"],"name":[2],"type":["chr"],"align":["left"]},{"label":["EIN"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["ReturnDate"],"name":[5],"type":["date"],"align":["right"]},{"label":["form_was_amended"],"name":[6],"type":["chr"],"align":["left"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div id="variable-descriptions-and-corresponding-line-numbers" class="section level2">
-<h2>Variable Descriptions and Corresponding Line Numbers</h2>
-<p>The <a href="http://www.irsx.info/metadata/forms.html#ReturnHeader990x">IRSx
-site</a> has useful information linking variable descriptions to names.
-We can also look at the exact question the variable is based on to get
-more context for the interpretation.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract variable names, line numbers, and descriptions from html files</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># html files are from http://www.irsx.info/metadata/forms.html#ReturnHeader990x</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>get_var_info <span class="ot">&lt;-</span> <span class="cf">function</span>(link) {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  varnames <span class="ot">&lt;-</span> <span class="fu">read_html</span>(link) </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># read html and generate table</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  content_table <span class="ot">&lt;-</span> varnames <span class="sc">%&gt;%</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_element</span>(<span class="st">&quot;body&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">html_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>X1, <span class="at">html =</span> X2)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> content_table <span class="sc">%&gt;%</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># put EMPTY on empty lines to have separator to split on</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">ifelse</span>(html <span class="sc">==</span> <span class="st">&quot;&quot;</span>, <span class="st">&quot;EMPTY&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove lines without useful information</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;div|Type&quot;</span>, html)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove class and link</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;p class=.*Variable&#39;</span>, <span class="st">&quot;&lt;p&gt; Variable&quot;</span>, html),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">html=</span> <span class="fu">gsub</span>(<span class="st">&#39;&lt;a href.*html</span><span class="sc">\&quot;</span><span class="st">&gt;&#39;</span>, <span class="st">&quot;&quot;</span>, html),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">html =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/a&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, html, <span class="at">fixed=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(html) <span class="sc">%&gt;%</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># paste into single string so we can split where information</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for each variable is on a single line rather than split across</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># multiple lines</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="at">collapse =</span> <span class="st">&quot;&quot;</span>) </span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  res <span class="sc">%&gt;%</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">strsplit</span>(<span class="at">split =</span> <span class="st">&quot;EMPTY&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># vector where each line corresponds to info</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for a particular variable</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="st">&quot;variable_content&quot;</span> <span class="ot">=</span> .) <span class="sc">%&gt;%</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;Variable Name&quot;</span>, variable_content)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># separate splits a column into multiple columns</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">separate</span>(variable_content, <span class="at">sep =</span> <span class="st">&quot;&lt;br&gt;&quot;</span>,</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>             <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;var_name&quot;</span>, </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;line_number&quot;</span>, </span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;description&quot;</span>,</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;xpath&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">xpath =</span> <span class="fu">gsub</span>(<span class="st">&quot;Xpath: |&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, xpath),</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>           <span class="co"># remove up until last /</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>           <span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;.*./&quot;</span>, <span class="st">&quot;&quot;</span>, xpath)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># clean variable description</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;Description: &quot;</span>, <span class="st">&quot;&quot;</span>, description),</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">description =</span> <span class="fu">gsub</span>(<span class="st">&quot;&lt;/p&gt;&quot;</span>, <span class="st">&quot;&quot;</span>, description)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>var_name)</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make kable table with consistent formatting</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>make_table <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">title =</span> <span class="st">&quot;&quot;</span>) {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  title <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;center&gt;&lt;span style = &#39;font-size:150%;color:black&#39;&gt;&lt;b&gt;&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                  title,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;&lt;/span&gt;&lt;/b&gt;&lt;center&gt;&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">as_tibble</span>(...) <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kbl</span>(<span class="at">caption =</span> title) <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">row_spec</span>(<span class="at">row=</span><span class="dv">0</span>, <span class="at">background =</span> <span class="st">&quot;#43494C&quot;</span> ,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate through all html files in html directory and extract variable information</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="ot">&lt;-</span> <span class="fu">map_df</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir</span>(<span class="st">&quot;./data_dict_html&quot;</span>, <span class="at">full.names=</span> <span class="cn">TRUE</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  get_var_info)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(variable_descriptions, </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;./data/schedule_d_variable_descriptions.RDS&quot;</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># make table</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>variable_descriptions <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Variable Name</span><span class="st">`</span> <span class="ot">=</span> variable,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Line Number</span><span class="st">`</span> <span class="ot">=</span> line_number,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Description =</span> description) <span class="sc">%&gt;%</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;450px&quot;</span>)</span></code></pre></div>
-<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; ">
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># table showing companies with multiple filings per year</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>companies_mult_filings <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Fiscal Year</span><span class="st">`</span> <span class="ot">=</span> fiscal_year,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Amended</span><span class="st">`</span> <span class="ot">=</span> AmendedReturnInd,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>         EIN, </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Form was Amended</span><span class="st">`</span> <span class="ot">=</span> form_was_amended,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Return Date</span><span class="st">`</span> <span class="ot">=</span> ReturnDate,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>         <span class="st">`</span><span class="at">Number of Filings&lt;br&gt;for Fiscal Year</span><span class="st">`</span> <span class="ot">=</span> n</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;Companies with Multiple Filings in a Fiscal Year&quot;</span> ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;400px&quot;</span>)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; ">
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 <center>
-<span style="font-size:150%;color:black"><b></b></span>
+<span style="font-size:150%;color:black"><b>Companies with Multiple
+Filings in a Fiscal Year</b></span>
 <center>
 </center>
 </center>
@@ -3038,994 +2952,883 @@ more context for the interpretation.</p>
 <thead>
 <tr>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
-Variable Name
+Fiscal Year
 </th>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
-Line Number
+Amended
 </th>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
-Description
+EIN
+</th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
+Form was Amended
+</th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
+Return Date
+</th>
+<th style="text-align:right;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
+Number of Filings&lt;br&gt;for Fiscal Year
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
-DonorAdvisedFundsHeldCnt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part I Line 1 Column (a)
+X
 </td>
 <td style="text-align:left;">
-Enter the total number of donor advised funds maintained at the end of
-the tax year
+020569320
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-FundsAndOtherAccountsHeldCnt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 1 Column (b)
-</td>
-<td style="text-align:left;">
-Enter the total number of separate accounts for participating donors
-where donors have the right to provide advice on the use or distribution
-of funds owned at the end of the tax year
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DonorAdvisedFundsContriAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 2 Column (a)
-</td>
-<td style="text-align:left;">
-Contributions, gifts, grants, and similar amounts received: donor
-advised funds
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-FundsAndOtherAccountsContriAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 2 Column (b)
-</td>
-<td style="text-align:left;">
-Contributions, gifts, grants, and similar amounts received: funds and
-other accounts
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DonorAdvisedFundsGrantsAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 3 Column (a)
-</td>
-<td style="text-align:left;">
-Grants and allocations from donor advised funds
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-FundsAndOtherAccountsGrantsAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 3 Column (b)
-</td>
-<td style="text-align:left;">
-Grants from funds and other accounts
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DonorAdvisedFundsVlEOYAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 4 Column (a)
-</td>
-<td style="text-align:left;">
-Enter the aggregate value of assets held in all donor advised funds at
-the end of the tax year
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-FundsAndOtherAccountsVlEOYAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 4 Column (b)
-</td>
-<td style="text-align:left;">
-Enter the aggregate value of assets held in all funds and other accounts
-at the end of the tax year
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DisclosedOrgLegCtrlInd
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 5
-</td>
-<td style="text-align:left;">
-Did the organization inform all donors and donor advisors in writing
-that the assets held in DAFs are the organization&amp;#39;s property,
-subject to the organization&amp;#39;s exclusive legal control?
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-DisclosedForCharitablePrpsInd
-</td>
-<td style="text-align:left;">
-Line Number: Part I Line 6
-</td>
-<td style="text-align:left;">
-Did the organization inform all grantees, donors, and donor advisors in
-writing that grant funds may be used only for charitable purposes and
-not for the benefit of the donor or donor advisor?
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-BeginningYearBalanceAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1a
-</td>
-<td style="text-align:left;">
-Current year; Beginning of year balance
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ContributionsAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1b
-</td>
-<td style="text-align:left;">
-Current year; Contributions
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-InvestmentEarningsOrLossesAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1c
-</td>
-<td style="text-align:left;">
-Current year; Investment earnings or losses
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-GrantsOrScholarshipsAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1d
-</td>
-<td style="text-align:left;">
-Current year; Grants or scholarships
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-OtherExpendituresAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1e
-</td>
 <td style="text-align:left;">
-Current year; Other expenditures
+Amended Once
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-AdministrativeExpensesAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1f
-</td>
-<td style="text-align:left;">
-Current year; Administrative expenses
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-EndYearBalanceAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (a); Part V Line 1g
-</td>
-<td style="text-align:left;">
-Current year; End of year balance
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-BeginningYearBalanceAmt
-</td>
-<td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1a
-</td>
-<td style="text-align:left;">
-Current year minus one year; Beginning of year balance
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-ContributionsAmt
-</td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1b
+2018-04-17
 </td>
-<td style="text-align:left;">
-Current year minus one year; Contributions
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-InvestmentEarningsOrLossesAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1c
+NA
 </td>
 <td style="text-align:left;">
-Current year minus one year; Investment earnings or losses
+020569320
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-GrantsOrScholarshipsAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1d
+2016-11-15
 </td>
-<td style="text-align:left;">
-Current year minus one year; Grants or scholarships
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-OtherExpendituresAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1e
+X
 </td>
 <td style="text-align:left;">
-Current year minus one year; Other expenditures
+050377245
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-AdministrativeExpensesAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1f
+2016-08-02
 </td>
-<td style="text-align:left;">
-Current year minus one year; Administrative expenses
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-EndYearBalanceAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (b); Part V Line 1g
+NA
 </td>
 <td style="text-align:left;">
-Current year minus one year; End of year balance
+050377245
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-BeginningYearBalanceAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1a
+2016-07-14
 </td>
-<td style="text-align:left;">
-Current year minus two years; Beginning of year balance
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-ContributionsAmt
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1b
+X
 </td>
 <td style="text-align:left;">
-Current year minus two years; Contributions
+061537525
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-InvestmentEarningsOrLossesAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1c
+2021-12-03
 </td>
-<td style="text-align:left;">
-Current year minus two years; Investment earnings or losses
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-GrantsOrScholarshipsAmt
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1d
+NA
 </td>
 <td style="text-align:left;">
-Current year minus two years; Grants or scholarships
+061537525
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-OtherExpendituresAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1e
+2020-11-13
 </td>
-<td style="text-align:left;">
-Current year minus two years; Other expenditures
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-AdministrativeExpensesAmt
+2020
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1f
+X
 </td>
 <td style="text-align:left;">
-Current year minus two years; Administrative expenses
+203447830
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-EndYearBalanceAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (c); Part V Line 1g
+2021-02-08
 </td>
-<td style="text-align:left;">
-Current year minus two years; End of year balance
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-BeginningYearBalanceAmt
+2020
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1a
+NA
 </td>
 <td style="text-align:left;">
-Current year minus three years; Beginning of year balance
+203447830
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-ContributionsAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1b
+2021-02-01
 </td>
-<td style="text-align:left;">
-Current year minus three years; Contributions
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-InvestmentEarningsOrLossesAmt
+2018
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1c
+X
 </td>
 <td style="text-align:left;">
-Current year minus three years; Investment earnings or losses
+271093011
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-GrantsOrScholarshipsAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1d
+2019-06-19
 </td>
-<td style="text-align:left;">
-Current year minus three years; Grants or scholarships
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-OtherExpendituresAmt
+2018
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1e
+NA
 </td>
 <td style="text-align:left;">
-Current year minus three years; Other expenditures
+271093011
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-AdministrativeExpensesAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1f
+2019-05-15
 </td>
-<td style="text-align:left;">
-Current year minus three years; Administrative expenses
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-EndYearBalanceAmt
+2018
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (d); Part V Line 1g
+X
 </td>
 <td style="text-align:left;">
-Current year minus three years; End of year balance
+462580700
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-BeginningYearBalanceAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1a
+2019-08-09
 </td>
-<td style="text-align:left;">
-Current year minus four years; Beginning of year balance
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-ContributionsAmt
+2018
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1b
+NA
 </td>
 <td style="text-align:left;">
-Current year minus four years; Contributions
+462580700
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-InvestmentEarningsOrLossesAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1c
+2019-02-26
 </td>
-<td style="text-align:left;">
-Current year minus four years; Investment earnings or losses
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-GrantsOrScholarshipsAmt
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1d
+X
 </td>
 <td style="text-align:left;">
-Current year minus four years; Grants or scholarships
+542124670
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-OtherExpendituresAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1e
+2020-07-15
 </td>
-<td style="text-align:left;">
-Current year minus four years; Other expenditures
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-AdministrativeExpensesAmt
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1f
+NA
 </td>
 <td style="text-align:left;">
-Current year minus four years; Administrative expenses
+542124670
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-EndYearBalanceAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Column (e); Part V Line 1g
+2020-07-14
 </td>
-<td style="text-align:left;">
-Current year minus four years; End of year balance
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-BoardDesignatedBalanceEOYPct
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 2a
+X
 </td>
 <td style="text-align:left;">
-Board designated EOY balance
+581891235
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-PrmnntEndowmentBalanceEOYPct
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 2b
+2017-03-06
 </td>
-<td style="text-align:left;">
-Permanent endowment EOY balance
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-TermEndowmentBalanceEOYPct
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 2c
+NA
 </td>
 <td style="text-align:left;">
-Term endowment EOY balance
+581891235
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-EndowmentsHeldUnrelatedOrgInd
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 3a(i)
+2016-03-24
 </td>
-<td style="text-align:left;">
-Endowments held by unrelated organizations?
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-EndowmentsHeldRelatedOrgInd
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 3a(ii)
+X
 </td>
 <td style="text-align:left;">
-Endowments held by related organizations?
+710508968
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-RelatedOrgListSchRInd
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part V Line 3b
+2020-05-28
 </td>
-<td style="text-align:left;">
-Are related orgs listed on Schedule R?
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-TotalRevEtcAuditedFinclStmtAmt
+2019
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 1
+NA
 </td>
 <td style="text-align:left;">
-Total revenue, gains and other support per audited financial statments
+710508968
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-NetUnrealizedGainsInvstAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 2a
+2020-04-22
 </td>
-<td style="text-align:left;">
-Net unrealized gains on investments
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-DonatedServicesAndUseFcltsAmt
+2020
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 2b
+X
 </td>
 <td style="text-align:left;">
-Donated services and use of facilities
+770154765
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-RecoveriesPriorYearGrantsAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 2c
+2021-09-09
 </td>
-<td style="text-align:left;">
-Recoveries of prior year grants
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-OtherRevenueAmt
+2020
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 2d
+NA
 </td>
 <td style="text-align:left;">
-Other revenues
+770154765
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-RevenueNotReportedAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 2e
+2021-03-05
 </td>
-<td style="text-align:left;">
-Total amounts, add lines 2a through 2d
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-RevenueSubtotalAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 3
+X
 </td>
 <td style="text-align:left;">
-Part XI line 1 minus Part XI line 2e
+820301511
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-InvestmentExpensesNotIncldAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 4a
+2016-10-31
 </td>
-<td style="text-align:left;">
-Investment expenses not included on Form 990, Part VIII, line 7b
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-OtherRevenuesNotIncludedAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 4b
+NA
 </td>
 <td style="text-align:left;">
-Other revenues not included
+820301511
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-RevenueNotReportedFinclStmtAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 4c
+2016-04-14
 </td>
-<td style="text-align:left;">
-Total amounts, add lines 4a and 4b
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-TotalRevenuePerForm990Amt
+2016
 </td>
 <td style="text-align:left;">
-Line Number: Part XI Line 5
+X
 </td>
 <td style="text-align:left;">
-Total revenue (Form 990, Part 1, Line 12). Add lines 3 and 4c
+931009305
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-TotExpnsEtcAuditedFinclStmtAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 1
+2017-02-27
 </td>
-<td style="text-align:left;">
-Total Expenses, and Losses per audited financial statments
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-DonatedServicesUseFcltsAmt
+2016
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 2a
+NA
 </td>
 <td style="text-align:left;">
-Donated Services and Use of Facilities
+931009305
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-PriorYearAdjustmentsAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 2b
+2016-11-22
 </td>
-<td style="text-align:left;">
-Prior year adjustments
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-LossesReportedAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 2c
+X
 </td>
 <td style="text-align:left;">
-Losses reported
+942933309
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-OtherExpensesIncludedAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 2d
+2016-11-29
 </td>
-<td style="text-align:left;">
-Other expenses included
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-ExpensesNotReportedAmt
+2015
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 2e
+NA
 </td>
 <td style="text-align:left;">
-Total amounts, add lines 2a through 2d
+942933309
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-ExpensesSubtotalAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 3
+2016-05-16
 </td>
-<td style="text-align:left;">
-Part XII line 1 minus Part XII line 2e
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-InvestmentExpensesNotIncld2Amt
+2016
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 4a
+X
 </td>
 <td style="text-align:left;">
-Investment expenses not included on Form 990, Part VIII, line 7b
+943197247
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-OtherExpensesNotIncludedAmt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 4b
+2016-11-15
 </td>
-<td style="text-align:left;">
-Other expenses
+<td style="text-align:right;">
+2
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-ExpensesNotRptFinclStmtAmt
+2016
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 4c
+NA
 </td>
 <td style="text-align:left;">
-Total amounts, add lines 4a through 4b
+943197247
 </td>
-</tr>
-<tr>
 <td style="text-align:left;">
-TotalExpensesPerForm990Amt
+Amended Once
 </td>
 <td style="text-align:left;">
-Line Number: Part XII Line 5
+2016-10-03
 </td>
-<td style="text-align:left;">
-Total expenses (Form 990, Part I, Line 18). Add lines 3 and 4c
+<td style="text-align:right;">
+2
 </td>
 </tr>
 </tbody>
 </table>
 </div>
-</div>
-<div id="reformatting-variable-names-to-be-more-readable-for-future-plots-and-tables" class="section level2">
-<h2>Reformatting Variable Names to be More Readable for Future Plots and
-Tables</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># resources:</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># example form: https://www.irs.gov/pub/irs-pdf/f990sd.pdf</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># same variables as extracted for the endowment data</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>variables_no_path <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;ReturnTs&quot;</span>, </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;EIN&quot;</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;DonorRstrOrQuasiEndowmentsInd&quot;</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYBeginningYearBalanceAmt&quot;</span>, </span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYContributionsAmt&quot;</span>, </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYInvestmentEarningsOrLossesAmt&quot;</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYOtherExpendituresAmt&quot;</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYEndYearBalanceAmt&quot;</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM1BeginningYearBalanceAmt&quot;</span>, </span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM1ContributionsAmt&quot;</span>, </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM1InvestmentEarningsOrLossesAmt&quot;</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM1OtherExpendituresAmt&quot;</span>,</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM1EndYearBalanceAmt&quot;</span>,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM2BeginningYearBalanceAmt&quot;</span>, </span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM2ContributionsAmt&quot;</span>, </span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM2InvestmentEarningsOrLossesAmt&quot;</span>,</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM2OtherExpendituresAmt&quot;</span>,</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM2EndYearBalanceAmt&quot;</span>,</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM3BeginningYearBalanceAmt&quot;</span>, </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM3ContributionsAmt&quot;</span>, </span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM3InvestmentEarningsOrLossesAmt&quot;</span>,</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM3OtherExpendituresAmt&quot;</span>,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM3EndYearBalanceAmt&quot;</span>,</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM4BeginningYearBalanceAmt&quot;</span>, </span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM4ContributionsAmt&quot;</span>, </span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM4InvestmentEarningsOrLossesAmt&quot;</span>,</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM4OtherExpendituresAmt&quot;</span>,</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CYM4EndYearBalanceAmt&quot;</span>,</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;BoardDesignatedBalanceEOYPct&quot;</span>,</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;PrmnntEndowmentBalanceEOYPct&quot;</span>,</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;TermEndowmentBalanceEOYPct&quot;</span>,</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;EndowmentsHeldUnrelatedOrgInd&quot;</span>,</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;EndowmentsHeldRelatedOrgInd&quot;</span>,</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>                       </span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;AmendedReturnInd&quot;</span>,</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;ReturnTypeCd&quot;</span></span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co"># generate readable names by reformatting abbreviations and time period</span></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>readable_names <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">original_variable =</span> variables_no_path) <span class="sc">%&gt;%</span></span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add clearer interpretation of the time period given</span></span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_period =</span> <span class="fu">case_when</span>(</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM1&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(1 year before current)&quot;</span>,</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(2 years before current)&quot;</span>,</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(3 years before current)&quot;</span>,</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grepl</span>(<span class="st">&quot;CY&quot;</span>, original_variable) <span class="sc">~</span> <span class="st">&quot;(current year)&quot;</span></span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="co"># remove time period since separate column holds that information</span></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">variable =</span> <span class="fu">gsub</span>(<span class="st">&quot;CYM1|CYM2|CYM3|CYM4|CY&quot;</span>, <span class="st">&quot;&quot;</span>, original_variable),</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>         <span class="co"># split into words where there is capitalization</span></span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>         <span class="at">var_split =</span> <span class="fu">gsub</span>(<span class="st">&quot;([[:upper:]])&quot;</span>, <span class="st">&quot; </span><span class="sc">\\</span><span class="st">1&quot;</span>, variable),</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>         <span class="co"># change shortened words to readable format</span></span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">gsub</span>(<span class="st">&quot;E I N&quot;</span>, <span class="st">&quot;EIN&quot;</span>, var_split) <span class="sc">%&gt;%</span></span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Rstr&quot;</span>, <span class="st">&quot;Restricted&quot;</span>,.) <span class="sc">%&gt;%</span></span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Amt&quot;</span>, <span class="st">&quot;Amount&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Ind&quot;</span>, <span class="st">&quot;Index&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Org&quot;</span>, <span class="st">&quot;Organization&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Pct&quot;</span>, <span class="st">&quot;Percentage&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;E O Y&quot;</span>, <span class="st">&quot;End of Year&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>             <span class="fu">gsub</span>(<span class="st">&quot;Prmnnt&quot;</span>, <span class="st">&quot;Permanent&quot;</span>, .) <span class="sc">%&gt;%</span></span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>            <span class="fu">gsub</span>(<span class="st">&quot; Ts&quot;</span>, <span class="st">&quot; Timestamp&quot;</span>, .),</span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>         <span class="at">readable =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(time_period), </span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">paste</span>(readable, time_period), </span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>                           readable)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(original_variable, readable)</span>
-<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(readable_names, <span class="st">&quot;./data/readable_names.RDS&quot;</span>) </span>
-<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>readable_names</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># notice we have 799 filings before filtering based on amended filings</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># from the previous code there were 14 cases where a company filed </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 times in a single fiscal year</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>filter_data <span class="sc">%&gt;%</span> <span class="fu">nrow</span>() </span></code></pre></div>
+<pre><code>## [1] 799</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># take the amended version</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span>amended_return_filled, <span class="at">n =</span> <span class="dv">1</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># take the most recent return date</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>max_by_date <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span>ReturnDate, <span class="at">n =</span> <span class="dv">1</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># check that picking max return date is the same as picking the amended one</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(filter_data_amended, max_by_date)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now we have 799 - 14 = 785 observtions, as we would expect, </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># because we only took the 14 amended ones</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(filter_data_amended)</span></code></pre></div>
+<pre><code>## [1] 785</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>eins_with_multiple <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># need both fiscal year and ein number to check</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># which year/ein combinations had multiple filings</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(EIN_year)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># of the eins with multiple filings, now we only have</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the ones that were ammended (AmendedReturnInd is &quot;X&quot;, not NA)</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN_year <span class="sc">%in%</span> eins_with_multiple) <span class="sc">%&gt;%</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(AmendedReturnInd)) </span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["original_variable"],"name":[1],"type":["chr"],"align":["left"]},{"label":["readable"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"ReturnTs","2":"Return Timestamp"},{"1":"EIN","2":"EIN"},{"1":"DonorRstrOrQuasiEndowmentsInd","2":"Donor Restricted Or Quasi Endowments Index"},{"1":"CYBeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYInvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYOtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYEndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"CYM1BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (1 year before current)"},{"1":"CYM1ContributionsAmt","2":"Contributions Amount (1 year before current)"},{"1":"CYM1InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (1 year before current)"},{"1":"CYM1OtherExpendituresAmt","2":"Other Expenditures Amount (1 year before current)"},{"1":"CYM1EndYearBalanceAmt","2":"End Year Balance Amount (1 year before current)"},{"1":"CYM2BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYM2ContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYM2InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYM2OtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYM2EndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"CYM3BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (2 years before current)"},{"1":"CYM3ContributionsAmt","2":"Contributions Amount (2 years before current)"},{"1":"CYM3InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (2 years before current)"},{"1":"CYM3OtherExpendituresAmt","2":"Other Expenditures Amount (2 years before current)"},{"1":"CYM3EndYearBalanceAmt","2":"End Year Balance Amount (2 years before current)"},{"1":"CYM4BeginningYearBalanceAmt","2":"Beginning Year Balance Amount (current year)"},{"1":"CYM4ContributionsAmt","2":"Contributions Amount (current year)"},{"1":"CYM4InvestmentEarningsOrLossesAmt","2":"Investment Earnings Or Losses Amount (current year)"},{"1":"CYM4OtherExpendituresAmt","2":"Other Expenditures Amount (current year)"},{"1":"CYM4EndYearBalanceAmt","2":"End Year Balance Amount (current year)"},{"1":"BoardDesignatedBalanceEOYPct","2":"Board Designated Balance End of Year Percentage"},{"1":"PrmnntEndowmentBalanceEOYPct","2":"Permanent Endowment Balance End of Year Percentage"},{"1":"TermEndowmentBalanceEOYPct","2":"Term Endowment Balance End of Year Percentage"},{"1":"EndowmentsHeldUnrelatedOrgInd","2":"Endowments Held Unrelated Organization Index"},{"1":"EndowmentsHeldRelatedOrgInd","2":"Endowments Held Related Organization Index"},{"1":"AmendedReturnInd","2":"Amended Return Index"},{"1":"ReturnTypeCd","2":"Return Type Cd"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["ReturnTs"],"name":[1],"type":["chr"],"align":["left"]},{"label":["EIN"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ReturnTypeCd"],"name":[3],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt"],"name":[4],"type":["date"],"align":["right"]},{"label":["TaxPeriodEndDt"],"name":[5],"type":["date"],"align":["right"]},{"label":["AmendedReturnInd"],"name":[6],"type":["chr"],"align":["left"]},{"label":["BusinessName"],"name":[7],"type":["chr"],"align":["left"]},{"label":["ReturnTs_path"],"name":[8],"type":["chr"],"align":["left"]},{"label":["EIN_path"],"name":[9],"type":["chr"],"align":["left"]},{"label":["ReturnTypeCd_path"],"name":[10],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt_path"],"name":[11],"type":["chr"],"align":["left"]},{"label":["TaxPeriodEndDt_path"],"name":[12],"type":["chr"],"align":["left"]},{"label":["AmendedReturnInd_path"],"name":[13],"type":["chr"],"align":["left"]},{"label":["BusinessName_path"],"name":[14],"type":["chr"],"align":["left"]},{"label":["filename"],"name":[15],"type":["chr"],"align":["left"]},{"label":["ReturnDate"],"name":[16],"type":["date"],"align":["right"]},{"label":["fiscal_year"],"name":[17],"type":["fct"],"align":["left"]},{"label":["amended_return_filled"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["EIN_year"],"name":[19],"type":["chr"],"align":["left"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div id="all-variables-available-in-schedule-d" class="section level2">
-<h2>All Variables Available in Schedule D</h2>
-<p>To see what variables might be of interest and are well-represented
-in the dataset, we can look at the variable names and the number of
-files that have a given variable.</p>
-<p>It may be good to get a sense for the variables that are present in
-the most of our files. The table below ranks the variables extracted by
-how many files have that variable.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">################################################################################</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># extract variables in the IRS990ScheduleD node from the given file</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="do">################################################################################</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># output is a dataframe with the filename and name of each variable extracted</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>collect_sched_d_vars <span class="ot">&lt;-</span> <span class="cf">function</span>(input_file) {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  example_file <span class="ot">&lt;-</span> xml2<span class="sc">::</span><span class="fu">read_xml</span>(input_file)<span class="sc">%&gt;%</span> <span class="fu">xml_ns_strip</span>()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># look at all variable names in schedule D</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  IRS990ScheduleD_vars <span class="ot">&lt;-</span> example_file <span class="sc">%&gt;%</span> </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xml_find_all</span>(<span class="st">&quot;//ReturnData//IRS990ScheduleD&quot;</span>)  <span class="sc">%&gt;%</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xml_contents</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xml_path</span>() </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># look at variable names of children nodes of the schedule D nodes</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  IRS990ScheduleD_var_children <span class="ot">&lt;-</span> IRS990ScheduleD_vars <span class="sc">%&gt;%</span> </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(<span class="sc">~</span><span class="fu">xml_find_all</span>(example_file,</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xpath =</span> <span class="fu">gsub</span>(<span class="st">&quot;/&quot;</span>, </span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                                   <span class="st">&quot;//&quot;</span> ,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                                   .x, </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">fixed =</span> <span class="cn">TRUE</span>) ) <span class="sc">%&gt;%</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">xml_children</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>          <span class="fu">xml_path</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>()</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># include both first level schedule D nodes and children nodes</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    vars <span class="ot">&lt;-</span> <span class="fu">c</span>(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(<span class="at">variables =</span> vars,</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>           <span class="at">filename =</span> input_file)</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co"># file paths in the directory</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>( <span class="st">&quot;./ballet_990_released_20230208&quot;</span>,</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>               <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over all files and extract variables present</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co"># output is a data frame with a file name column and variable name column</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>all_vars <span class="ot">&lt;-</span> <span class="fu">map_df</span>(files, collect_sched_d_vars)</span></code></pre></div>
+<div id="detecting-groups-who-changed-fiscal-year" class="section level2">
+<h2>Detecting Groups who Changed Fiscal Year</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Finding all companies with any short or abnormally long fiscal years  </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Note that there were not any long ones</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="ot">&lt;-</span> filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year_len <span class="sc">&lt;</span> <span class="dv">364</span> <span class="sc">|</span> year_len <span class="sc">&gt;</span> <span class="dv">365</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##Tabling it for the HTML</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Short fiscal years&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>()</span></code></pre></div>
+<table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>
+Short fiscal years
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+fiscal_year
+</th>
+<th style="text-align:left;">
+EIN
+</th>
+<th style="text-align:left;">
+TaxPeriodBeginDt
+</th>
+<th style="text-align:left;">
+TaxPeriodEndDt
+</th>
+<th style="text-align:left;">
+year_len
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2019
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+2018-09-01
+</td>
+<td style="text-align:left;">
+2019-06-30
+</td>
+<td style="text-align:left;">
+302 days
+</td>
+</tr>
+</tbody>
+</table>
+<p>There is only one company which has a short fiscal year:
+742371103</p>
 </div>
-<div id="table-of-variables-by-frequency" class="section level2">
-<h2>Table of Variables by Frequency</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sort variables by the number of files that have a given variable</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># include parent variable for ease of interpretation</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>all_vars <span class="sc">%&gt;%</span> </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">rename</span>(<span class="at">Variable =</span> variables) <span class="sc">%&gt;%</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">group_by</span>(Variable) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># number of files that have each variable</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarize</span>(<span class="at">files =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># split variable paths</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#second to last element is parent, last element is variable</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">Variable =</span> <span class="fu">strsplit</span>(Variable, <span class="at">split =</span> <span class="st">&quot;/&quot;</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">Parent =</span> <span class="fu">map_chr</span>(Variable, <span class="sc">~</span>.x[<span class="fu">length</span>(.x)<span class="sc">-</span><span class="dv">1</span>]),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">Variable =</span> <span class="fu">map_chr</span>(Variable, <span class="sc">~</span>.x[<span class="fu">length</span>(.x)])) <span class="sc">%&gt;%</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Parent, Variable, <span class="st">`</span><span class="at">Number of Files</span><span class="st">`</span> <span class="ot">=</span> files ) <span class="sc">%&gt;%</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="st">`</span><span class="at">Number of Files</span><span class="st">`</span>))</span></code></pre></div>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Parent"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Variable"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Number of Files"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"IRS990ScheduleD","2":"TotalBookValueLandBuildingsAmt","3":"651"},{"1":"IRS990ScheduleD","2":"EquipmentGrp","3":"537"},{"1":"EquipmentGrp","2":"DepreciationAmt","3":"522"},{"1":"EquipmentGrp","2":"BookValueAmt","3":"516"},{"1":"EquipmentGrp","2":"OtherCostOrOtherBasisAmt","3":"497"},{"1":"IRS990ScheduleD","2":"OtherLandBuildingsGrp","3":"425"},{"1":"OtherLandBuildingsGrp","2":"BookValueAmt","3":"406"},{"1":"OtherLandBuildingsGrp","2":"DepreciationAmt","3":"402"},{"1":"OtherLandBuildingsGrp","2":"OtherCostOrOtherBasisAmt","3":"396"},{"1":"IRS990ScheduleD","2":"ExpensesSubtotalAmt","3":"350"},{"1":"IRS990ScheduleD","2":"RevenueSubtotalAmt","3":"350"},{"1":"IRS990ScheduleD","2":"TotalExpensesPerForm990Amt","3":"350"},{"1":"IRS990ScheduleD","2":"TotalRevenuePerForm990Amt","3":"350"},{"1":"IRS990ScheduleD","2":"TotalRevEtcAuditedFinclStmtAmt","3":"350"},{"1":"IRS990ScheduleD","2":"TotExpnsEtcAuditedFinclStmtAmt","3":"350"},{"1":"IRS990ScheduleD","2":"LeaseholdImprovementsGrp","3":"331"},{"1":"LeaseholdImprovementsGrp","2":"BookValueAmt","3":"324"},{"1":"LeaseholdImprovementsGrp","2":"DepreciationAmt","3":"317"},{"1":"LeaseholdImprovementsGrp","2":"OtherCostOrOtherBasisAmt","3":"308"},{"1":"IRS990ScheduleD","2":"TotalLiabilityAmt","3":"307"},{"1":"IRS990ScheduleD","2":"RevenueNotReportedAmt","3":"300"},{"1":"IRS990ScheduleD","2":"ExpensesNotReportedAmt","3":"297"},{"1":"IRS990ScheduleD","2":"BuildingsGrp","3":"263"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[1]","3":"263"},{"1":"SupplementalInformationDetail[1]","2":"ExplanationTxt","3":"263"},{"1":"SupplementalInformationDetail[1]","2":"FormAndLineReferenceDesc","3":"263"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[2]","3":"263"},{"1":"SupplementalInformationDetail[2]","2":"ExplanationTxt","3":"263"},{"1":"SupplementalInformationDetail[2]","2":"FormAndLineReferenceDesc","3":"263"},{"1":"BuildingsGrp","2":"BookValueAmt","3":"252"},{"1":"BuildingsGrp","2":"DepreciationAmt","3":"246"},{"1":"BuildingsGrp","2":"OtherCostOrOtherBasisAmt","3":"246"},{"1":"IRS990ScheduleD","2":"CYEndwmtFundGrp","3":"240"},{"1":"IRS990ScheduleD","2":"EndowmentsHeldRelatedOrgInd","3":"240"},{"1":"IRS990ScheduleD","2":"EndowmentsHeldUnrelatedOrgInd","3":"240"},{"1":"IRS990ScheduleD","2":"CYMinus1YrEndwmtFundGrp","3":"239"},{"1":"CYEndwmtFundGrp","2":"BeginningYearBalanceAmt","3":"238"},{"1":"CYEndwmtFundGrp","2":"EndYearBalanceAmt","3":"237"},{"1":"CYMinus1YrEndwmtFundGrp","2":"BeginningYearBalanceAmt","3":"237"},{"1":"CYMinus1YrEndwmtFundGrp","2":"EndYearBalanceAmt","3":"237"},{"1":"IRS990ScheduleD","2":"CYMinus3YrEndwmtFundGrp","3":"236"},{"1":"IRS990ScheduleD","2":"CYMinus2YrEndwmtFundGrp","3":"234"},{"1":"CYMinus2YrEndwmtFundGrp","2":"EndYearBalanceAmt","3":"233"},{"1":"IRS990ScheduleD","2":"CYMinus4YrEndwmtFundGrp","3":"233"},{"1":"IRS990ScheduleD","2":"DonatedServicesAndUseFcltsAmt","3":"233"},{"1":"IRS990ScheduleD","2":"LandGrp","3":"232"},{"1":"CYMinus2YrEndwmtFundGrp","2":"BeginningYearBalanceAmt","3":"231"},{"1":"IRS990ScheduleD","2":"DonatedServicesUseFcltsAmt","3":"231"},{"1":"IRS990ScheduleD","2":"FootnoteTextInd","3":"231"},{"1":"CYMinus3YrEndwmtFundGrp","2":"EndYearBalanceAmt","3":"230"},{"1":"CYMinus3YrEndwmtFundGrp","2":"BeginningYearBalanceAmt","3":"228"},{"1":"CYMinus4YrEndwmtFundGrp","2":"EndYearBalanceAmt","3":"227"},{"1":"IRS990ScheduleD","2":"RevenueNotReportedFinclStmtAmt","3":"226"},{"1":"CYMinus4YrEndwmtFundGrp","2":"BeginningYearBalanceAmt","3":"225"},{"1":"IRS990ScheduleD","2":"ExpensesNotRptFinclStmtAmt","3":"219"},{"1":"LandGrp","2":"BookValueAmt","3":"218"},{"1":"LandGrp","2":"OtherCostOrOtherBasisAmt","3":"206"},{"1":"CYEndwmtFundGrp","2":"InvestmentEarningsOrLossesAmt","3":"200"},{"1":"IRS990ScheduleD","2":"PrmnntEndowmentBalanceEOYPct","3":"199"},{"1":"CYMinus1YrEndwmtFundGrp","2":"InvestmentEarningsOrLossesAmt","3":"196"},{"1":"IRS990ScheduleD","2":"OtherRevenueAmt","3":"195"},{"1":"IRS990ScheduleD","2":"OtherExpensesIncludedAmt","3":"191"},{"1":"CYMinus2YrEndwmtFundGrp","2":"InvestmentEarningsOrLossesAmt","3":"189"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[3]","3":"188"},{"1":"SupplementalInformationDetail[3]","2":"ExplanationTxt","3":"188"},{"1":"SupplementalInformationDetail[3]","2":"FormAndLineReferenceDesc","3":"188"},{"1":"CYMinus3YrEndwmtFundGrp","2":"InvestmentEarningsOrLossesAmt","3":"187"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp","3":"183"},{"1":"OtherLiabilitiesOrgGrp","2":"Desc","3":"182"},{"1":"IRS990ScheduleD","2":"NetUnrealizedGainsInvstAmt","3":"181"},{"1":"CYMinus4YrEndwmtFundGrp","2":"InvestmentEarningsOrLossesAmt","3":"180"},{"1":"OtherLiabilitiesOrgGrp","2":"Amt","3":"176"},{"1":"CYMinus2YrEndwmtFundGrp","2":"OtherExpendituresAmt","3":"161"},{"1":"CYEndwmtFundGrp","2":"OtherExpendituresAmt","3":"160"},{"1":"CYMinus1YrEndwmtFundGrp","2":"OtherExpendituresAmt","3":"160"},{"1":"CYMinus3YrEndwmtFundGrp","2":"OtherExpendituresAmt","3":"158"},{"1":"CYMinus4YrEndwmtFundGrp","2":"OtherExpendituresAmt","3":"155"},{"1":"CYEndwmtFundGrp","2":"ContributionsAmt","3":"149"},{"1":"CYMinus1YrEndwmtFundGrp","2":"ContributionsAmt","3":"147"},{"1":"CYMinus2YrEndwmtFundGrp","2":"ContributionsAmt","3":"147"},{"1":"CYMinus3YrEndwmtFundGrp","2":"ContributionsAmt","3":"147"},{"1":"CYMinus4YrEndwmtFundGrp","2":"ContributionsAmt","3":"142"},{"1":"IRS990ScheduleD","2":"TermEndowmentBalanceEOYPct","3":"137"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[4]","3":"124"},{"1":"SupplementalInformationDetail[4]","2":"ExplanationTxt","3":"124"},{"1":"SupplementalInformationDetail[4]","2":"FormAndLineReferenceDesc","3":"124"},{"1":"IRS990ScheduleD","2":"BoardDesignatedBalanceEOYPct","3":"122"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[1]","3":"115"},{"1":"OtherLiabilitiesOrgGrp[1]","2":"Desc","3":"115"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[2]","3":"115"},{"1":"OtherLiabilitiesOrgGrp[2]","2":"Desc","3":"115"},{"1":"IRS990ScheduleD","2":"TotalBookValueOtherAssetsAmt","3":"115"},{"1":"OtherLiabilitiesOrgGrp[2]","2":"Amt","3":"108"},{"1":"IRS990ScheduleD","2":"OtherRevenuesNotIncludedAmt","3":"106"},{"1":"OtherLiabilitiesOrgGrp[1]","2":"Amt","3":"102"},{"1":"IRS990ScheduleD","2":"OtherExpensesNotIncludedAmt","3":"96"},{"1":"CYEndwmtFundGrp","2":"AdministrativeExpensesAmt","3":"84"},{"1":"CYMinus1YrEndwmtFundGrp","2":"AdministrativeExpensesAmt","3":"79"},{"1":"EquipmentGrp","2":"InvestmentCostOrOtherBasisAmt","3":"79"},{"1":"IRS990ScheduleD","2":"TotalBookValueSecuritiesAmt","3":"79"},{"1":"IRS990ScheduleD","2":"InvestmentExpensesNotIncld2Amt","3":"76"},{"1":"IRS990ScheduleD","2":"InvestmentExpensesNotIncldAmt","3":"76"},{"1":"CYMinus2YrEndwmtFundGrp","2":"AdministrativeExpensesAmt","3":"73"},{"1":"CYMinus3YrEndwmtFundGrp","2":"AdministrativeExpensesAmt","3":"71"},{"1":"CYMinus4YrEndwmtFundGrp","2":"AdministrativeExpensesAmt","3":"69"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail","3":"68"},{"1":"SupplementalInformationDetail","2":"ExplanationTxt","3":"68"},{"1":"SupplementalInformationDetail","2":"FormAndLineReferenceDesc","3":"68"},{"1":"OtherLandBuildingsGrp","2":"InvestmentCostOrOtherBasisAmt","3":"66"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[5]","3":"63"},{"1":"SupplementalInformationDetail[5]","2":"ExplanationTxt","3":"63"},{"1":"SupplementalInformationDetail[5]","2":"FormAndLineReferenceDesc","3":"63"},{"1":"LeaseholdImprovementsGrp","2":"InvestmentCostOrOtherBasisAmt","3":"61"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp","3":"61"},{"1":"OtherAssetsOrgGrp","2":"BookValueAmt","3":"61"},{"1":"OtherAssetsOrgGrp","2":"Desc","3":"60"},{"1":"LandGrp","2":"InvestmentCostOrOtherBasisAmt","3":"59"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp[1]","3":"54"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp[2]","3":"54"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[3]","3":"54"},{"1":"OtherLiabilitiesOrgGrp[3]","2":"Desc","3":"54"},{"1":"OtherAssetsOrgGrp[2]","2":"BookValueAmt","3":"53"},{"1":"OtherAssetsOrgGrp[1]","2":"Desc","3":"52"},{"1":"OtherAssetsOrgGrp[2]","2":"Desc","3":"52"},{"1":"BuildingsGrp","2":"InvestmentCostOrOtherBasisAmt","3":"51"},{"1":"OtherAssetsOrgGrp[1]","2":"BookValueAmt","3":"51"},{"1":"OtherLiabilitiesOrgGrp[3]","2":"Amt","3":"51"},{"1":"IRS990ScheduleD","2":"ArtPublicExhibitionAmountsGrp","3":"50"},{"1":"IRS990ScheduleD","2":"FederalIncomeTaxLiabilityAmt","3":"49"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[1]","3":"47"},{"1":"OtherSecuritiesGrp[1]","2":"Desc","3":"47"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[2]","3":"47"},{"1":"OtherSecuritiesGrp[2]","2":"Desc","3":"47"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp","3":"45"},{"1":"OtherSecuritiesGrp","2":"BookValueAmt","3":"45"},{"1":"OtherSecuritiesGrp","2":"Desc","3":"45"},{"1":"OtherSecuritiesGrp","2":"MethodValuationCd","3":"45"},{"1":"IRS990ScheduleD","2":"RelatedOrgListSchRInd","3":"43"},{"1":"CYEndwmtFundGrp","2":"GrantsOrScholarshipsAmt","3":"39"},{"1":"CYMinus1YrEndwmtFundGrp","2":"GrantsOrScholarshipsAmt","3":"38"},{"1":"CYMinus2YrEndwmtFundGrp","2":"GrantsOrScholarshipsAmt","3":"36"},{"1":"CYMinus3YrEndwmtFundGrp","2":"GrantsOrScholarshipsAmt","3":"34"},{"1":"CYMinus4YrEndwmtFundGrp","2":"GrantsOrScholarshipsAmt","3":"34"},{"1":"IRS990ScheduleD","2":"SolicitedAssetsSaleInd","3":"33"},{"1":"IRS990ScheduleD","2":"InclEscrowCustodialAcctLiabInd","3":"32"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[4]","3":"32"},{"1":"OtherLiabilitiesOrgGrp[4]","2":"Desc","3":"32"},{"1":"IRS990ScheduleD","2":"HeldWorksArtGrp","3":"31"},{"1":"OtherLiabilitiesOrgGrp[4]","2":"Amt","3":"30"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp[3]","3":"29"},{"1":"OtherAssetsOrgGrp[3]","2":"BookValueAmt","3":"29"},{"1":"OtherAssetsOrgGrp[3]","2":"Desc","3":"29"},{"1":"OtherSecuritiesGrp[1]","2":"BookValueAmt","3":"26"},{"1":"OtherSecuritiesGrp[1]","2":"MethodValuationCd","3":"26"},{"1":"OtherSecuritiesGrp[2]","2":"BookValueAmt","3":"26"},{"1":"OtherSecuritiesGrp[2]","2":"MethodValuationCd","3":"26"},{"1":"IRS990ScheduleD","2":"CollectionUsedPreservationInd","3":"24"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[6]","3":"24"},{"1":"SupplementalInformationDetail[6]","2":"ExplanationTxt","3":"24"},{"1":"SupplementalInformationDetail[6]","2":"FormAndLineReferenceDesc","3":"24"},{"1":"ArtPublicExhibitionAmountsGrp","2":"AssetsIncludedAmt","3":"23"},{"1":"IRS990ScheduleD","2":"PriorYearAdjustmentsAmt","3":"23"},{"1":"IRS990ScheduleD","2":"LossesReportedAmt","3":"20"},{"1":"IRS990ScheduleD","2":"CollectionUsedPubExhibitionInd","3":"18"},{"1":"IRS990ScheduleD","2":"RecoveriesPriorYearGrantsAmt","3":"17"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp[4]","3":"16"},{"1":"OtherAssetsOrgGrp[4]","2":"Desc","3":"16"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[3]","3":"16"},{"1":"OtherSecuritiesGrp[3]","2":"BookValueAmt","3":"16"},{"1":"OtherSecuritiesGrp[3]","2":"Desc","3":"16"},{"1":"OtherSecuritiesGrp[3]","2":"MethodValuationCd","3":"16"},{"1":"OtherAssetsOrgGrp[4]","2":"BookValueAmt","3":"15"},{"1":"IRS990ScheduleD","2":"CloselyHeldEquityInterestsGrp","3":"14"},{"1":"IRS990ScheduleD","2":"FinancialDerivativesGrp","3":"14"},{"1":"IRS990ScheduleD","2":"CollUsedScholarlyRsrchInd","3":"13"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[5]","3":"11"},{"1":"OtherLiabilitiesOrgGrp[5]","2":"Desc","3":"11"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[4]","3":"11"},{"1":"OtherSecuritiesGrp[4]","2":"BookValueAmt","3":"11"},{"1":"OtherSecuritiesGrp[4]","2":"Desc","3":"11"},{"1":"OtherSecuritiesGrp[4]","2":"MethodValuationCd","3":"11"},{"1":"OtherLiabilitiesOrgGrp[5]","2":"Amt","3":"9"},{"1":"IRS990ScheduleD","2":"AgentTrusteeEtcInd","3":"7"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[5]","3":"7"},{"1":"OtherSecuritiesGrp[5]","2":"BookValueAmt","3":"7"},{"1":"OtherSecuritiesGrp[5]","2":"Desc","3":"7"},{"1":"OtherSecuritiesGrp[5]","2":"MethodValuationCd","3":"7"},{"1":"IRS990ScheduleD","2":"SupplementalInformationDetail[7]","3":"7"},{"1":"SupplementalInformationDetail[7]","2":"ExplanationTxt","3":"7"},{"1":"SupplementalInformationDetail[7]","2":"FormAndLineReferenceDesc","3":"7"},{"1":"IRS990ScheduleD","2":"CollUsedLoanOrExchProgInd","3":"6"},{"1":"IRS990ScheduleD","2":"OtherSecuritiesGrp[6]","3":"6"},{"1":"OtherSecuritiesGrp[6]","2":"BookValueAmt","3":"6"},{"1":"OtherSecuritiesGrp[6]","2":"Desc","3":"6"},{"1":"OtherSecuritiesGrp[6]","2":"MethodValuationCd","3":"6"},{"1":"IRS990ScheduleD","2":"CollectionUsedOtherPurposesGrp","3":"5"},{"1":"CollectionUsedOtherPurposesGrp","2":"CollectionUsedOtherPurposesInd","3":"5"},{"1":"CollectionUsedOtherPurposesGrp","2":"OtherPurposesDesc","3":"5"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[6]","3":"5"},{"1":"OtherLiabilitiesOrgGrp[6]","2":"Desc","3":"5"},{"1":"ArtPublicExhibitionAmountsGrp","2":"RevenuesIncludedAmt","3":"3"},{"1":"CloselyHeldEquityInterestsGrp","2":"BookValueAmt","3":"3"},{"1":"FinancialDerivativesGrp","2":"BookValueAmt","3":"3"},{"1":"HeldWorksArtGrp","2":"AssetsIncludedAmt","3":"3"},{"1":"OtherLiabilitiesOrgGrp[6]","2":"Amt","3":"3"},{"1":"IRS990ScheduleD","2":"OtherAssetsOrgGrp[5]","3":"2"},{"1":"OtherAssetsOrgGrp[5]","2":"BookValueAmt","3":"2"},{"1":"OtherAssetsOrgGrp[5]","2":"Desc","3":"2"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[7]","3":"2"},{"1":"OtherLiabilitiesOrgGrp[7]","2":"Amt","3":"2"},{"1":"OtherLiabilitiesOrgGrp[7]","2":"Desc","3":"2"},{"1":"IRS990ScheduleD","2":"DisclosedForCharitablePrpsInd","3":"1"},{"1":"IRS990ScheduleD","2":"DisclosedOrgLegCtrlInd","3":"1"},{"1":"HeldWorksArtGrp","2":"RevenuesIncludedAmt","3":"1"},{"1":"IRS990ScheduleD","2":"OtherLiabilitiesOrgGrp[8]","3":"1"},{"1":"OtherLiabilitiesOrgGrp[8]","2":"Amt","3":"1"},{"1":"OtherLiabilitiesOrgGrp[8]","2":"Desc","3":"1"},{"1":"IRS990ScheduleD","2":"Section170hRqrStsfdInd","3":"1"},{"1":"IRS990ScheduleD","2":"WrittenPolicyMonitoringInd","3":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+<div id="investigating-single-short-fiscal-year" class="section level2">
+<h2>Investigating single short fiscal year</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Filtering to 742371103, utilizing some of Quinn&#39;s code to graph gaps</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN <span class="sc">==</span> <span class="st">&quot;742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>         BusinessName,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>       TaxPeriodBeginDt, </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>       TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">before =</span>  <span class="fu">lag</span>(TaxPeriodEndDt, <span class="at">n =</span><span class="dv">1</span>),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">difftime</span>(before, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, BusinessName, TaxPeriodBeginDt,TaxPeriodEndDt, year_len, gap) <span class="sc">%&gt;%</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Fiscal year length and fiscal gaps for EIN 742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="at">row =</span> <span class="dv">5</span>, <span class="at">background =</span> <span class="st">&quot;red&quot;</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+<caption>
+Fiscal year length and fiscal gaps for EIN 742371103
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+fiscal_year
+</th>
+<th style="text-align:left;">
+EIN
+</th>
+<th style="text-align:left;">
+BusinessName
+</th>
+<th style="text-align:left;">
+TaxPeriodBeginDt
+</th>
+<th style="text-align:left;">
+TaxPeriodEndDt
+</th>
+<th style="text-align:left;">
+year_len
+</th>
+<th style="text-align:left;">
+gap
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2015
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;">
+2014-09-01
+</td>
+<td style="text-align:left;">
+2015-08-31
+</td>
+<td style="text-align:left;">
+364 days
+</td>
+<td style="text-align:left;">
+NA days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2016
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;">
+2015-09-01
+</td>
+<td style="text-align:left;">
+2016-08-31
+</td>
+<td style="text-align:left;">
+365 days
+</td>
+<td style="text-align:left;">
+NA days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2017
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;">
+2016-09-01
+</td>
+<td style="text-align:left;">
+2017-08-31
+</td>
+<td style="text-align:left;">
+364 days
+</td>
+<td style="text-align:left;">
+NA days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2018
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;">
+2017-09-01
+</td>
+<td style="text-align:left;">
+2018-08-31
+</td>
+<td style="text-align:left;">
+364 days
+</td>
+<td style="text-align:left;">
+NA days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+2019
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+742371103
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+2018-09-01
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+2019-06-30
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+302 days
+</td>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: red !important;">
+NA days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2020
+</td>
+<td style="text-align:left;">
+742371103
+</td>
+<td style="text-align:left;">
+BALLET SAN ANTONIO
+</td>
+<td style="text-align:left;">
+2019-07-01
+</td>
+<td style="text-align:left;">
+2020-06-30
+</td>
+<td style="text-align:left;">
+365 days
+</td>
+<td style="text-align:left;">
+NA days
+</td>
+</tr>
+</tbody>
+</table>
+<p>As the shorter fiscal year is still a significant portion of the
+year, 302 days, I feel it should not be filtered.</p>
 </div>
 </div>
 
