@@ -7,7 +7,7 @@
 
         <meta name="author" content="Rose Evard" />
     
-        <meta name="date" content="2023-02-19" />
+        <meta name="date" content="2023-02-21" />
     
     <title>Filtering out Filings</title>
 
@@ -2854,6 +2854,8 @@ margin-left: 0 !important;
       <ul>
       <li><a href="#filtering-amended-990s-and-990t" id="toc-filtering-amended-990s-and-990t">Filtering Amended 990s
       and 990T</a></li>
+      <li><a href="#companies-with-multiple-filings-in-a-fiscal-year" id="toc-companies-with-multiple-filings-in-a-fiscal-year">Companies
+      with Multiple Filings in a Fiscal Year</a></li>
       <li><a href="#detecting-groups-who-changed-fiscal-year" id="toc-detecting-groups-who-changed-fiscal-year">Detecting Groups
       who Changed Fiscal Year</a></li>
       <li><a href="#investigating-single-short-fiscal-year" id="toc-investigating-single-short-fiscal-year">Investigating
@@ -2863,7 +2865,7 @@ margin-left: 0 !important;
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Rose
 Evard</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-19</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-21</p>
           </div>
    </div>
      
@@ -2894,6 +2896,9 @@ max-width:2300px;
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Retain only 990, 990 EZ&#39;s that are not marked as amended</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>filter_data <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ReturnTypeCd <span class="sc">==</span> <span class="st">&quot;990&quot;</span> <span class="sc">|</span> ReturnTypeCd <span class="sc">==</span> <span class="st">&quot;990EZ&quot;</span>)</span></code></pre></div>
+</div>
+<div id="companies-with-multiple-filings-in-a-fiscal-year" class="section level2">
+<h2>Companies with Multiple Filings in a Fiscal Year</h2>
 <p>There are 28 companies that have multiple filings in a year. No
 company had more than 2 filings for a given fiscal year.</p>
 <p>Additionally, in cases where there were 2 filings, one was always an
@@ -3535,31 +3540,41 @@ Amended Once
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 times in a single fiscal year</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>filter_data <span class="sc">%&gt;%</span> <span class="fu">nrow</span>() </span></code></pre></div>
 <pre><code>## [1] 799</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span>amended_return_filled, <span class="at">n =</span> <span class="dv">1</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># now we have 799 - 14 = 785 observtions, as we would expect, </span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># because we only took the 14 amended ones</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(filter_data_amended)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># take the amended version</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span>amended_return_filled, <span class="at">n =</span> <span class="dv">1</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># take the most recent return date</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>max_by_date <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amended_return_filled =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(AmendedReturnInd),<span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span>ReturnDate, <span class="at">n =</span> <span class="dv">1</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># check that picking max return date is the same as picking the amended one</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(filter_data_amended, max_by_date)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now we have 799 - 14 = 785 observtions, as we would expect, </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># because we only took the 14 amended ones</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(filter_data_amended)</span></code></pre></div>
 <pre><code>## [1] 785</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>eins_with_multiple <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># need both fiscal year and ein number to check</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># which year/ein combinations had multiple filings</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(EIN_year)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># of the eins with multiple filings, now we only have</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the ones that were ammended (AmendedReturnInd is &quot;X&quot;, not NA)</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN_year <span class="sc">%in%</span> eins_with_multiple) <span class="sc">%&gt;%</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(AmendedReturnInd)) </span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>eins_with_multiple <span class="ot">&lt;-</span> filter_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># need both fiscal year and ein number to check</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># which year/ein combinations had multiple filings</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(EIN_year)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># of the eins with multiple filings, now we only have</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the ones that were ammended (AmendedReturnInd is &quot;X&quot;, not NA)</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN_year =</span><span class="fu">paste0</span>(EIN, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN_year <span class="sc">%in%</span> eins_with_multiple) <span class="sc">%&gt;%</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(AmendedReturnInd)) </span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["ReturnTs"],"name":[1],"type":["chr"],"align":["left"]},{"label":["EIN"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ReturnTypeCd"],"name":[3],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt"],"name":[4],"type":["date"],"align":["right"]},{"label":["TaxPeriodEndDt"],"name":[5],"type":["date"],"align":["right"]},{"label":["AmendedReturnInd"],"name":[6],"type":["chr"],"align":["left"]},{"label":["BusinessName"],"name":[7],"type":["chr"],"align":["left"]},{"label":["ReturnTs_path"],"name":[8],"type":["chr"],"align":["left"]},{"label":["EIN_path"],"name":[9],"type":["chr"],"align":["left"]},{"label":["ReturnTypeCd_path"],"name":[10],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt_path"],"name":[11],"type":["chr"],"align":["left"]},{"label":["TaxPeriodEndDt_path"],"name":[12],"type":["chr"],"align":["left"]},{"label":["AmendedReturnInd_path"],"name":[13],"type":["chr"],"align":["left"]},{"label":["BusinessName_path"],"name":[14],"type":["chr"],"align":["left"]},{"label":["filename"],"name":[15],"type":["chr"],"align":["left"]},{"label":["ReturnDate"],"name":[16],"type":["date"],"align":["right"]},{"label":["fiscal_year"],"name":[17],"type":["fct"],"align":["left"]},{"label":["amended_return_filled"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["EIN_year"],"name":[19],"type":["chr"],"align":["left"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -3568,17 +3583,17 @@ Amended Once
 </div>
 <div id="detecting-groups-who-changed-fiscal-year" class="section level2">
 <h2>Detecting Groups who Changed Fiscal Year</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Finding all companies with any short or abnormally long fiscal years  </span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Note that there were not any long ones</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="ot">&lt;-</span> filter_data_amended <span class="sc">%&gt;%</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year_len <span class="sc">&lt;</span> <span class="dv">364</span> <span class="sc">|</span> year_len <span class="sc">&gt;</span> <span class="dv">365</span>)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="do">##Tabling it for the HTML</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="sc">%&gt;%</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Short fiscal years&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Finding all companies with any short or abnormally long fiscal years  </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Note that there were not any long ones</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="ot">&lt;-</span> filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year_len <span class="sc">&lt;</span> <span class="dv">364</span> <span class="sc">|</span> year_len <span class="sc">&gt;</span> <span class="dv">365</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##Tabling it for the HTML</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>short_years_filings <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Short fiscal years&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>()</span></code></pre></div>
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 Short fiscal years
@@ -3627,21 +3642,21 @@ year_len
 </div>
 <div id="investigating-single-short-fiscal-year" class="section level2">
 <h2>Investigating single short fiscal year</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Filtering to 742371103, utilizing some of Quinn&#39;s code to graph gaps</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN <span class="sc">==</span> <span class="st">&quot;742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>         BusinessName,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>       TaxPeriodBeginDt, </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>),</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">before =</span>  <span class="fu">lag</span>(TaxPeriodEndDt, <span class="at">n =</span><span class="dv">1</span>),</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">difftime</span>(before, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>))<span class="sc">%&gt;%</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, BusinessName, TaxPeriodBeginDt,TaxPeriodEndDt, year_len, gap) <span class="sc">%&gt;%</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Fiscal year length and fiscal gaps for EIN 742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="at">row =</span> <span class="dv">5</span>, <span class="at">background =</span> <span class="st">&quot;red&quot;</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Filtering to 742371103, utilizing some of Quinn&#39;s code to graph gaps</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>filter_data_amended <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(EIN <span class="sc">==</span> <span class="st">&quot;742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>         BusinessName,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>       TaxPeriodBeginDt, </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>       TaxPeriodEndDt) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year_len =</span> <span class="fu">difftime</span>(TaxPeriodEndDt, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">before =</span>  <span class="fu">lag</span>(TaxPeriodEndDt, <span class="at">n =</span><span class="dv">1</span>),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">difftime</span>(before, TaxPeriodBeginDt, <span class="at">units =</span> <span class="st">&quot;days&quot;</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, BusinessName, TaxPeriodBeginDt,TaxPeriodEndDt, year_len, gap) <span class="sc">%&gt;%</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">&quot;Fiscal year length and fiscal gaps for EIN 742371103&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_material</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="at">row =</span> <span class="dv">5</span>, <span class="at">background =</span> <span class="st">&quot;red&quot;</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 Fiscal year length and fiscal gaps for EIN 742371103
@@ -3814,7 +3829,6 @@ NA days
 </table>
 <p>As the shorter fiscal year is still a significant portion of the
 year, 302 days, I feel it should not be filtered.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(filter_data_amended, <span class="st">&quot;./data/data_filter_990.RDS&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 

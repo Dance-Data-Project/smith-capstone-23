@@ -6,6 +6,10 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
 ---
 
 ```{css, echo = FALSE}
@@ -86,8 +90,6 @@ companies_mult_filings <- filter_data %>%
 
 companies_mult_filings %>%
   filter(form_was_amended != "Amended Once")
-
-
 ```
 
 ```{r}
@@ -208,11 +210,4 @@ filter_data_amended %>%
   row_spec(row = 5, background = "red", color = "white", bold = TRUE)
 ```
 
-As the shorter fiscal year is still a significant portion of the year, 302 days, I feel it should not be filtered.  
-
-```{r}
-
-saveRDS(filter_data_amended, "./data/data_filter_990.RDS")
-
-```
-
+As the shorter fiscal year is still a significant portion of the year, 302 days, I feel it should not be filtered.

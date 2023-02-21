@@ -6,6 +6,10 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
 ---
 
 ```{r setup, include=FALSE}
@@ -58,158 +62,11 @@ library(forcats)
 
 ```
 
-# Generating Table for All Files
-
-```{r get_df function for extracting data from xml files,eval=TRUE, class.source = "fold-show" }
-
-
-##########################################################
-# ITERATE THROUGH ALL FILES AND EXTRACT GIVEN VARIABLES
-##########################################################
-
-
-#' @param variables character vector of variables to extract from the xml files
-#' @param filename string containing full path to xml file to be read
-#' @param include_paths logical; whether to include paths to extracted variables in data frame
-
-get_df <- function(variables,
-                   filename, 
-                   include_paths = TRUE) {
-  
-  # create column names with just the variables (no paths)
-  variables_no_path <- gsub("*.*\\/", "", variables )
-  
-  xml_file <- read_xml(filename)
-  xml_file <- xml_ns_strip(xml_file)
-  
-  # extract each variable; if it isn't present, put NA 
-  extracted <- map(variables, ~{
-    value <- xml_find_all(
-      xml_file, 
-      xpath =.x)
-    value <- ifelse(length(value) ==0, 
-                    NA, 
-                    xml_text(value)) })
-  
-   names(extracted) <- variables_no_path
-   
-   extracted <- extracted %>%
-     as_tibble()
- 
- 
-   # add columns with the paths to each variable within the xml file
-   if(include_paths) {
-      paths <- map(variables, ~ {
-        value <- xml_find_all(
-          xml_file, 
-          xpath = paste0(.x)) 
-         value <- ifelse(length(value) ==0, 
-                      NA, 
-                      xml_path(value)) })
-      
-      names(paths) <- paste0(variables_no_path, "_path")
-      
-      extracted <- extracted %>%
-        bind_cols(as_tibble(paths)) 
-  
-   }
-    
-   # check how many of the entries are NA
-   # if all NA, prefix 'irs:' may be needed
-   columns_not_na <- map_dbl(as.data.frame(extracted), ~!is.na(.x)) %>% sum()
-   
-   # handle case where prefix 'irs' is in front
-   if(columns_not_na == 0){
-     
-       extracted <- map(variables_no_path, ~ {
-        value <- xml_find_all(xml_file, 
-                              xpath = paste0("//irs:", .x)) 
-        value <- ifelse(length(value) ==0, 
-                    NA, 
-                    xml_text(value)) })
-        names(extracted) <- variables_no_path
-        
-         extracted <- extracted %>%
-           as_tibble()
-     
-        if(include_paths) {
-        paths <- map(variables_no_path, ~ {
-          value <- xml_find_all(
-            xml_file, 
-            xpath = paste0("//irs:", .x))
-      
-          value <- ifelse(length(value) ==0, 
-                      NA, 
-                      xml_path(value)) })
-        
-        names(paths) <- paste0(variables_no_path, "_path")  
-        
-      extracted <-  extracted %>%
-        bind_cols(as_tibble(paths)) 
-     }
-   }
-   
- # add name of file to data frame
- extracted %>%
-   mutate(filename = gsub("*.*\\/", "", filename))
-}
-
-
+```{r}
+all_data_filtered <- read_rds("./data/data_filter_990.RDS")
 ```
 
 ```{r}
-
-
-# Reference for Field Names
-# https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
-
-# path assumes zip-file is unzipped in smith-capstone-23 directory
-# generates vector of the full paths to all files in the ballet_990_released_20230208 directory
-files <- dir( "./ballet_990_released_20230208",
-              full.names = TRUE)
-
-# variables to extract from each xml file
-variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
-                          "//Return//ReturnHeader//Filer//EIN", 
-                          "//Return//ReturnHeader//ReturnTypeCd",
-                          "//Return//ReturnHeader//TaxPeriodBeginDt",
-                          "//Return//ReturnHeader//TaxPeriodEndDt",
-                          "//AmendedReturnInd",
-                          "//Return//ReturnHeader//BusinessName")
-
-
-# if data directory does not exist in current directory, create it 
-if(!file.exists("./data")) {dir.create("./data")}
-
-# iterate over all xml files in the directory and extract data
-# each iteration generates one row of the data frame
-all_data <- map_df(files, ~
-                     get_df(variables = variables_to_extract,
-                     filename = .x)) 
-
-# clean timestamp and dates
-# fiscal year is defined as the year of TaxPeriodEndDt
-all_data <- all_data %>%
-  mutate(ReturnDate = as.Date(ReturnTs,
-                              format = "%Y-%m-%d")) %>%
-  mutate(across(c(TaxPeriodBeginDt, 
-                  TaxPeriodEndDt),
-                as.Date, 
-                format = "%Y-%m-%d")) %>%
-  mutate(fiscal_year = year(TaxPeriodEndDt),
-         fiscal_year = factor(fiscal_year),
-         BusinessName = toupper(BusinessName))
-
-# check all files are present in data frame
-# nrow(all_data) == length(files)
-
-# save RDS file to data directory
-saveRDS(all_data, "./data/data_990.RDS")
-
-```
-
-
-```{r function to generate table}
 
 # make kable table with consistent formatting
 make_table <- function(..., title = "") {
@@ -222,18 +79,9 @@ make_table <- function(..., title = "") {
     row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
 }
 
-
 ```
 
-```{r load data}
 
-# load table of data from parsed xml files
-
-all_data <- readRDS("./data/data_990.RDS")
-
-
-
-```
 
 # 1. Filings per Year
 
@@ -241,11 +89,10 @@ all_data <- readRDS("./data/data_990.RDS")
 
 ```{r}
 
-
 ############################################################
 # TABLE: Number of Filings by Year of Return Date
 ############################################################
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year) %>%
   summarize(`Number of Filings`= n()) %>%
   rename(`Year of Return Date` = fiscal_year) %>%
@@ -259,7 +106,7 @@ all_data %>%
 ############################################################
 # PLOT: Number of Filings by Year of Return Date
 ############################################################
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year) %>%
   summarize(`Number of Filings`= n()) %>%
   rename(`Fiscal Year` = fiscal_year) %>%
@@ -284,7 +131,7 @@ all_data %>%
 ####################################################
 # TABLE OF (DISTINCT) EINS PER YEAR
 ####################################################
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year) %>%
   summarize(`Number of Companies` = n_distinct(EIN)) %>%
   rename(`Fiscal Year` = fiscal_year) %>%
@@ -294,7 +141,7 @@ all_data %>%
 ####################################################
 # PLOT OF (DISTINCT) EINS PER YEAR
 ####################################################
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year) %>%
   summarize(`Number of Distinct EINs` = n_distinct(EIN)) %>%
   rename(`Fiscal Year` = fiscal_year) %>%
@@ -318,7 +165,7 @@ We can see the EINs and names of the companies with more than one filing in some
 ############################################################
 # TABLE WITH COMPANIES WITH MORE THAN ONE FILING, BY YEAR
 ############################################################
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year, EIN) %>%
   # number of filings for each company for each year
   summarize(n_filings =n(),.groups="drop") %>%
@@ -341,7 +188,7 @@ We can also look at the trends in the number of companies with 1 filing or 2 fil
 ```{r, fig.width = 12, fig.height = 6}
 
 
-all_data %>%
+all_data_filtered %>%
   group_by(fiscal_year, EIN) %>%
   # number of filings for each company for each year
   summarize(n_filings =n(),.groups="drop") %>% 
@@ -382,7 +229,7 @@ all_data %>%
 
 ```{r, fig.height = 16,  fig.width = 10}
 
-all_data %>% 
+all_data_filtered %>% 
   # compute coverage so we can order the plot by days of total coverage by EIN
   select(EIN, 
          TaxPeriodBeginDt, 
@@ -418,7 +265,7 @@ all_data %>%
 ```{r, fig.height = 16,  fig.width = 10}
 
 
-ein_to_name <- all_data %>%
+ein_to_name <- all_data_filtered %>%
   select(EIN, BusinessName) %>%
   group_by(EIN) %>%
   mutate(n_names = n_distinct(BusinessName)) %>%
@@ -426,7 +273,7 @@ ein_to_name <- all_data %>%
   select(EIN, BusinessName)
 
 
-all_data %>% 
+all_data_filtered %>% 
   # compute coverage so we can order the plot by days of total coverage by EIN
   select(EIN, 
          TaxPeriodBeginDt, 
@@ -467,7 +314,7 @@ To check for gap years, we can take the difference between `TaxPeriodBeginDt` an
 ###################################################
 # TABLE WITH COMPANIES WITH AT LEAST ONE GAP YEAR
 ###################################################
-all_data %>% 
+all_data_filtered %>% 
   # do not include ammended returns for this computation
   filter(is.na(AmendedReturnInd) & ReturnTypeCd != "990T") %>%
   # compute coverage so we can order the plot by days of total coverage by EIN
@@ -488,7 +335,7 @@ all_data %>%
   scroll_box(height = "450px")
 
 # vector of EINs corresponding to companies with at least one gap year
-ein_with_gap <- all_data %>% 
+ein_with_gap <- all_data_filtered %>% 
   # do not include ammended returns for this computation
   filter(is.na(AmendedReturnInd) & ReturnTypeCd != "990T") %>%
   # compute coverage so we can order the plot by days of total coverage by EIN
@@ -515,7 +362,7 @@ ein_with_gap <- all_data %>%
 ############################################################
 # PLOT COVERAGE FOR COMPANIES WITH 1+ GAP YEAR (BY EIN)
 ############################################################
-all_data %>% 
+all_data_filtered %>% 
   filter(EIN %in% ein_with_gap) %>%
   # compute coverage so we can order the plot by days of total coverage by EIN
   select(EIN, 
@@ -551,7 +398,7 @@ all_data %>%
 ############################################################
 # PLOT COVERAGE FOR COMPANIES WITH 1+ GAP YEAR (BY NAME)
 ############################################################
-all_data %>% 
+all_data_filtered %>% 
   filter(EIN %in% ein_with_gap) %>%
   # compute coverage so we can order the plot by days of total coverage by EIN
   select(EIN, 
@@ -588,7 +435,7 @@ all_data %>%
 #####################################
 # HISTOGRAM OF GAPS BETWEEN FILINGS
 #####################################
-all_data %>% 
+all_data_filtered %>% 
   # do not include ammended returns for this computation
   filter(is.na(AmendedReturnInd) & ReturnTypeCd != "990T") %>%
   # compute coverage so we can order the plot by days of total coverage by EIN
