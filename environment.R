@@ -1,0 +1,10 @@
+install.packages("devtools", dependencies=TRUE)
+
+devtools::install_version("forcats", version = "1.0.0", dependencies = TRUE)
+devtools::install_version("kableExtra", version = "1.3.4", dependencies = TRUE)
+devtools::install_version("knitr", version = "1.42", dependencies = TRUE)
+devtools::install_version("lubridate", version = "1.9.1", dependencies = TRUE)
+devtools::install_version("rmarkdown", version = "2.20", dependencies = TRUE)
+devtools::install_version("rvest", version = "1.0.3", dependencies = TRUE)
+devtools::install_version("tidyverse", version = "1.3.2", dependencies = TRUE)
+devtools::install_version("xml2", version = "1.3.3", dependencies = TRUE)
