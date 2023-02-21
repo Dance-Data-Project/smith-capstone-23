@@ -1,4 +1,8 @@
 
+##################################################################
+# simple R script to knit all Rmarkdown file and generate outputs
+# in the output_html directory
+##################################################################
 
 library(rmarkdown)
 
