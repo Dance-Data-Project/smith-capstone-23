@@ -23,6 +23,7 @@ jobs:
       
       - name: Render Rmarkdown files and Commit Results
         run: |
+          Rscript environment.R
           Rscript RUN_ALL.R
 
       - name: Save artifacts
