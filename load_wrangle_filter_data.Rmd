@@ -161,6 +161,8 @@ all_data <- map_df(files, ~
                      get_df(variables = variables_to_extract,
                      filename = .x)) 
 
+glimpse(all_data)
+
 # clean timestamp and dates
 # fiscal year is defined as the year of TaxPeriodEndDt
 all_data <- all_data %>%
