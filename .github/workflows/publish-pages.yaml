@@ -25,7 +25,6 @@ jobs:
         run: |
           wget "${{ secrets.ARCHIVE_BASE }}${{ vars.ARCHIVE_NAME }}.zip${{ secrets.ARCHIVE_SAS_QUERY_STRING }}" -O "${{ vars.ARCHIVE_NAME }}.zip"
           unzip "${{ vars.ARCHIVE_NAME }}.zip" -d ${{ vars.ARCHIVE_NAME }}
-          rm ${{ vars.ARCHIVE_NAME }}.zip
           Rscript RUN_ALL.R
 
       - name: Save artifacts
