@@ -140,7 +140,6 @@ get_df <- function(variables,
 # path assumes zip-file is unzipped in smith-capstone-23 directory
 # generates vector of the full paths to all files in the archive directory
 files <- dir( Sys.getenv("ARCHIVE_NAME"), full.names = TRUE)
-print(files)
 
 # variables to extract from each xml file
 variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
@@ -160,8 +159,6 @@ if(!file.exists("./data")) {dir.create("./data")}
 all_data <- map_df(files, ~
                      get_df(variables = variables_to_extract,
                      filename = .x)) 
-
-glimpse(all_data)
 
 # clean timestamp and dates
 # fiscal year is defined as the year of TaxPeriodEndDt

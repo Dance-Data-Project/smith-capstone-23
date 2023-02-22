@@ -23,9 +23,9 @@ jobs:
           cache-version: 2
       - name: Download archive, extract, and run Rscript
         run: |
+          export ARCHIVE_NAME=${{ vars.ARCHIVE_NAME }}
           wget "${{ secrets.ARCHIVE_BASE }}${{ vars.ARCHIVE_NAME }}.zip${{ secrets.ARCHIVE_SAS_QUERY_STRING }}" -O "${{ vars.ARCHIVE_NAME }}.zip"
           unzip "${{ vars.ARCHIVE_NAME }}.zip" -d ${{ vars.ARCHIVE_NAME }}
-          ls -alh ${{ vars.ARCHIVE_NAME }}
           Rscript RUN_ALL.R
 
       - name: Save artifacts
