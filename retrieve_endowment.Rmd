@@ -20,6 +20,7 @@ library(lubridate)
 library(forcats)
 
 knitr::opts_chunk$set(message = FALSE)
+dotenv::load_dot_env()
 
 ```
 

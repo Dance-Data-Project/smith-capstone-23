@@ -18,6 +18,8 @@ library(tidyverse)
 library(xml2)
 library(rvest)
 library(kableExtra)
+
+dotenv::load_dot_env()
 ```
 
 ```{css, echo =FALSE}
@@ -295,7 +297,7 @@ It may be good to get a sense for the variables that are present in the most of 
 # FUNCTION DEVELOPMENT W/ TEST EXAMPLE
 ############################################
 
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
                full.names = TRUE)
 
 example_file <- xml2::read_xml(files[10])%>% xml_ns_strip()
@@ -356,7 +358,7 @@ collect_sched_d_vars <- function(input_file) {
 }
 
 # file paths in the directory
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
                full.names = TRUE)
 
 # iterate over all files and extract variables present

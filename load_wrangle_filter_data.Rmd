@@ -28,6 +28,8 @@ library(xml2)
 library(kableExtra)
 library(lubridate)
 library(forcats)
+
+dotenv::load_dot_env()
 ```
 
 
@@ -134,8 +136,9 @@ get_df <- function(variables,
 # https://vtechworks.lib.vt.edu/bitstream/handle/10919/109974/TaxDataFinalReport.pdf?sequence=10&isAllowed=y
 
 # path assumes zip-file is unzipped in smith-capstone-23 directory
-# generates vector of the full paths to all files in the ballet_990_released_20230208 directory
-files <- dir( "./ballet_990_released_20230208",
+# generates vector of the full paths to all files in the archive directory
+print(cat("./", Sys.getenv("ARCHIVE_NAME"), sep = ""))
+files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
               full.names = TRUE)
 
 # variables to extract from each xml file
@@ -319,7 +322,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
               full.names = TRUE)
 
 endowment_data <- map_df(files, ~

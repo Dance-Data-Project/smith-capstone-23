@@ -6,6 +6,8 @@
 
 library(rmarkdown)
 
+dotenv::load_dot_env()
+
 render("./load_wrangle_filter_data.Rmd", output_dir = "./output_html" )
 render("./generate_table.Rmd", output_dir = "./output_html")
 render("./filter_out_filings.Rmd",output_dir = "./output_html")
