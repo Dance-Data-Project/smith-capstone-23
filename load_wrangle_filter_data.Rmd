@@ -139,9 +139,8 @@ get_df <- function(variables,
 
 # path assumes zip-file is unzipped in smith-capstone-23 directory
 # generates vector of the full paths to all files in the archive directory
-print(cat("./", Sys.getenv("ARCHIVE_NAME"), sep = ""))
-files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
-              full.names = TRUE)
+files <- dir( Sys.getenv("ARCHIVE_NAME"), full.names = TRUE, pattern = ".*\\.xml$")
+print(files)
 
 # variables to extract from each xml file
 variables_to_extract <- c("//Return//ReturnHeader//ReturnTs",  
@@ -324,8 +323,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir( paste("./", Sys.getenv("ARCHIVE_NAME"), sep = ""),
-              full.names = TRUE)
+files <- dir( Sys.getenv("ARCHIVE_NAME"), full.names = TRUE, pattern = ".*\\.xml$")
 
 endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
