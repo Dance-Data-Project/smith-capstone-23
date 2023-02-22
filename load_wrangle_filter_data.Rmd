@@ -164,11 +164,11 @@ all_data <- map_df(files, ~
 # clean timestamp and dates
 # fiscal year is defined as the year of TaxPeriodEndDt
 all_data <- all_data %>%
-  mutate(ReturnDate = as.Date(ReturnTs,
+  mutate(ReturnDate = as_date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
   mutate(across(c(TaxPeriodBeginDt, 
                   TaxPeriodEndDt),
-                as.Date, 
+                as_date, 
                 format = "%Y-%m-%d")) %>%
   mutate(fiscal_year = year(TaxPeriodEndDt),
          fiscal_year = factor(fiscal_year),
