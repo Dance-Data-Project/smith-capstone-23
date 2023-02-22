@@ -19,12 +19,13 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          cache-version: 1
+          cache: True
+          cache-version: 2
       - name: Download archive, extract, and run Rscript
         run: |
-          wget "${ARCHIVE_BASE}${ARCHIVE_NAME}.zip${ARCHIVE_QS}" -O "${ARCHIVE_NAME}.zip"
-          unzip "${ARCHIVE_NAME}.zip" -d ${ARCHIVE_NAME}
-          rm ${ARCHIVE_NAME}.zip
+          wget "${{ secrets.ARCHIVE_BASE }}${{ vars.ARCHIVE_NAME }}.zip${{ secrets.ARCHIVE_SAS_QUERY_STRING }}" -O "${{ vars.ARCHIVE_NAME }}.zip"
+          unzip "${{ vars.ARCHIVE_NAME }}.zip" -d ${{ vars.ARCHIVE_NAME }}
+          rm ${{ secrets.ARCHIVE_NAME }}.zip
           Rscript RUN_ALL.R
 
       - name: Save artifacts
