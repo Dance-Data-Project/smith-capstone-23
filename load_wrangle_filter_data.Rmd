@@ -29,7 +29,9 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 
-dotenv::load_dot_env()
+if (file.exists(".env")) {
+  dotenv::load_dot_env()
+}
 ```
 
 

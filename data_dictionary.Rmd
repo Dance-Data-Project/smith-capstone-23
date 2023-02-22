@@ -19,7 +19,9 @@ library(xml2)
 library(rvest)
 library(kableExtra)
 
-dotenv::load_dot_env()
+if (file.exists(".env")) {
+  dotenv::load_dot_env()
+}
 ```
 
 ```{css, echo =FALSE}

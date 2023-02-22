@@ -20,7 +20,9 @@ library(lubridate)
 library(forcats)
 
 knitr::opts_chunk$set(message = FALSE)
-dotenv::load_dot_env()
+if (file.exists(".env")) {
+  dotenv::load_dot_env()
+}
 
 ```
 
