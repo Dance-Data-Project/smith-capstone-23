@@ -1,0 +1,151 @@
+---
+title: "Cross Referencing Endowment Values"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+library(tidyverse)
+
+```
+
+```{r}
+
+endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") 
+
+
+
+```
+
+```{r, include=FALSE,eval=FALSE}
+
+# testing / function development
+
+
+endowment_data %>%
+  group_by(EIN) %>%
+  summarize(number_observations = sum(!is.na(CYBeginningYearBalanceAmt))) %>%
+  group_by(number_observations) %>%
+  summarize(n=n()) %>%
+  ggplot(aes(x = number_observations, y =n ))+
+  geom_bar(stat="identity") +
+  labs(y = "Number of Companies",
+       x = "Number of Observations where\nCYBeginningYearBalanceAmt was Not Missing",
+       title ="Missingness for CYBeginningYearBalanceAmt") +
+  theme_bw() +
+  theme(plot.title = element_text(face = "bold", hjust = .5)) 
+
+
+eins_with_variable <- endowment_data %>%
+  group_by(EIN) %>%
+  summarize(number_observations = sum(!is.na(CYBeginningYearBalanceAmt))) %>%
+  filter(number_observations != 0) %>%
+  pull(EIN)
+  
+
+base_name <- "BeginningYearBalanceAmt"
+var <- paste0("CY", base_name)
+vars <- paste0("CYM", c( 1:4), base_name)
+
+crossref <- endowment_data %>%
+  filter(EIN %in% eins_with_variable) %>%
+  select(EIN, fiscal_year, contains(base_name)) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(
+    difference_in_reported_year1 =  !!sym(vars[1]) - 
+      lag(!!sym(var), n =1),
+    difference_in_reported_year2 =  !!sym(vars[2]) - 
+      lag(!!sym(var), n =2),
+    difference_in_reported_year3 =  !!sym(vars[3]) - 
+      lag(!!sym(var), n =3),
+     difference_in_reported_year4 =  !!sym(vars[4]) - 
+      lag(!!sym(var), n =4)
+    ) 
+
+```
+
+```{r}
+
+plot_missing <- function(variable) {
+  
+  endowment_data %>%
+    group_by(EIN) %>%
+    summarize(number_observations = sum(!is.na(!!sym(variable)))) %>%
+    group_by(number_observations) %>%
+    summarize(n=n()) %>%
+    ggplot(aes(x = number_observations, y =n ))+
+    geom_bar(stat="identity") +
+    labs(y = "Number of Companies",
+         x = paste0("Number of Observations where\n",
+         variable, " was Not Missing"),
+         title =paste0("Missingness for ", variable)) +
+    theme_bw() +
+    theme(plot.title = element_text(face = "bold", hjust = .5)) 
+
+}
+
+check_variable <- function(variable_name) {
+  
+  
+  base_name <- variable_name
+  var <- paste0("CY", base_name)
+  vars <- paste0("CYM", c( 1:4), base_name)
+  
+  plt <- plot_missing(var)
+  
+  print(plt)
+  
+  eins_with_variable <- endowment_data %>%
+    group_by(EIN) %>%
+    summarize(number_observations = sum(!is.na(!!sym(var)))) %>%
+    filter(number_observations != 0) %>%
+    pull(EIN)
+  
+  crossref <- endowment_data %>%
+    filter(EIN %in% eins_with_variable) %>%
+    select(EIN, fiscal_year, contains(base_name)) %>%
+    group_by(EIN) %>%
+    arrange(fiscal_year) %>%
+    mutate(
+      difference_in_reported_year1 =  !!sym(vars[1]) - 
+        lag(!!sym(var), n =1),
+      difference_in_reported_year2 =  !!sym(vars[2]) - 
+        lag(!!sym(var), n =2),
+      difference_in_reported_year3 =  !!sym(vars[3]) - 
+        lag(!!sym(var), n =3),
+       difference_in_reported_year4 =  !!sym(vars[4]) - 
+        lag(!!sym(var), n =4)
+      ) 
+
+}
+
+
+crossref <- check_variable("BeginningYearBalanceAmt")
+
+crossref %>% 
+  select(EIN, contains("difference")) %>%
+  pivot_longer(cols = contains("difference")) %>%
+  group_by(name) %>%
+  mutate(count_na = sum(is.na(value)),
+            count_not_na = sum(!is.na(value))) %>%
+  ungroup() %>%
+  ggplot(aes(x = name, y = value)) +
+  geom_boxplot() 
+  geom_histogram() +
+  facet_wrap(~name) +
+  scale_x_log10()
+
+
+```
+
