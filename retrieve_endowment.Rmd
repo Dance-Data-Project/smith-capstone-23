@@ -100,8 +100,7 @@ filed_schd_d %>%
   filter(Filled_Sch_D == "Yes") %>%
   summarize(num_sch_d = n()) %>%
   make_table(title = "Total Number of Unique Schedule D's", col_names = c("Total"))  %>%
-  row_spec(row = 0:1, align = "center") %>%
-  scroll_box(height = "450px")
+  row_spec(row = 0:1, align = "center")
 ```
 
 There are 241 uniquely filed Schedule D's. 
@@ -114,8 +113,7 @@ filed_schd_d %>%
   group_by(year) %>%
   summarize(num_sch_d_in_year = n()) %>%
   arrange(desc(year)) %>%
-  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year"))  %>%
-  scroll_box(height = "450px")
+  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year"))
 ```
 
 Years represented in the data are 2014-2020, based on the beginning financial year date. 
@@ -131,16 +129,14 @@ filed_schd_d %>%
   group_by(Need_Sch_D) %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
-  make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings")) %>%
-  scroll_box(height = "450px")
+  make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings"))
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
 filed_schd_d %>%
   group_by(Need_Sch_D, Filled_Sch_D) %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
-  make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))%>%
-  scroll_box(height = "450px")
+  make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))
 ```
 
 Total which needed schedule D and proceeded to file it matches total who filed it previously.  
@@ -204,3 +200,4 @@ filed_schd_d %>%
        title = "Gaps in Filing for \n EINs with Schedule D Gaps")
 ```
 
+> Now: Find those who have different schedule D submissions from their 990 submissions 
