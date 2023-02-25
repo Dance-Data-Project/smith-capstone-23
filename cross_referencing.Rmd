@@ -251,44 +251,6 @@ As we might expect, we see that a higher proportion had a nonzero difference bet
 crossref <- check_variable("BeginningYearBalanceAmt", data = endowment_data)
 plot_missing("CYBeginningYearBalanceAmt")
 
-# stacked chart, note we can't see how nonzero counts are changing 
-# relative to the total counts
-
-crossref %>%
-  select(EIN, contains("difference"), fiscal_year) %>%
-  pivot_longer(cols = contains("difference")) %>%
-  filter(!is.na(value)) %>%
-  group_by(name)  %>%
-  summarize(zero = sum(ifelse(value == 0, 1,0)),
-            nonzero = sum(ifelse(value == 0, 0,1))) %>%
-  # notice each row represents a fiscal_year-EIN-difference_type 
-  pivot_longer(cols = c(zero, nonzero),
-               names_to = "source",
-               values_to = "count") %>%
-  mutate(name = gsub("difference_in_reported_year", "", name),
-         source = ifelse(source == "nonzero",
-                         "Nonzero Difference", 
-                         "Zero Difference")) %>%
-  ggplot(aes(x=name, y = count, fill = source)) +
-  geom_bar(stat ="identity", position = "stack", alpha = .8) +
-  geom_label(aes(label = round(count,2), y = count, color = source),
-             position = "stack",
-             size = 2.6,
-             label.padding = unit(.1, "lines"),
-             fill = "white",
-             fontface="bold",
-             show.legend = FALSE) +
-  labs(title = "Number of Zero and Nonzero Differences\nBetween Cross Referenced Reports",
-       subtitle = "By Year",
-       x = "Years Between Reports Compared",
-       y = "Count",
-       fill = "") +
-  theme_bw() +
-  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
-        plot.subtitle = element_text(hjust = .5, face="italic"),
-        axis.text.x = element_text(size = 13),
-        axis.title = element_text(size = 16, face = "bold"))
-
 
 ```
 
@@ -325,37 +287,45 @@ We also see we have fewer total counts of non-missing reports as we go further b
 
 ```{r}
 
-# plot counts
+# stacked chart, note we can't see how nonzero counts are changing 
+# relative to the total counts
 crossref %>%
-  select(EIN, contains("difference")) %>%
+  select(EIN, contains("difference"), fiscal_year) %>%
   pivot_longer(cols = contains("difference")) %>%
   filter(!is.na(value)) %>%
   group_by(name)  %>%
   summarize(zero = sum(ifelse(value == 0, 1,0)),
             nonzero = sum(ifelse(value == 0, 0,1))) %>%
+  # notice each row represents a fiscal_year-EIN-difference_type 
   pivot_longer(cols = c(zero, nonzero),
                names_to = "source",
                values_to = "count") %>%
-  mutate(name = gsub("difference_in_reported_year", "", name)) %>%
+  mutate(name = gsub("difference_in_reported_year", "", name),
+         source = ifelse(source == "nonzero",
+                         "Nonzero Difference", 
+                         "Zero Difference")) %>%
   ggplot(aes(x=name, y = count, fill = source)) +
-  geom_bar(stat ="identity", position = "stack") +
-  geom_label(aes(label = round(count,2), y = count),
+  geom_bar(stat ="identity", position = "stack", alpha = .8) +
+  geom_label(aes(label = round(count,3), y = count, color = source),
              position = "stack",
              size = 2.6,
              label.padding = unit(.1, "lines"),
+             fill = "white",
+             fontface="bold",
              show.legend = FALSE) +
-  labs(title = "EINs with Zero and Nonzero Difference\nBetween Cross Referenced Reports",
+  labs(title = "Number of Zero and Nonzero Differences\nBetween Cross Referenced Reports",
        subtitle = "By Year",
        x = "Years Between Reports Compared",
-       y = "Count") +
+       y = "Count",
+       fill = "") +
   theme_bw() +
   theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
         plot.subtitle = element_text(hjust = .5, face="italic"),
         axis.text.x = element_text(size = 13),
         axis.title = element_text(size = 16, face = "bold"))
 
-
 ```
+
 
 ## Companies with Discordance in Reported Values
 
@@ -494,11 +464,6 @@ missing_all <- map_df( variables_to_check,
 ```
 
 
-```{r}
-
-```
-
-
 ```{r, fig.height = 8, fig.width = 9}
 
 
@@ -621,6 +586,7 @@ walk(variables_to_check, ~{
 ## Companies with Discordant Reporting for at Least One Variable
 
 ```{r}
+
 intersections <- crossref_all %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value, variable) %>%
@@ -643,12 +609,14 @@ crossref_all %>%
     escape=FALSE)
       
 
-Reduce(intersect, intersections$EINs) %>% length() 
-Reduce(union, intersections$EINs) %>% length() 
+discord_in_all <- Reduce(intersect, intersections$EINs) %>% unique() %>% length() 
+discord_at_least_one <- Reduce(union, intersections$EINs) %>% unique() %>% length() 
 
 
 ```
 
+The number of companies with a discordant report for all variables was `r discord_in_all`,
+and the number of companies with at least one  discordant report for all variables was `r discord_at_least_one`.
 
 ```{r, fig.height =8.5, fig.width = 13}
 
