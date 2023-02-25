@@ -21,7 +21,7 @@ max-width:2300px;
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
 library(tidyverse)
 library(kableExtra)
 library(scales)
@@ -111,7 +111,7 @@ crossref <- endowment_data %>%
 ```
 
 
-```{r,eval=FALSE}
+```{r,eval=FALSE, include= FALSE}
 
 eins_with_variable <- endowment_data %>%
   group_by(EIN) %>%
@@ -255,27 +255,34 @@ plot_missing("CYBeginningYearBalanceAmt")
 # relative to the total counts
 
 crossref %>%
-  select(EIN, contains("difference")) %>%
+  select(EIN, contains("difference"), fiscal_year) %>%
   pivot_longer(cols = contains("difference")) %>%
   filter(!is.na(value)) %>%
   group_by(name)  %>%
   summarize(zero = sum(ifelse(value == 0, 1,0)),
             nonzero = sum(ifelse(value == 0, 0,1))) %>%
+  # notice each row represents a fiscal_year-EIN-difference_type 
   pivot_longer(cols = c(zero, nonzero),
                names_to = "source",
                values_to = "count") %>%
-  mutate(name = gsub("difference_in_reported_year", "", name)) %>%
+  mutate(name = gsub("difference_in_reported_year", "", name),
+         source = ifelse(source == "nonzero",
+                         "Nonzero Difference", 
+                         "Zero Difference")) %>%
   ggplot(aes(x=name, y = count, fill = source)) +
-  geom_bar(stat ="identity", position = "stack") +
-  geom_label(aes(label = round(count,2), y = count),
+  geom_bar(stat ="identity", position = "stack", alpha = .8) +
+  geom_label(aes(label = round(count,2), y = count, color = source),
              position = "stack",
              size = 2.6,
              label.padding = unit(.1, "lines"),
+             fill = "white",
+             fontface="bold",
              show.legend = FALSE) +
-  labs(title = "EINs with Zero and Nonzero Difference\nBetween Cross Referenced Reports",
+  labs(title = "Number of Zero and Nonzero Differences\nBetween Cross Referenced Reports",
        subtitle = "By Year",
        x = "Years Between Reports Compared",
-       y = "Count") +
+       y = "Count",
+       fill = "") +
   theme_bw() +
   theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
         plot.subtitle = element_text(hjust = .5, face="italic"),
@@ -288,7 +295,7 @@ crossref %>%
 ```{r}
 
 
-# plot fraction where there was no difference betewen 
+# plot fraction where there was a difference between 
 # the reports by year
 crossref %>% 
   select(EIN, contains("difference")) %>%
@@ -302,11 +309,11 @@ crossref %>%
   ggplot(aes(x=name, y = fraction)) +
   geom_bar(stat ="identity", fill = "#234A77") +
   geom_label(aes(label = round(fraction,2))) +
-  labs(title = paste0("Fraction of EINs with a Nonzero Difference\n",
+  labs(title = paste0("Fraction of Differences that Were Nonzero\n",
                       "Between Cross Referenced Reports"),
        subtitle = "By Year",
        x = "Years Between Reports Compared",
-       y = "Fraction with No Difference") +
+       y = "Fraction with Nonzero Difference") +
   theme_bw() +
   theme(plot.title = element_text(hjust = .5, face="bold"),
         plot.subtitle = element_text(hjust = .5, face="italic"))
@@ -319,7 +326,6 @@ We also see we have fewer total counts of non-missing reports as we go further b
 ```{r}
 
 # plot counts
-
 crossref %>%
   select(EIN, contains("difference")) %>%
   pivot_longer(cols = contains("difference")) %>%
@@ -532,8 +538,9 @@ missing_all %>%
   
 ```
 
+## Fraction Discordant by Variable
 
-```{r}
+```{r, fig.width = 11}
 
 # plot fraction discordant for each variable
 crossref_all %>%
@@ -554,7 +561,7 @@ crossref_all %>%
   theme_bw() +
   theme(plot.title = element_text(face = "bold", hjust = .5, size = 16),
             axis.title = element_text(face = "bold", size =16),
-            axis.text = element_text(size = 12)) +
+            axis.text.x = element_text(size = 12, angle = 10, vjust = .6)) +
   labs(y = "Fraction Discordant",
        x = "Endowment Variable",
        title = "Fraction of Observations that Were Discordant for Each Variable")
@@ -626,88 +633,100 @@ crossref_all %>%
       select(EIN, fiscal_year, name, value, variable) %>%
       filter(value > 0) %>%
       group_by(EIN) %>%
-      summarize(variable = paste(unique(variable), collapse=", ")) %>%
+      summarize(variable = paste(unique(variable), collapse=",<br>")) %>%
   left_join(companies_to_ein) %>%
   arrange(organization_name) %>%
   select(`Organization Name` = `organization_name`,
          `Variables with Discordant Reporting` = variable) %>%
-  make_table(title = "Companies with Discordant Reporting for at Least One Variable")
+  make_table(
+    title = "Companies with Discordant Reporting for at Least One Variable",
+    escape=FALSE)
       
 
-# Reduce(intersect, intersections$EINs)
+Reduce(intersect, intersections$EINs) %>% length() 
+Reduce(union, intersections$EINs) %>% length() 
 
 
 ```
 
 
-```{r, fig.height =9, fig.width = 12}
+```{r, fig.height =8.5, fig.width = 13}
 
 variable_name <- "BeginningYearBalanceAmt"
-cross_ref_for_var <- crossref_all %>%
+
+
+plot_reported_for_variable <- function(variable_name, crossref, endowment) {
+  
+  cross_ref_for_var <- crossref %>%
       filter(variable == variable_name) %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value) %>%
       filter(value > 0) 
     
-discordant <- cross_ref_for_var %>%
-    pull(EIN) %>% unique()
+  discordant <- cross_ref_for_var %>%
+      pull(EIN) %>% unique()
+  
+  number_cols <- ifelse(length(discordant) <= 6, 1,2)
+  
+  
+  # plot the values for the year they correspond to so we can compare,
+  # for example, if CM1 for 2016 is the same as CY for 2015
+  endowment %>%
+    filter(EIN %in% discordant) %>%
+    select(EIN, fiscal_year, contains(variable_name)) %>%
+    group_by(EIN) %>%
+    arrange(fiscal_year) %>% 
+    pivot_longer(3: ncol(.)) %>%
+    mutate(source = ifelse(grepl("CYM", name), substr(name, 1,4), "CY"),
+           year_lag = ifelse(grepl("CYM", name), substr(source, 4,4), 0),
+           year_lag = as.numeric(year_lag),
+           fiscal_year = as.integer(paste0(fiscal_year))) %>%
+    mutate(value_year = fiscal_year -year_lag
+           ) %>%
+    left_join(companies_to_ein) %>%
+    mutate(organization_name = paste0(organization_name, 
+                                      " (EIN: ", EIN, ")")) %>%
+    ggplot(aes(x = value_year, y = value)) +
+    geom_jitter(aes(fill=source), height  =0, 
+                width = .2,
+                alpha = .8,
+                size = 2.2,
+                shape =21,
+                color = "black",
+                stroke =.4) +
+   # geom_line(aes(group = source, color = source)) +
+    facet_wrap(~organization_name, scales= 'free_y', ncol = number_cols) +
+    scale_x_continuous(breaks = 2011:2021 ) +
+    scale_y_continuous(labels = comma) +
+    viridis::scale_fill_viridis(option="magma", discrete=TRUE) +
+    theme_bw() +
+    labs(x = "Fiscal Year",
+         y = "Reported Value (Dollars)",
+         title = paste0("Comparing Reported Values for ", variable_name),
+         subtitle = "Only Considering Companies with at Least One Discordant Value") +
+    theme(plot.title = element_text(
+      face = "bold",
+      hjust = .5, 
+      size = 16),
+      axis.title = element_text(face = "bold", size =16),
+      axis.text = element_text(size = 12),
+      strip.text = element_text(face = "bold", size = 14),
+      plot.subtitle=element_text(size =14, 
+                                 face="italic",
+                                 hjust = .5),
+      legend.text = element_text(size = 10),
+      legend.title = element_text(face = "bold", size = 12)) +
+    guides(legend = guide_legend(override.aes = list(size = 3)))
 
-# 
-# base_name <- "BeginningYearBalanceAmt"
-# var <- paste0("CY", base_name)
-# vars <- paste0("CYM", c( 1:4), base_name)
-# 
-# eins_with_variable <- endowment_data %>%
-#     group_by(EIN) %>%
-#     summarize(number_observations = sum(!is.na(!!sym(var)))) %>%
-#     filter(number_observations != 0) %>%
-#     pull(EIN)
+}
 
 
-endowment_data %>%
-  filter(EIN %in% discordant) %>%
-  select(EIN, fiscal_year, contains(variable_name)) %>%
-  group_by(EIN) %>%
-  arrange(fiscal_year) %>% 
-  pivot_longer(3: ncol(.)) %>%
-  mutate(source = ifelse(grepl("CYM", name), substr(name, 1,4), "CY"),
-         year_lag = ifelse(grepl("CYM", name), substr(source, 4,4), 0),
-         year_lag = as.numeric(year_lag),
-         fiscal_year = as.integer(paste0(fiscal_year))) %>%
-  mutate(value_year = fiscal_year -year_lag
-         ) %>%
-  left_join(companies_to_ein) %>%
-  mutate(organization_name = paste0(organization_name, 
-                                    " (EIN: ", EIN, ")")) %>%
-  ggplot(aes(x = value_year, y = value)) +
-  geom_jitter(aes(fill=source), height  =0, 
-              width = .2,
-              alpha = .8,
-              size = 2.2,
-              shape =21,
-              color = "black",
-              stroke =.4) +
- # geom_line(aes(group = source, color = source)) +
-  facet_wrap(~organization_name, scales= 'free_y', ncol = 1) +
-  scale_x_continuous(breaks = 2011:2021 ) +
-  scale_y_continuous(labels = comma) +
-  viridis::scale_fill_viridis(option="magma", discrete=TRUE) +
-  theme_bw() +
-  labs(x = "Fiscal Year",
-       y = "Reported Value (Dollars)",
-       title = paste0("Comparing Reported Values for ", variable_name),
-       subtitle = "Only Considering Companies with at Least One Discordant Value") +
-  theme(plot.title = element_text(
-    face = "bold",
-    hjust = .5, 
-    size = 16),
-    axis.title = element_text(face = "bold", size =16),
-    axis.text = element_text(size = 12),
-    strip.text = element_text(face = "bold", size = 14),
-    plot.subtitle=element_text(size =14, face="italic"))
-
-
-
+walk(unique(variables_to_check),
+     ~ {plt <- plot_reported_for_variable(
+       variable_name = .x,
+       crossref = crossref_all,
+       endowment = endowment_data)
+     print(plt) })
 
 
 ```
