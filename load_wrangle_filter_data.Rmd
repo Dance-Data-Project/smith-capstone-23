@@ -213,6 +213,7 @@ get_endowment <- function(filename) {
   # Retrieving the same endowment information for all 
   variables <- c("//Return//ReturnHeader//ReturnTs", 
                  "//Return//ReturnHeader//Filer//EIN", 
+                  "//Return//ReturnHeader//TaxPeriodBeginDt",
                   "//Return//ReturnHeader//TaxPeriodEndDt",
                  "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
@@ -258,6 +259,7 @@ get_endowment <- function(filename) {
   # Column name; order matters, needs to align with retrieval order
   variables_no_path <- c("ReturnTs", 
                          "EIN",
+                         "TaxPeriodBeginDt",
                          "TaxPeriodEndDt",
                          "DonorRstrOrQuasiEndowmentsInd",
                         "CYBeginningYearBalanceAmt", 
