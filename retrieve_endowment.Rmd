@@ -87,7 +87,8 @@ filed_schd_d %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
-  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out"))
+  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out")) %>%
+  scroll_box(height = "450px")
 ```
 
 There are 47 EINs which, at one point, have filled out Schedule D. 
@@ -99,7 +100,8 @@ filed_schd_d %>%
   filter(Filled_Sch_D == "Yes") %>%
   summarize(num_sch_d = n()) %>%
   make_table(title = "Total Number of Unique Schedule D's", col_names = c("Total"))  %>%
-  row_spec(row = 0:1, align = "center")
+  row_spec(row = 0:1, align = "center") %>%
+  scroll_box(height = "450px")
 ```
 
 There are 241 uniquely filed Schedule D's. 
@@ -112,7 +114,8 @@ filed_schd_d %>%
   group_by(year) %>%
   summarize(num_sch_d_in_year = n()) %>%
   arrange(desc(year)) %>%
-  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year")) 
+  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year"))  %>%
+  scroll_box(height = "450px")
 ```
 
 Years represented in the data are 2014-2020, based on the beginning financial year date. 
@@ -128,14 +131,16 @@ filed_schd_d %>%
   group_by(Need_Sch_D) %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
-  make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings"))
+  make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings")) %>%
+  scroll_box(height = "450px")
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
 filed_schd_d %>%
   group_by(Need_Sch_D, Filled_Sch_D) %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
-  make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))
+  make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))%>%
+  scroll_box(height = "450px")
 ```
 
 Total which needed schedule D and proceeded to file it matches total who filed it previously.  
@@ -152,7 +157,7 @@ filed_schd_d %>%
   mutate(sum_coverage = sum(time)) %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
-             y = fct_reorder(EIN, sum_coverage))) +
+             y = EIN)) +
   geom_linerange(size = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
@@ -165,7 +170,37 @@ filed_schd_d %>%
                date_labels = "%b %Y") +
   labs(y = "EIN",
        x = "Date",
-       title = "Gaps in Schedule D submission by EIN")
+       title = "Schedule D submission by EIN")
 ```
 
-> NEXT TO DO: Making a Gap Plot for just these EINs, for their total submission.  Just to compare
+```{r}
+ein_with_sch_d <- filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  group_by(EIN) %>%
+  summarize(n = n()) %>%
+  pull(EIN) 
+
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time)) %>%
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Gaps in Filing for \n EINs with Schedule D Gaps")
+```
+
