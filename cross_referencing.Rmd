@@ -27,7 +27,7 @@ library(kableExtra)
 library(scales)
 ```
 
-```{r}
+```{r read data}
 
 endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") 
 
@@ -157,14 +157,17 @@ crossref <- endowment_data %>%
 
 ```{r}
 
+# plot missingness for a given variable 
 plot_missing <- function(variable) {
   
   endowment_data %>%
     group_by(EIN) %>%
+    # number of observations where variable is not NA 
     summarize(number_observations = sum(!is.na(!!sym(variable)))) %>%
     group_by(number_observations) %>%
-    summarize(n=n()) %>%
-    ggplot(aes(x = number_observations, y =n ))+
+    # number of EINs with each value of number_observations
+    summarize(n_ein=n()) %>%
+    ggplot(aes(x = number_observations, y =n_ein ))+
     geom_bar(stat="identity") +
     labs(y = "Number of Companies",
          x = paste0("Number of Observations where\n",
@@ -176,8 +179,13 @@ plot_missing <- function(variable) {
 }
 
 
-# note -- only works if years are consecutive 
 
+
+# compare values from CY to CYM* for given variable
+# returns data frame that contains the difference between the CY value and 
+# corresonding CM* values
+# for example, the difference between the CY value for 2016 would be compared 
+# to the CYM1 value for 2017, and the CYM2 value for 2018, and so on 
 check_variable <- function(variable_name,
                            data) {
   
@@ -220,7 +228,7 @@ check_variable <- function(variable_name,
     arrange(fiscal_year) %>%
     # lag corresponds to how far back the current year comparison should be
     # vars contains the CM* variables that represent reporting for years back
-    # compare these CM* variables to the lagged current year variables
+    # compare these CM* variables to the lagged current year (CY) variables
     mutate(
       difference_in_reported_year1 =  !!sym(vars[1]) - 
         lag(!!sym(var), n =1),
@@ -513,9 +521,10 @@ crossref_all %>%
   pivot_longer( contains("difference")) %>%
   filter(!is.na(value)) %>%
   group_by(variable) %>%
-  summarize(number_of_discordant_observations = sum(value > 1),
-            total_observations_of_variable = n(),
-            fraction_discordant = number_of_discordant_observations / total_observations_of_variable) %>%
+  summarize(
+    number_of_discordant_observations = sum(value > 1),
+    total_observations_of_variable = n(),
+    fraction_discordant = number_of_discordant_observations / total_observations_of_variable) %>%
   ggplot(aes(x = fct_reorder(variable,
                              fraction_discordant,
                              .desc = TRUE),
@@ -534,21 +543,23 @@ crossref_all %>%
 
 ```
 
-```{r, results = 'asis'}
+```{r tables by variable, results = 'asis'}
 
-
+# generate table displaying the discordant values for a given variable
 get_discordant_table <- function(variable_name, data) {
-  
+    
+    # observations with nonzero difference 
     cross_ref_for_var <- data %>%
       filter(variable == variable_name) %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value) %>%
       filter(value > 0) 
     
-  discordant <- cross_ref_for_var %>%
-    pull(EIN) %>% unique()
-  
-  
+    # EINs that have at least one discordance 
+    discordant <- cross_ref_for_var %>%
+      pull(EIN) %>% unique()
+    
+  # generate table displaying discordances
   cross_ref_for_var %>%
     left_join(companies_to_ein, by = c("EIN" = "EIN")) %>%
     mutate(year = substr(name, nchar(name), nchar(name)),
@@ -575,11 +586,12 @@ get_discordant_table <- function(variable_name, data) {
 
 }
 
-
+# iterate over all variables to check and generate table
 walk(variables_to_check, ~{
   table_for_var <- get_discordant_table(.x, data = crossref_all)
   print(table_for_var)
 })
+
 
 ```
 
@@ -587,27 +599,32 @@ walk(variables_to_check, ~{
 
 ```{r}
 
+# variables corresponding to number of companies with at least one discordance
+crossref_all %>%
+      pivot_longer(cols = contains("difference")) %>%
+      select(EIN, fiscal_year, name, value, variable) %>%
+      filter(value > 0) %>%
+      group_by(EIN) %>%
+      summarize(
+                number_variables = length(unique(variable)),
+                variable = paste(unique(variable), collapse=",<br>")) %>%
+  left_join(companies_to_ein) %>%
+  arrange(organization_name) %>%
+  select(`Organization Name` = `organization_name`,
+         `Number of Variables Discordant` = number_variables,
+         `Variables with Discordant Reporting` = variable) %>%
+  make_table(
+    title = "Companies with Discordant Reporting for at Least One Variable",
+    escape=FALSE)
+      
+
+# for each variable, list of EINs that have at least one discordance 
 intersections <- crossref_all %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value, variable) %>%
       filter(value > 0) %>%
       group_by(variable) %>%
       summarize(EINs = list(unique(EIN)))
-
-crossref_all %>%
-      pivot_longer(cols = contains("difference")) %>%
-      select(EIN, fiscal_year, name, value, variable) %>%
-      filter(value > 0) %>%
-      group_by(EIN) %>%
-      summarize(variable = paste(unique(variable), collapse=",<br>")) %>%
-  left_join(companies_to_ein) %>%
-  arrange(organization_name) %>%
-  select(`Organization Name` = `organization_name`,
-         `Variables with Discordant Reporting` = variable) %>%
-  make_table(
-    title = "Companies with Discordant Reporting for at Least One Variable",
-    escape=FALSE)
-      
 
 discord_in_all <- Reduce(intersect, intersections$EINs) %>% unique() %>% length() 
 discord_at_least_one <- Reduce(union, intersections$EINs) %>% unique() %>% length() 
@@ -620,9 +637,8 @@ and the number of companies with at least one  discordant report for all variabl
 
 ```{r, fig.height =8.5, fig.width = 13}
 
-variable_name <- "BeginningYearBalanceAmt"
 
-
+# visualize discordances in given variable_name 
 plot_reported_for_variable <- function(variable_name, crossref, endowment) {
   
   cross_ref_for_var <- crossref %>%
@@ -688,7 +704,8 @@ plot_reported_for_variable <- function(variable_name, crossref, endowment) {
 
 }
 
-
+# plot variables by year, by variable only for EINs that have
+# at least one discordance for a given variable
 walk(unique(variables_to_check),
      ~ {plt <- plot_reported_for_variable(
        variable_name = .x,
@@ -699,7 +716,9 @@ walk(unique(variables_to_check),
 
 ```
 
+# Questions to Consider
 
+* Should we assume the most recently reported values are (the most) accurate?
 
 ```{r,eval=FALSE}
 
