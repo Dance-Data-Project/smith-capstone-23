@@ -26,12 +26,13 @@ knitr::opts_chunk$set(message = FALSE)
 ```{r}
 
 # make kable table with consistent formatting
-make_table <- function(..., title = "") {
+make_table <- function(..., title = "", col_names = c("")) {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
                   title,
                   "</span></b><center>")
    as_tibble(...) %>%
-    kbl(caption = title) %>%
+    kbl(caption = title,
+        col.names = col_names) %>%
     kable_material() %>%
     row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
 }
@@ -65,7 +66,8 @@ endowment_data %>%
   scale_y_continuous(labels = scales::label_dollar())
 ```
 
-## Which Years and Companies Filled out Endowments   
+## Which Years and Companies Filled out Schedule D  
+
 ```{r}
 ##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
 ##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
@@ -74,7 +76,8 @@ filed_schd_d <- endowment_data %>%
   select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, Filled_Sch_D) %>%
   mutate(Need_Sch_D = case_when(is.na(DonorRstrOrQuasiEndowmentsInd) ~ "NA",
                                 DonorRstrOrQuasiEndowmentsInd == TRUE ~ "Yes",
-                                DonorRstrOrQuasiEndowmentsInd == FALSE ~ "No"))
+                                DonorRstrOrQuasiEndowmentsInd == FALSE ~ "No")) %>%
+  select(-DonorRstrOrQuasiEndowmentsInd)
 ```
 
 ```{r}
@@ -84,10 +87,23 @@ filed_schd_d %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
-  make_table(title = "EINs that filled out Schedule D")
+  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out"))
 ```
 
 There are 47 EINs which, at one point, have filled out Schedule D. 
+
+```{r}
+#How many unique schedule D's are there
+filed_schd_d %>%
+ select(ReturnDate, EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+ # group_by(EIN) %>%
+  summarize(num_sch_d = n()) %>%
+  make_table(title = "Total Number of Unique Schedule D's", col_names = c("Total"))  %>%
+  row_spec(row = 0:1, align = "center")
+```
+
+There are 241 uniquely filed Schedule D's. 
 
 ```{r}
 filed_schd_d %>%
@@ -97,8 +113,10 @@ filed_schd_d %>%
   group_by(year) %>%
   summarize(num_sch_d_in_year = n()) %>%
   arrange(desc(year)) %>%
-  make_table(title = "Years with an EIN filled out")
+  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year")) 
 ```
+
+Years represented in the data are 2015-2022.
 
 
 ## Determining Which Needed to File Schedule D for Endowment
