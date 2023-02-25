@@ -1,0 +1,36 @@
+---
+title: "Explore Endowment Values Over Time"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
+library(tidyverse)
+library(kableExtra)
+library(scales)
+```
+
+
+```{r read data}
+
+endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") 
+
+companies_to_ein <- read_csv("./data/companies.csv") %>%
+  mutate(EIN = as.character(ein))
+
+```
