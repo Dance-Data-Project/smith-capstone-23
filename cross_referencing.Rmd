@@ -13,16 +13,6 @@ knit: (function(input, ...) {
 ---
 
 
-```{css, echo = FALSE}
-
-/* expand content to screenwidth rather than cutting it off */
-#content{
-max-width:2300px;
-}
-
-```
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE)
 library(tidyverse)
@@ -189,9 +179,8 @@ check_variable <- function(variable_name,
   var <- paste0("CY", base_name)
   vars <- paste0("CYM", c( 1:4), base_name)
   
-  plt <- plot_missing(var)
-  
-  print(plt)
+  # plt <- plot_missing(var)
+  # print(plt)
   
   eins_with_variable <- data %>%
     group_by(EIN) %>%
@@ -253,7 +242,7 @@ As we might expect, we see that a higher proportion had no difference between th
 ```{r}
 
 crossref <- check_variable("BeginningYearBalanceAmt", data = endowment_data)
-
+plot_missing("CYBeginningYearBalanceAmt")
 
 # stacked chart, note we can't see how nonzero counts are changing 
 # relative to the total counts
@@ -278,7 +267,7 @@ crossref %>%
              show.legend = FALSE) +
   labs(title = "EINs with Zero and Nonzero Difference\nBetween Cross Referenced Reports",
        subtitle = "By Year",
-       x = "Year",
+       x = "Years Between Reports Compared",
        y = "Count") +
   theme_bw() +
   theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
@@ -308,7 +297,7 @@ crossref %>%
   geom_label(aes(label = round(fraction,2))) +
   labs(title = "Fraction of EINs with No Difference\nBetween Cross Referenced Reports",
        subtitle = "By Year",
-       x = "Year",
+       x = "Years Between Reports Compared",
        y = "Fraction with No Difference") +
   theme_bw() +
   theme(plot.title = element_text(hjust = .5, face="bold"),
@@ -322,6 +311,7 @@ We also see we have fewer total counts of non-missing reports as we go further b
 ```{r}
 
 # plot counts
+
 crossref %>%
   select(EIN, contains("difference")) %>%
   pivot_longer(cols = contains("difference")) %>%
@@ -342,7 +332,7 @@ crossref %>%
              show.legend = FALSE) +
   labs(title = "EINs with Zero and Nonzero Difference\nBetween Cross Referenced Reports",
        subtitle = "By Year",
-       x = "Year",
+       x = "Years Between Reports Compared",
        y = "Count") +
   theme_bw() +
   theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
@@ -353,36 +343,92 @@ crossref %>%
 
 ```
 
+## Companies with Discordance in Reported Values
 
 ```{r}
 
-"What They Reported as CY Minus X Years - What They Reported at The Time"
+# difference represents What They Reported as CY Minus X Years - What They Reported at The Time
 
-
+companies_different <- crossref %>%
+  pivot_longer(cols = contains("difference")) %>%
+  select(EIN, fiscal_year, name, value) %>%
+  filter(value > 0) %>%
+   left_join(companies_to_ein, by = c("EIN" = "EIN")) %>%
+  arrange(organization_name) %>%
+  pull(EIN) %>%
+  unique()
+  
 crossref %>%
   pivot_longer(cols = contains("difference")) %>%
   select(EIN, fiscal_year, name, value) %>%
   filter(value > 0) %>%
   left_join(companies_to_ein, by = c("EIN" = "EIN")) %>%
   mutate(year = substr(name, nchar(name), nchar(name)),
-         year = paste0("Comparing Current Year Minus ",
+         year = paste0("Comparing Current<br> Year Minus ",
                        year)) %>%
   arrange(organization_name) %>%
   select(`Organization Name` = organization_name,
-         Year = year, 
+         `Difference in Years` = year, 
          `Fiscal Year` = fiscal_year,
-         `Recent Value - Value <br> Reported Previously` = value) %>%
-  make_table(title = "Comparing Values Reported in More Recent Reports<br>to Those Previously Reported",
+         `Recent  - Previously Reported` = value) %>%
+  make_table(title = paste0(
+    "Comparing Values Reported in More Recent Report to Those Previously Reported:<br>",
+    "<i>Number of Companies that have at Least One Report Not Concordant: </i>",
+    length(companies_different)),
              digits = 3, 
              format.args = list(
                big.mark = ",",
-               scientific = FALSE))  %>%
-  scroll_box(height = "450px")
+               scientific = FALSE),
+    escape=FALSE,
+    booktabs=TRUE)  %>%
+  scroll_box(height = "450px",
+             width = "100%") 
+
+```
 
 
+We see that values are repeated because if there is some value that is quite off, say for 2016, then this shows up in the CYM1 for 2017, but also CYM2 for 2018, CYM3 for 2019 and so on.
 
 
+## Tables of Reported Values for Each Company with Discordance in Reported Values
 
+Observations:
+
+* We see in some cases, the problematic reports are clear initially. This is the case in San Francisco Ballet, Ballet Arizona, or the Alabama Ballet.
+* The differences for Fort Wayne Ballet and the Pacific Northwest Ballet are more subtle.
+
+```{r, results='asis'}
+
+
+# iterate through EINs where there was discordance and
+# generate a table so we can better see what's going on
+
+variable_name <- "BeginningYearBalanceAmt"
+
+walk(1:length(companies_different), ~{
+  name <- companies_to_ein %>%
+    filter(EIN == companies_different[.x]) %>%
+    pull(organization_name)
+  
+  table <- crossref %>% 
+    rename_with(cols=everything(), ~gsub(variable_name, "", .)) %>%
+    filter(EIN %in% companies_different[.x]) %>%
+    select(-c(EIN, contains("difference"))) %>%
+    make_table(title = paste0("Reports for ",
+                              name, "<br>EIN: ", 
+                              companies_different[.x],
+                               ", Variable: ", variable_name))
+  
+  print(table)
+  
+#  print(table)
+
+})
+
+
+```
+
+```{r,eval=FALSE}
 crossref %>%
   pivot_longer(cols = contains("difference")) %>%
   select(EIN, fiscal_year, name, value) %>%
@@ -394,6 +440,101 @@ crossref %>%
   arrange(organization_name) %>% View()
 
 ```
+
+# Cross Referencing All Endowment Variables
+
+## Missingness
+
+```{r}
+
+variables_to_check  <- endowment_data %>%
+  select(contains("CY")) %>%
+  colnames() %>%
+  gsub("CY|CYM.", "",.) %>%
+  unique()
+
+crossref_all <- map_df(
+  variables_to_check,
+  ~{  variable_name <- .x
+  check_variable(variable_name,
+                 data = endowment_data) %>% 
+    # remove variable name part of column name 
+    # so we can bind rows together, add this information
+    # as a separate column
+    rename_with(cols=everything(), 
+                ~gsub(variable_name, "", .)) %>%
+    mutate(variable = .x)
+})
+
+
+missing_all <- map_df( variables_to_check, 
+ ~ {variable <- paste0("CY",.x)
+    endowment_data %>%
+      group_by(EIN) %>%
+      summarize(number_observations = sum(!is.na(!!sym(variable)))) %>%
+      group_by(number_observations) %>%
+      summarize(number_eins=n()) %>%
+      mutate(variable = variable)
+    })
+
+```
+
+
+```{r, fig.height = 8, fig.width = 9}
+
+
+colors <- c("#58b5e1", "#49406e", "#9dd84e", "#6633b4", "#46ebdc")
+
+
+missing_all %>%
+  mutate(number_observations = paste0(
+    "Number of EINS with ",
+    number_observations,
+    " Observations for this Variable" )) %>%
+      ggplot(aes(x = variable, y =number_eins, fill = variable))+
+      geom_bar(stat="identity",
+               position = "dodge",
+               show.legend=FALSE) +
+      geom_label(aes(label = number_eins,
+                     color = variable),
+                 fill = "white",
+                 vjust = .5,
+                 size = 2,
+                 position = position_dodge(1),
+                 label.padding = unit(.1, "lines"),
+                 show.legend=FALSE) +
+       facet_wrap(~number_observations, ncol=1) +
+  coord_flip() +
+      labs(y = "Number of Companies",
+           x = "Variable Name",
+           title = "Comparing Missingness Across Variables") +
+      theme_bw() +
+      theme(plot.title = element_text(face = "bold", hjust = .5),
+            axis.title = element_text(face = "bold")) +
+  scale_fill_manual(values = colors) +
+  scale_color_manual(values = colors) +
+  scale_y_continuous(n.breaks = 8) 
+
+
+  
+
+# %>%
+#       ggplot(aes(x = number_observations, y =n ))+
+#       geom_bar(stat="identity") +
+#       labs(y = "Number of Companies",
+#            x = paste0("Number of Observations where\n",
+#            variable, " was Not Missing"),
+#            title =paste0("Missingness for ", variable)) +
+#       theme_bw() +
+#       theme(plot.title = element_text(face = "bold", hjust = .5)
+
+
+crossref <- check_variable("BeginningYearBalanceAmt", data = endowment_data)
+
+
+
+```
+
 
 
 ```{r,eval=FALSE}
