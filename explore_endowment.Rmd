@@ -13,12 +13,6 @@ knit: (function(input, ...) {
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-
-
-```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
 library(tidyverse)
 library(kableExtra)
@@ -28,9 +22,54 @@ library(scales)
 
 ```{r read data}
 
-endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") 
+endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") %>%
+  select(EIN, fiscal_year, contains("CY"))
 
 companies_to_ein <- read_csv("./data/companies.csv") %>%
   mutate(EIN = as.character(ein))
 
 ```
+
+
+```{r}
+
+# only include EINs that have at least one observation of 
+# one of the endowment variables
+include_eins <- endowment_data %>%
+  pivot_longer(-c(EIN,fiscal_year)) %>%
+  group_by(EIN) %>%
+  summarize(na_count = sum(is.na(value)),
+             total_rows = n()) %>%
+  filter(na_count < total_rows) %>%
+  pull(EIN) %>% unique()
+
+
+  
+endowment_data %>%
+  filter(EIN %in% include_eins) %>% 
+    group_by(EIN) %>%
+    pivot_longer(3: ncol(.),
+                 names_to = "variable_name") %>%
+    mutate(source = ifelse(grepl("CYM", variable_name),
+                           substr(variable_name, 1,4), "CY"),
+           year_lag = ifelse(grepl("CYM", variable_name), 
+                             substr(source, 4,4), 0),
+           year_lag = as.numeric(year_lag),
+           fiscal_year = as.numeric(paste0(fiscal_year))) %>%
+    mutate(value_year = fiscal_year -year_lag
+           ) %>%
+  group_by(EIN, value_year, variable_name) %>%
+  arrange(EIN, variable_name, fiscal_year) %>%
+  slice_max(n = 1, order_by = fiscal_year) %>%
+  filter(EIN == "042312734") %>%
+  View()
+  
+  
+  
+  
+    left_join(companies_to_ein) %>%
+    mutate(organization_name = paste0(organization_name, 
+                                      " (EIN: ", EIN, ")"))
+
+```
+
