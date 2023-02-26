@@ -119,7 +119,7 @@ filed_schd_d %>%
         legend.position = "none")
 ```
 
-There are 47 EINs which, at one point, have filled out Schedule D. 
+There are `r filed_schd_d %>% filter(Filled_Sch_D == "Yes") %>%pull(EIN) %>% unique() %>% length()` EINs which, at one point, have filled out Schedule D. 
 
 ```{r}
 #How many unique schedule D's are there
