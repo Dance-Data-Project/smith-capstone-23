@@ -336,6 +336,8 @@ filter_ids <- filter_data %>%
 endowment_data <- endowment_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d"),
+         TaxPeriodBeginDt = as.Date(TaxPeriodBeginDt,
+                                  format = "%Y-%m-%d"),
          TaxPeriodEndDt = as.Date(TaxPeriodEndDt,
                                   format = "%Y-%m-%d"),
          fiscal_year = as.factor(year(TaxPeriodEndDt))) %>%
