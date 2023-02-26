@@ -158,6 +158,29 @@ filed_schd_d %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
   make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings"))
+```
+
+```{r}
+# plot showing same information as table
+filed_schd_d %>%
+  group_by(Need_Sch_D) %>%
+  summarize(`Total Filings` = n()) %>%
+  arrange(desc(Need_Sch_D)) %>%
+  ggplot(aes(x = Need_Sch_D, y = `Total Filings`)) +
+  geom_bar(stat="identity") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 15, face="bold"),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 16, face = "bold"),
+        legend.position = "none") +
+  labs(x = "Response on Q10",
+       title = "Responses for Whether They Needed Schedule D on Q10") +
+  scale_y_continuous(n.breaks = 6)
+```
+
+```{r}
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
 filed_schd_d %>%
@@ -165,6 +188,9 @@ filed_schd_d %>%
   summarize(n = n()) %>%
   arrange(desc(Need_Sch_D)) %>%
   make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))
+
+
+
 ```
 
 Total which needed schedule D and proceeded to file it matches total who filed it previously.  
