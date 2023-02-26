@@ -200,6 +200,7 @@ filed_schd_d %>%
 ```
 
 ```{r}
+##Plotting both 990 gaps and Schedule D Gaps
 schd_d_gap <- filed_schd_d %>%
   filter(Filled_Sch_D == "Yes") %>%
   mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
@@ -217,7 +218,6 @@ filed_schd_d %>%
   mutate(sum_coverage = sum(time),
          type = "Only 990 Filed") %>%
   bind_rows(schd_d_gap) %>%
- # mutate(type = factor(type, levels = "Schedule D Filings", "990 Filings")) %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
              y = EIN,
@@ -260,7 +260,7 @@ filed_schd_d %>%
 ```
 
 ```{r}
-#Retrieving list of 990 filing gaps
+#Retrieving list of 990 filing gaps, for those who have once filled out an EIN
 filed_schd_d %>%
   filter(EIN %in% ein_with_sch_d) %>%
   select(EIN, 
