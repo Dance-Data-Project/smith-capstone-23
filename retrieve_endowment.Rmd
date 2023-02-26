@@ -161,7 +161,7 @@ filed_schd_d %>%
 ```
 
 ```{r}
-# plot showing same information as table
+# plot showing same information as previous table
 filed_schd_d %>%
   group_by(Need_Sch_D) %>%
   summarize(`Total Filings` = n()) %>%
@@ -173,8 +173,7 @@ filed_schd_d %>%
         plot.subtitle = element_text(hjust = .5, face="italic"),
         axis.text.x = element_text(size = 15, face="bold"),
         axis.text.y = element_text(size = 12),
-        axis.title = element_text(size = 16, face = "bold"),
-        legend.position = "none") +
+        axis.title = element_text(size = 16, face = "bold")) +
   labs(x = "Response on Q10",
        title = "Responses for Whether They Needed Schedule D on Q10") +
   scale_y_continuous(n.breaks = 6)
@@ -192,6 +191,33 @@ filed_schd_d %>%
 
 
 ```
+
+
+```{r, fig.width = 10}
+# bar plot with same information as table above
+filed_schd_d %>%
+  group_by(Need_Sch_D, Filled_Sch_D) %>%
+  summarize(n = n()) %>%
+  arrange(desc(Need_Sch_D)) %>%
+  ungroup() %>%
+  mutate(Need_Sch_D = paste0("Needed Schedule D: ", Need_Sch_D)) %>%
+  ggplot(aes(x = Filled_Sch_D, y = n)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~Need_Sch_D) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 15, face="bold"),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 16, face = "bold"),
+        strip.text = element_text(face="bold",size = 14)) +
+  labs(title = "Number of Filings where Schedule D was Filled Out",
+       subtitle = "By Whether They Actually Needed it by Question 10",
+       x = "Filled out Schedule D",
+       y = "Number of Filings")
+```
+
+
 
 Total which needed schedule D and proceeded to file it matches total who filed it previously.  
 
