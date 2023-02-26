@@ -150,7 +150,6 @@ filed_schd_d %>%
   mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
          time = as.numeric(time, "days")) %>%
   group_by(EIN) %>%
-  mutate(sum_coverage = sum(time)) %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
              y = EIN)) +
@@ -166,27 +165,65 @@ filed_schd_d %>%
                date_labels = "%b %Y") +
   labs(y = "EIN",
        x = "Date",
-       title = "Schedule D submission by EIN")
+       title = "Schedule D submission by EIN\nacross time")
 ```
 
 ```{r}
+#Getting EINS of those who have filled out Schedule D
 ein_with_sch_d <- filed_schd_d %>%
   filter(Filled_Sch_D == "Yes") %>%
+  pull(EIN) %>%
+  unique()
+
+#Gap plot
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
   group_by(EIN) %>%
-  summarize(n = n()) %>%
-  pull(EIN) 
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Filing history for all EINs\nthat filed at least one schedule D ")
+```
+
+```{r}
+schd_d_gap <- filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Schedule D Included")
+
 
 filed_schd_d %>%
   filter(EIN %in% ein_with_sch_d) %>%
   mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
          time = as.numeric(time, "days")) %>%
   group_by(EIN) %>%
-  mutate(sum_coverage = sum(time)) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+ # mutate(type = factor(type, levels = "Schedule D Filings", "990 Filings")) %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
-             y = EIN)) +
+             y = EIN,
+             color = type)) +
   geom_linerange(size = 1, alpha = .8) +
-  theme_bw() +
+  theme_bw() + 
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
         axis.title = element_text(size = 16, face = "bold"),
         plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
@@ -195,9 +232,47 @@ filed_schd_d %>%
         strip.text = element_text(face="bold",size = 18)) +
   scale_x_date(date_breaks = "12 months",
                date_labels = "%b %Y") +
+  scale_color_manual(values = c("darkgoldenrod1", "blue4")) +
   labs(y = "EIN",
        x = "Date",
-       title = "Gaps in Filing for \n EINs with Schedule D Gaps")
+       title = "Schedule D and 990 Filing Dates",
+       color = "Type of Filing")
+
+```
+> 943417247, 931009305, 846038137, 840776736, 746050356, 550397803, 210732575 probably interesting to investigate  
+
+
+```{r}
+#Retrieving list of schedule D filing gaps 
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d & Filled_Sch_D == "Yes") %>%
+  select(EIN, 
+         TaxPeriodBeginDt, #calc dates b/w schedule d 
+         TaxPeriodEndDt) %>%
+  group_by(EIN) %>%
+  arrange(TaxPeriodBeginDt) %>%
+  mutate(before =  lag(TaxPeriodEndDt, n =1),
+        gap = interval(before, TaxPeriodBeginDt),
+        gap = as.numeric(gap, "days")) %>%
+  filter(gap > 1) %>%
+  select(EIN, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "Schedule D Filing Gaps", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
 
-> Now: Find those who have different schedule D submissions from their 990 submissions 
+```{r}
+#Retrieving list of 990 filing gaps
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  select(EIN, 
+         TaxPeriodBeginDt, 
+         TaxPeriodEndDt) %>%
+  group_by(EIN) %>%
+  arrange(TaxPeriodBeginDt) %>%
+  mutate(before =  lag(TaxPeriodEndDt, n =1),
+        gap = interval(before, TaxPeriodBeginDt),
+        gap = as.numeric(gap, "days")) %>%
+  filter(gap > 1) %>%
+  select(EIN, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
+```
+
