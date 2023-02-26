@@ -64,6 +64,9 @@ endowment_data %>%
         legend.position = "none") +
   labs(title = "Comparing Fiscal Year Beginning and End Endowment Totals") +
   scale_y_continuous(labels = scales::label_dollar())
+
+
+
 ```
 
 ## Which Years and Companies Filled out Schedule D  
@@ -89,6 +92,31 @@ filed_schd_d %>%
   arrange(desc(num_times_fil_sche_D)) %>%
   make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out")) %>%
   scroll_box(height = "450px")
+
+```
+
+```{r}
+# plot to show same information as previous table
+filed_schd_d %>%
+  select(EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  group_by(EIN) %>%
+  summarize(num_times_fil_sche_D = n()) %>%
+  group_by(num_times_fil_sche_D) %>%
+  summarize(num_ein = n()) %>%
+  ggplot(aes(x = num_times_fil_sche_D, y = as.integer(num_ein))) +
+  geom_bar(stat="identity") +
+  scale_x_continuous(breaks = 1:7) +
+  labs(title = "For Companies that Filled out Schedule D at Least Once,\nNumber of Times Schedule D Was Filled Out",
+       x = "Number of Times Filled Out",
+       y = "Number of EINs") +
+  geom_label(aes(label = num_ein)) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 16, face = "bold"),
+        legend.position = "none")
 ```
 
 There are 47 EINs which, at one point, have filled out Schedule D. 
