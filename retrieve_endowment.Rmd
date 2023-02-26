@@ -19,7 +19,7 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 
-knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 ```
 
@@ -199,48 +199,6 @@ filed_schd_d %>%
        title = "Filing history for all EINs\nthat filed at least one schedule D ")
 ```
 
-```{r}
-##Plotting both 990 gaps and Schedule D Gaps
-schd_d_gap <- filed_schd_d %>%
-  filter(Filled_Sch_D == "Yes") %>%
-  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
-         time = as.numeric(time, "days")) %>%
-  group_by(EIN) %>%
-  mutate(sum_coverage = sum(time),
-         type = "Schedule D Included")
-
-
-filed_schd_d %>%
-  filter(EIN %in% ein_with_sch_d) %>%
-  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
-         time = as.numeric(time, "days")) %>%
-  group_by(EIN) %>%
-  mutate(sum_coverage = sum(time),
-         type = "Only 990 Filed") %>%
-  bind_rows(schd_d_gap) %>%
-  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
-             xmax = TaxPeriodEndDt, 
-             y = EIN,
-             color = type)) +
-  geom_linerange(size = 1, alpha = .8) +
-  theme_bw() + 
-  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
-        axis.title = element_text(size = 16, face = "bold"),
-        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
-        axis.text.y = element_text(size = 4),
-        strip.text = element_text(face="bold",size = 18)) +
-  scale_x_date(date_breaks = "12 months",
-               date_labels = "%b %Y") +
-  scale_color_manual(values = c("darkgoldenrod1", "blue4")) +
-  labs(y = "EIN",
-       x = "Date",
-       title = "Schedule D and 990 Filing Dates",
-       color = "Type of Filing")
-
-```
-> 943417247, 931009305, 846038137, 840776736, 746050356, 550397803, 210732575 probably interesting to investigate  
-
 
 ```{r}
 #Retrieving list of schedule D filing gaps 
@@ -275,4 +233,81 @@ filed_schd_d %>%
   select(EIN, gap, before, TaxPeriodBeginDt) %>%
   make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
+
+# Aligning 990 Filing Gaps and Schedule D Filing Gaps  
+Important note: Filing Schedule D guarantees they filed a 990.  
+
+
+```{r}
+##Plotting both 990 gaps and Schedule D Gaps
+schd_d_gap <- filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Schedule D Included")
+
+##Gap plot  
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN,
+             color = type)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() + 
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  scale_color_manual(values = c("darkgoldenrod1", "blue4")) +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Schedule D and 990 Filing Dates",
+       color = "Type of Filing")
+
+## Table Identifying those that don't line up 
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  group_by(EIN) %>%
+  arrange(EIN, type, TaxPeriodBeginDt) %>%
+  select(-type) %>%
+  anyDuplicated()  
+
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  select(-c(type, time, sum_coverage)) %>%
+  group_by(TaxPeriodBeginDt, TaxPeriodEndDt, ReturnDate, EIN, Filled_Sch_D, Need_Sch_D) %>%
+  mutate(num_dups = n()) %>%
+  filter(num_dups < 2) %>%
+  group_by(EIN) %>%
+  summarize() %>%
+  make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = "EIN")
+
+```
+There are seven EINs which do not always fill out Schedule D when they fill out 990.  
+
 
