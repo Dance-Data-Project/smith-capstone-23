@@ -31,6 +31,7 @@ library(plotly)
 
 ```{r read data}
 
+# starting by only exploring the CY* variables
 endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") %>%
   select(EIN, fiscal_year, contains("CY"))
 
@@ -54,7 +55,11 @@ include_eins <- endowment_data %>%
   pull(EIN) %>% unique()
 
 
-  
+# taking most recently available information from the CY* variables
+# this is to take into account findings from cross referencing that 
+# values are not always in correspondence
+# when they are in correspondence, this will be equivalent to just taking
+# the CY data from each fiscal year 
 endowment_data <- endowment_data %>%
   filter(EIN %in% include_eins) %>% 
     group_by(EIN) %>%
@@ -62,10 +67,13 @@ endowment_data <- endowment_data %>%
                  names_to = "variable_name") %>%
     mutate(source = ifelse(grepl("CYM", variable_name),
                            substr(variable_name, 1,4), "CY"),
+           # get the year lag from the CYM variable name
+           # CYM1 corresponds to 1 year lag
            year_lag = ifelse(grepl("CYM", variable_name), 
                              substr(source, 4,4), 0),
            year_lag = as.numeric(year_lag),
            fiscal_year = as.numeric(paste0(fiscal_year)),
+           # get rid of CY or CMX part of the variable name (where X is a year)
            variable_name = gsub("CY|CYM.", "", variable_name)) %>%
     mutate(value_year = fiscal_year -year_lag
            ) %>%
@@ -76,6 +84,7 @@ endowment_data <- endowment_data %>%
   select(EIN, value_year, variable_name, source, value) %>%
   rename(fiscal_year=value_year) %>%
   ungroup() %>%
+  # add company names
   left_join(companies_to_ein)
   
 
@@ -130,7 +139,11 @@ endowment_data %>%
 
 ```{r}
 
-
+# this function splits the data into 4 groups based on the mean value for that EIN 
+# and plots the variable over time, faceted by group
+# this is to handle the fact that the values are on very different scales,
+# so if we plot them all together, it masks any interesting trends
+# dotted lines represent where there was a missing year between observations
 plot_variable <- function(var) {
   
   # get eins with at least one observation of the variable
@@ -141,7 +154,7 @@ plot_variable <- function(var) {
     filter(number_observations != 0) %>%
     pull(EIN)
   
-
+  # split into quantiles based on EIN mean
   data <- endowment_data %>%
       filter(EIN %in% eins_with_variable & variable_name == var) %>%
       group_by(EIN) %>%
@@ -158,6 +171,8 @@ plot_variable <- function(var) {
                                         organization_name)) %>%
     ungroup()
   
+  # data with no nas so we can connect the values wehre there was a missing year
+  # instead of just having no line connecting points from years on each side of the gap
   data_no_nas <- data %>% filter(!is.na(value))
   
   data %>%
@@ -178,7 +193,8 @@ plot_variable <- function(var) {
     viridis::scale_color_viridis(option = "mako", discrete = TRUE, end=.94) +
     theme_bw() +
     labs(title = paste0("Change in ", var, " Over Time"),
-         x = "Fiscal Year") +
+         x = "Fiscal Year",
+         y = paste0("value of ", var)) +
     theme(plot.title = element_text(size = 18, 
                                     hjust = .5, face="bold",
                                     margin =margin(.1,.1,10,.1)),
@@ -194,6 +210,7 @@ plot_variable <- function(var) {
 
 ```{r, fig.width = 12, fig.height = 6}
 
+# plot each variable over time
 walk(unique(endowment_data$variable_name),
      ~{plt <- plot_variable(.x) 
      print(plt)
@@ -206,6 +223,7 @@ walk(unique(endowment_data$variable_name),
 
 ```{r}
 
+# margins
 m <- list(
     l = 50,
     r = 50,
@@ -240,6 +258,7 @@ htmltools::tagList(setNames(plotlist, NULL))
 ```{r, eval= FALSE, include = FALSE}
 
 
+# function development 
 
 endowment_data_wide <- endowment_data %>% 
   pivot_wider(names_from=variable_name,
