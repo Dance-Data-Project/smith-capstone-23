@@ -47,7 +47,7 @@ endowment_data <- read_rds("./data/endowment_filter_data_990.RDS")
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 ##Graphing difference between beginning and end periods  
 
 endowment_data %>%
