@@ -16,12 +16,6 @@ library(shiny)
 
 
 ```{r}
-EIN<-filter_data_amended %>% 
-  group_by(EIN, ReturnTs) %>% 
-  summarise(n = n())
-```
-
-```{r}
 # after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
 
 # Find all variable names that include building information
@@ -270,7 +264,17 @@ bookvalues <- do.call(rbind, BookValueSum)
 ```{r visualizatoins of the change in buildings book value}
 # visualization of overall book value
 ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
-  geom_line()
+  geom_line()+
+  theme_bw()+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Schedule D Sum of Buildings Book Value",
+       x = "Year",
+       title = "Schedule D Sum of Buildings Book Value Change",
+       subtitle = "By Fiscal Year")
 
 ```
 ```{r}
@@ -279,25 +283,73 @@ ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
 bookvalues %>% 
   filter(BookValueSum >= 1e+07) %>% 
   ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
-  geom_line()
+  geom_line()+
+  theme_bw()+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Schedule D Sum of Buildings Book Value",
+       x = "Year",
+       title = "Schedule D Sum of Buildings Book Value Change (High)",
+       subtitle = "By Fiscal Year")
 
 
 # medium
 bookvalues %>% 
   filter(BookValueSum < 1e+07 & BookValueSum > 2.5e+06) %>% 
   ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
-  geom_line()
+  geom_line()+
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Schedule D Sum of Buildings Book Value",
+       x = "Year",
+       title = "Schedule D Sum of Buildings Book Value Change (Medium)",
+       subtitle = "By Fiscal Year")
 
 # low
 bookvalues %>% 
   filter(BookValueSum < 2.5e+06) %>% 
   ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
-  geom_line()
-```
+  geom_line()+
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Schedule D Sum of Buildings Book Value",
+       x = "Year",
+       title = "Schedule D Sum of Buildings Book Value Change (Low)",
+       subtitle = "By Fiscal Year")
 
+```
+The book value will decrease because of depreciation, so the normal trend of an EIN from previous visualization should be a slight downward line. I will filter out EIN with a bizarre trend that should be :
+  1) Abruptly going down
+  2) going up at any point
+  3) appear less than 3 years
 
 ```{r}
+#dataframe with higher Book Values
+high <- bookvalues %>% 
+  filter(BookValueSum > 1e+07)
+```
+weird EIN: 132584273, 621018942
 
+```{r}
+medium <-bookvalues %>% 
+  filter(BookValueSum < 1e+07 & BookValueSum > 2.5e+06)
+```
+weird EIN: 546049868
+
+```{r}
+low <- bookvalues %>% 
+  filter(BookValueSum < 1e+07) 
 ```
 
 
