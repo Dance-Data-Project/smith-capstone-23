@@ -141,14 +141,14 @@ get_endowment <- function(filename) {
                         "EndowmentsHeldUnrelatedOrgInd",
                         "EndowmentsHeldRelatedOrgInd",
                         
-                         "OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
-                         "OtherLandBuildingsGrp/DepreciationAmt",             
-                         "OtherLandBuildingsGrp/BookValueAmt",                 
-                         "BuildingsGrp/OtherCostOrOtherBasisAmt",              
-                         "BuildingsGrp/DepreciationAmt",                       
-                         "BuildingsGrp/BookValueAmt",                          
-                         "OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
-                        "BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
+                         "OtherLandBuildingsGrp_OtherCostOrOtherBasisAmt",     
+                         "OtherLandBuildingsGrp_DepreciationAmt",             
+                         "OtherLandBuildingsGrp_BookValueAmt",                 
+                         "BuildingsGrp_OtherCostOrOtherBasisAmt",              
+                         "BuildingsGrp_DepreciationAmt",                       
+                         "BuildingsGrp_BookValueAmt",                          
+                         "OtherLandBuildingsGrp_InvestmentCostOrOtherBasisAmt",
+                        "BuildingsGrp_InvestmentCostOrOtherBasisAmt",         
                         
                         "AmendedReturnInd",
                         "ReturnTypeCd"
@@ -196,18 +196,48 @@ endowment_data_building <- endowment_data_building %>%
   filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
   right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
   select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
-```
 
-```{r}
 saveRDS(endowment_data_building, "./data/endowment_filtered_buildings.RDS")
+
+endowment_data_building <- endowment_data_building %>% 
+  mutate(BuildingsBk)
 ```
 
 
 ## Preliminary Analysis of PartIV Data
 
+Term explained: 
+*Book value* is an accounting term used for both a measure of a business's equity and the value of an asset as it appears on a balance sheet. As time goes on, the cost stays the same, but the accumulated depreciation increases, so the book value decreases.
 ```{r}
+# filter out all data each year
+data_each_year<-list(
+  data_2015 <- filter(endowment_data_building, grepl("2015", ReturnTs)),
+  data_2016 <- filter(endowment_data_building, grepl("2016", ReturnTs)),
+  data_2017 <- filter(endowment_data_building, grepl("2017", ReturnTs)),
+  data_2018 <- filter(endowment_data_building, grepl("2018", ReturnTs)),
+  data_2019 <- filter(endowment_data_building, grepl("2019", ReturnTs)),
+  data_2020 <- filter(endowment_data_building, grepl("2020", ReturnTs)),
+  data_2021 <- filter(endowment_data_building, grepl("2021", ReturnTs)),
+  data_2022 <- filter(endowment_data_building, grepl("2022", ReturnTs))
+)
+
 
 ```
 
 
+```{r}
+BookValueSum <- list()
+
+for(data in data_each_year){
+  df <- data %>% 
+    filter(!is.na(BuildingsGrp_BookValueAmt)) %>% 
+    mutate_at(c("BuildingsGrp_BookValueAmt", "BuildingsGrp_DepreciationAmt"), as.numeric) %>% 
+    group_by(EIN) %>% 
+    summarise(
+      BookValueSum = sum(BuildingsGrp_BookValueAmt)
+    )
+  print(df)
+  BookValueSum = append(df, BookValueSum)
+}
+```
 
