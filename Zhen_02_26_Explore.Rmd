@@ -11,6 +11,7 @@ library(dplyr)
 library(purrr)
 library(xml2)
 library(ggplot2)
+library(shiny)
 ```
 
 
@@ -267,9 +268,37 @@ bookvalues <- do.call(rbind, BookValueSum)
  
 
 ```{r visualizatoins of the change in buildings book value}
-
+# visualization of overall book value
 ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
   geom_line()
 
 ```
+```{r}
+# separate EIN with medium and low building book value according to previous graph
+# high
+bookvalues %>% 
+  filter(BookValueSum >= 1e+07) %>% 
+  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  geom_line()
+
+
+# medium
+bookvalues %>% 
+  filter(BookValueSum < 1e+07 & BookValueSum > 2.5e+06) %>% 
+  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  geom_line()
+
+# low
+bookvalues %>% 
+  filter(BookValueSum < 2.5e+06) %>% 
+  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  geom_line()
+```
+
+
+```{r}
+
+```
+
+
 
