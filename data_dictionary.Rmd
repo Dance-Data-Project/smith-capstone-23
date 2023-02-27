@@ -173,8 +173,6 @@ make_table <- function(..., title = "") {
 ```
 
 ```{r}
-
-
 # iterate through all html files in html directory and extract variable information
 variable_descriptions <- map_df(
   dir("./data_dict_html", full.names= TRUE),
@@ -295,7 +293,7 @@ It may be good to get a sense for the variables that are present in the most of 
 # FUNCTION DEVELOPMENT W/ TEST EXAMPLE
 ############################################
 
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
                full.names = TRUE)
 
 example_file <- xml2::read_xml(files[10])%>% xml_ns_strip()
@@ -356,13 +354,14 @@ collect_sched_d_vars <- function(input_file) {
 }
 
 # file paths in the directory
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
                full.names = TRUE)
 
 # iterate over all files and extract variables present
 # output is a data frame with a file name column and variable name column
 all_vars <- map_df(files, collect_sched_d_vars)
 
+all_vars
 ```
 
 ```{r,include=FALSE}
@@ -386,10 +385,9 @@ all_vars <- map_df(files, collect_sched_d_vars)
 ## Table of Variables by Frequency
 
 ```{r}
-
 # sort variables by the number of files that have a given variable
 # include parent variable for ease of interpretation
-all_vars %>% 
+vars_count<-all_vars %>% 
    rename(Variable = variables) %>%
    group_by(Variable) %>% 
   # number of files that have each variable
@@ -401,6 +399,16 @@ all_vars %>%
            Variable = map_chr(Variable, ~.x[length(.x)])) %>%
   select(Parent, Variable, `Number of Files` = files ) %>%
   arrange(desc(`Number of Files`))
+
+vars_count
+```
+
+
+```{r}
+vars_count %>% 
+  group_by(Parent) %>% 
+  summarise(parent_count = n()) %>% 
+  arrange(desc(`parent_count`))
 
 
 ```

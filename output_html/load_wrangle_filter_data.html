@@ -7,7 +7,7 @@
 
         <meta name="author" content="Rose Evard" />
     
-        <meta name="date" content="2023-02-21" />
+        <meta name="date" content="2023-02-25" />
     
     <title>Loading, Wrangling, &amp; Filtering Data</title>
 
@@ -2640,7 +2640,7 @@ Data</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Rose
 Evard</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-21</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-25</p>
           </div>
    </div>
      
@@ -2756,7 +2756,7 @@ Evard</p>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># path assumes zip-file is unzipped in smith-capstone-23 directory</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># generates vector of the full paths to all files in the ballet_990_released_20230208 directory</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>( <span class="st">&quot;./ballet_990_released_20230208&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>( <span class="st">&quot;/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208&quot;</span>,</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># variables to extract from each xml file</span></span>
@@ -2928,7 +2928,7 @@ Evard</p>
 <span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>     <span class="fu">as_tibble</span>()</span>
 <span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">##Applying get_endowment to entire output </span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>( <span class="st">&quot;./ballet_990_released_20230208&quot;</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>( <span class="st">&quot;/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208&quot;</span>,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>endowment_data <span class="ot">&lt;-</span> <span class="fu">map_df</span>(files, <span class="sc">~</span></span>

@@ -42,7 +42,7 @@ make_table <- function(..., title = "") {
 
 
 ```{r retrieving endowment info}
-endowment_data <- read_rds("./data/endowment_filter_data_990.RDS")
+endowment_data <- read_rds("User/Desktop/Spring 2023/SDS 410/data/endowment_filter_data_990.RDS")
 ```
 
 
