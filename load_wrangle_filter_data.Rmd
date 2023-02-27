@@ -213,6 +213,7 @@ get_endowment <- function(filename) {
   # Retrieving the same endowment information for all 
   variables <- c("//Return//ReturnHeader//ReturnTs", 
                  "//Return//ReturnHeader//Filer//EIN", 
+                  "//Return//ReturnHeader//TaxPeriodBeginDt",
                   "//Return//ReturnHeader//TaxPeriodEndDt",
                  "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
@@ -258,6 +259,7 @@ get_endowment <- function(filename) {
   # Column name; order matters, needs to align with retrieval order
   variables_no_path <- c("ReturnTs", 
                          "EIN",
+                         "TaxPeriodBeginDt",
                          "TaxPeriodEndDt",
                          "DonorRstrOrQuasiEndowmentsInd",
                         "CYBeginningYearBalanceAmt", 
@@ -334,6 +336,8 @@ filter_ids <- filter_data %>%
 endowment_data <- endowment_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d"),
+         TaxPeriodBeginDt = as.Date(TaxPeriodBeginDt,
+                                  format = "%Y-%m-%d"),
          TaxPeriodEndDt = as.Date(TaxPeriodEndDt,
                                   format = "%Y-%m-%d"),
          fiscal_year = as.factor(year(TaxPeriodEndDt))) %>%
