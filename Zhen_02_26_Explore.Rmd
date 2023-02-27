@@ -5,6 +5,15 @@ date: "2023-02-26"
 output: html_document
 ---
 
+
+```{r library}
+library(dplyr)
+library(purrr)
+library(xml2)
+library(ggplot2)
+```
+
+
 ```{r}
 EIN<-filter_data_amended %>% 
   group_by(EIN, ReturnTs) %>% 
@@ -199,8 +208,6 @@ endowment_data_building <- endowment_data_building %>%
 
 saveRDS(endowment_data_building, "./data/endowment_filtered_buildings.RDS")
 
-endowment_data_building <- endowment_data_building %>% 
-  mutate(BuildingsBk)
 ```
 
 
@@ -224,20 +231,45 @@ data_each_year<-list(
 
 ```
 
+```{r}
+a = deparse(substitute(data_2015))
+a
+substr(a,6,9)
+```
 
 ```{r}
 BookValueSum <- list()
 
-for(data in data_each_year){
-  df <- data %>% 
+# restore each year's sum for each EIN's buildings bookvalue 
+for(i in c(1:8)){
+  data = data_each_year[[i]]
+  df <- data.frame(data %>% 
     filter(!is.na(BuildingsGrp_BookValueAmt)) %>% 
     mutate_at(c("BuildingsGrp_BookValueAmt", "BuildingsGrp_DepreciationAmt"), as.numeric) %>% 
     group_by(EIN) %>% 
     summarise(
       BookValueSum = sum(BuildingsGrp_BookValueAmt)
-    )
+    ) %>% 
+    mutate(year = 2014+i,
+           EIN = as.numeric(EIN)))
+           
   print(df)
-  BookValueSum = append(df, BookValueSum)
+  BookValueSum[[i]] = df
 }
+```
+
+I notice that bookvalue of 131882106 turned to 0 in 2018
+
+
+```{r}
+bookvalues <- do.call(rbind, BookValueSum)
+```
+ 
+
+```{r visualizatoins of the change in buildings book value}
+
+ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  geom_line()
+
 ```
 

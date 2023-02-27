@@ -296,7 +296,7 @@ It may be good to get a sense for the variables that are present in the most of 
 files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
                full.names = TRUE)
 
-example_file <- xml2::read_xml(files[10])%>% xml_ns_strip()
+example_file <- xml2::read_xml(files[10]) %>% xml_ns_strip()
 
 # look at all variable names in schedule D
 IRS990ScheduleD_vars <- example_file %>% 
@@ -400,16 +400,19 @@ vars_count<-all_vars %>%
   select(Parent, Variable, `Number of Files` = files ) %>%
   arrange(desc(`Number of Files`))
 
-vars_count
+
+vars_count %>% 
+  filter(Parent == "OtherLandBuildingsGrp" | Parent == "BuildingsGrp" | Parent == "LandGrp") %>% 
+  arrange(desc(`Number of Files`))
 ```
 
+```{r}
+vars_count
+```
 
 ```{r}
 vars_count %>% 
   group_by(Parent) %>% 
   summarise(parent_count = n()) %>% 
   arrange(desc(`parent_count`))
-
-
 ```
-
