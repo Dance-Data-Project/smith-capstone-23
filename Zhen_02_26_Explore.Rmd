@@ -1,0 +1,190 @@
+---
+title: "explore"
+author: "Zhen"
+date: "2023-02-26"
+output: html_document
+---
+
+```{r}
+EIN<-filter_data_amended %>% 
+  group_by(EIN, ReturnTs) %>% 
+  summarise(n = n())
+```
+
+```{r}
+# after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
+
+to_add <- c()
+for(row in 1:nrow(all_vars)){
+  if(grepl("OtherLandBuildingsGrp", all_vars[row, ]$variables) | grepl("BuildingsGrp", all_vars[row, ]$variables)){
+    to_add <- append(to_add, all_vars[row, ]$variables)
+  }
+}
+
+to_add<-unique(to_add)
+to_add
+```
+
+
+```{r}
+##From Rose's get_endowment function
+get_endowment <- function(filename) {
+  
+  # Retrieving the same endowment information for all 
+  variables <- c("//Return//ReturnHeader//ReturnTs", 
+                 "//Return//ReturnHeader//Filer//EIN", 
+                 "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//EndYearBalanceAmt",
+                
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//BeginningYearBalanceAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//ContributionsAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//OtherExpendituresAmt",
+                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//EndYearBalanceAmt",
+                 
+                 "//Return//ReturnData//IRS990ScheduleD//BoardDesignatedBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//PrmnntEndowmentBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//TermEndowmentBalanceEOYPct",
+                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
+                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd",
+                 
+                 # adding BuildingGrp 
+                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp",                              
+                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
+                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/DepreciationAmt",             
+                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/BookValueAmt",                 
+                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp",                                      
+                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/OtherCostOrOtherBasisAmt",              
+                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/DepreciationAmt",                       
+                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/BookValueAmt",                          
+                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
+                "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
+                 
+                 "//AmendedReturnInd",
+                 "//Return//ReturnHeader//ReturnTypeCd"
+                 )
+  
+  # Column name; order matters, needs to align with retrieval order
+  variables_no_path <- c("ReturnTs", 
+                         "EIN",
+                         "DonorRstrOrQuasiEndowmentsInd",
+                        "CYBeginningYearBalanceAmt", 
+                        "CYContributionsAmt", 
+                        "CYInvestmentEarningsOrLossesAmt",
+                        "CYOtherExpendituresAmt",
+                        "CYEndYearBalanceAmt",
+                        
+                        "CYM1BeginningYearBalanceAmt", 
+                        "CYM1ContributionsAmt", 
+                        "CYM1InvestmentEarningsOrLossesAmt",
+                        "CYM1OtherExpendituresAmt",
+                        "CYM1EndYearBalanceAmt",
+                        
+                        "CYM2BeginningYearBalanceAmt", 
+                        "CYM2ContributionsAmt", 
+                        "CYM2InvestmentEarningsOrLossesAmt",
+                        "CYM2OtherExpendituresAmt",
+                        "CYM2EndYearBalanceAmt",
+                        
+                        "CYM3BeginningYearBalanceAmt", 
+                        "CYM3ContributionsAmt", 
+                        "CYM3InvestmentEarningsOrLossesAmt",
+                        "CYM3OtherExpendituresAmt",
+                        "CYM3EndYearBalanceAmt",
+                        
+                        "CYM4BeginningYearBalanceAmt", 
+                        "CYM4ContributionsAmt", 
+                        "CYM4InvestmentEarningsOrLossesAmt",
+                        "CYM4OtherExpendituresAmt",
+                        "CYM4EndYearBalanceAmt",
+                        
+                        "BoardDesignatedBalanceEOYPct",
+                        "PrmnntEndowmentBalanceEOYPct",
+                        "TermEndowmentBalanceEOYPct",
+                        "EndowmentsHeldUnrelatedOrgInd",
+                        "EndowmentsHeldRelatedOrgInd",
+                        
+                        "OtherLandBuildingsGrp",                              
+                         "OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
+                         "OtherLandBuildingsGrp/DepreciationAmt",             
+                         "OtherLandBuildingsGrp/BookValueAmt",                 
+                         "BuildingsGrp",                                      
+                         "BuildingsGrp/OtherCostOrOtherBasisAmt",              
+                         "BuildingsGrp/DepreciationAmt",                       
+                         "BuildingsGrp/BookValueAmt",                          
+                         "OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
+                        "BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
+                        
+                        "AmendedReturnInd",
+                        "ReturnTypeCd"
+                        )
+  
+  xml_file <- read_xml(filename)
+  xml_file <- xml_ns_strip(xml_file)
+  
+  # extract each variable; if it isn't present, put NA 
+  extracted <- map(variables, ~{
+    value <- xml_find_all(
+      xml_file, 
+      xpath =.x)
+    value <- ifelse(length(value) ==0, 
+                    NA, 
+                    xml_text(value)) })
+  
+   names(extracted) <- variables_no_path
+   
+   extracted <- extracted %>%
+     as_tibble()
+}
+```
+
+```{r retrieving endowment info}
+##Applying get_endowment to entire output 
+files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+              full.names = TRUE)
+
+endowment_data <- map_df(files, ~
+                     get_endowment(.x)) 
+
+##Retriving Ts and EINs for filtered data 
+filter_ids <- filter_data %>%
+  select(ReturnTs, EIN)
+## Adjusting data type, filtering to proper 990s
+endowment_data <- endowment_data %>%
+  mutate(ReturnDate = as.Date(ReturnTs,
+                              format = "%Y-%m-%d")) %>%
+  mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
+                as.numeric)) %>%
+  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
+                ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
+  
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
+  right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
+  select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
+```
+
+```{r}
+saveRDS(endowment_data, "./data/endowment_filter_data_990.RDS")
+```
