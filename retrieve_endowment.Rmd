@@ -135,9 +135,9 @@ There are 241 uniquely filed Schedule D's.
 
 ```{r}
 filed_schd_d %>%
-  select(TaxPeriodBeginDt, EIN, Filled_Sch_D) %>%
+  select(TaxPeriodEndDt, EIN, Filled_Sch_D) %>%
   filter(Filled_Sch_D == "Yes") %>%
-  mutate(year = substr(TaxPeriodBeginDt, 1, 4)) %>%
+  mutate(year = substr(TaxPeriodEndDt, 1, 4)) %>%
   group_by(year) %>%
   summarize(num_sch_d_in_year = n()) %>%
   arrange(desc(year)) %>%
