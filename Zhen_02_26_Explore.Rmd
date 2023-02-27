@@ -14,6 +14,7 @@ EIN<-filter_data_amended %>%
 ```{r}
 # after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
 
+# Find all variable names that include building information
 to_add <- c()
 for(row in 1:nrow(all_vars)){
   if(grepl("OtherLandBuildingsGrp", all_vars[row, ]$variables) | grepl("BuildingsGrp", all_vars[row, ]$variables)){
@@ -25,6 +26,22 @@ to_add<-unique(to_add)
 to_add
 ```
 
+
+## Buildings Grouop Explanation from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
+
+Part VI. Land, Buildings, and Equipment
+Complete Part VI if the organization answered “Yes” on Form 990, Part IV, line 11a, and reported an amount on Form 990, Part X, line 10a. Reporting is required if any amount other than zero is reported on those lines.
+
+Column (a). Enter the cost or other basis of all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes, such as rental properties.
+
+Column (b). Enter the cost or other basis of all other land, buildings, leasehold improvements, equipment, and other fixed assets held for other than investment purposes, including any land, buildings, and equipment owned and
+used by the organization in conducting its exempt activities. The total amounts reported in columns (a) and (b) must equal the amount reported on Form 990, Part X, line 10a.
+
+Column (c). Enter the accumulated depreciation recorded for the assets listed in columns (a) and (b). Don't enter an
+amount in column (c) for line 1a, Land. The total of column (c) must equal the amount reported on Form 990, Part X,
+line 10b.
+
+Column (d). Enter the sum of column (a) and column (b) minus column (c). The total of column (
 
 ```{r}
 ##From Rose's get_endowment function
@@ -70,17 +87,15 @@ get_endowment <- function(filename) {
                  "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
                  "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd",
                  
-                 # adding BuildingGrp 
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp",                              
+                 # adding BuildingGrp and OtherLandBuildingsGrp
                  "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
                  "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/DepreciationAmt",             
                  "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/BookValueAmt",                 
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp",                                      
                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/OtherCostOrOtherBasisAmt",              
                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/DepreciationAmt",                       
                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/BookValueAmt",                          
                  "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
-                "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
+                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
                  
                  "//AmendedReturnInd",
                  "//Return//ReturnHeader//ReturnTypeCd"
@@ -126,11 +141,9 @@ get_endowment <- function(filename) {
                         "EndowmentsHeldUnrelatedOrgInd",
                         "EndowmentsHeldRelatedOrgInd",
                         
-                        "OtherLandBuildingsGrp",                              
                          "OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
                          "OtherLandBuildingsGrp/DepreciationAmt",             
                          "OtherLandBuildingsGrp/BookValueAmt",                 
-                         "BuildingsGrp",                                      
                          "BuildingsGrp/OtherCostOrOtherBasisAmt",              
                          "BuildingsGrp/DepreciationAmt",                       
                          "BuildingsGrp/BookValueAmt",                          
@@ -165,14 +178,14 @@ get_endowment <- function(filename) {
 files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
               full.names = TRUE)
 
-endowment_data <- map_df(files, ~
+endowment_data_building <- map_df(files, ~
                      get_endowment(.x)) 
 
 ##Retriving Ts and EINs for filtered data 
 filter_ids <- filter_data %>%
   select(ReturnTs, EIN)
 ## Adjusting data type, filtering to proper 990s
-endowment_data <- endowment_data %>%
+endowment_data_building <- endowment_data_building %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d")) %>%
   mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
@@ -186,5 +199,15 @@ endowment_data <- endowment_data %>%
 ```
 
 ```{r}
-saveRDS(endowment_data, "./data/endowment_filter_data_990.RDS")
+saveRDS(endowment_data_building, "./data/endowment_filtered_buildings.RDS")
 ```
+
+
+## Preliminary Analysis of PartIV Data
+
+```{r}
+
+```
+
+
+
