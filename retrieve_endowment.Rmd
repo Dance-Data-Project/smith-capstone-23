@@ -44,6 +44,9 @@ make_table <- function(..., title = "", col_names = c("")) {
 
 ```{r retrieving endowment info}
 endowment_data <- read_rds("./data/endowment_filter_data_990.RDS")
+names <- read_csv("./data/companies.csv") %>% 
+  mutate(EIN = as.character(ein)) %>%
+  select(-ein)
 ```
 
 
@@ -89,8 +92,11 @@ filed_schd_d %>%
   filter(Filled_Sch_D == "Yes") %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
+  left_join(names, by = "EIN") %>%
+  select(-dance_styles) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
-  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out")) %>%
+  select(EIN, organization_name, num_times_fil_sche_D) %>%
+  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "Organization Name", "# Times Schedule D was filled out")) %>%
   scroll_box(height = "450px")
 
 ```
@@ -144,7 +150,7 @@ filed_schd_d %>%
   make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year"))
 ```
 
-Years represented in the data are 2014-2020, based on the beginning financial year date. 
+Years represented in the data are 2014-2021, based on the beginning financial year date. 
 
 
 ## Determining Which Needed to File Schedule D for Endowment
@@ -293,8 +299,10 @@ filed_schd_d %>%
         gap = interval(before, TaxPeriodBeginDt),
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
-  select(EIN, gap, before, TaxPeriodBeginDt) %>%
-  make_table(title = "Schedule D Filing Gaps", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
+  left_join(names, by = "EIN") %>%
+  select(-dance_styles) %>%
+  select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "Schedule D Filing Gaps", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
 
 ```{r}
@@ -310,8 +318,10 @@ filed_schd_d %>%
         gap = interval(before, TaxPeriodBeginDt),
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
-  select(EIN, gap, before, TaxPeriodBeginDt) %>%
-  make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
+  left_join(names, by = "EIN") %>%
+  select(-dance_styles) %>%
+  select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
 
 # Aligning 990 Filing Gaps and Schedule D Filing Gaps  
@@ -383,9 +393,11 @@ filed_schd_d %>%
   group_by(TaxPeriodBeginDt, TaxPeriodEndDt, ReturnDate, EIN, Filled_Sch_D, Need_Sch_D) %>%
   mutate(num_dups = n()) %>%
   filter(num_dups < 2) %>%
-  group_by(EIN) %>%
+  left_join(names, by = "EIN") %>%
+  select(-dance_styles) %>%
+  group_by(EIN, organization_name) %>%
   summarize() %>%
-  make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = "EIN")
+  make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = c("EIN", "Organization Name"))
 
 ```
 There are seven EINs which do not always fill out Schedule D when they fill out 990.  
