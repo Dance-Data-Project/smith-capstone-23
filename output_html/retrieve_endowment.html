@@ -7,7 +7,7 @@
 
         <meta name="author" content="Rose Evard" />
     
-        <meta name="date" content="2023-02-26" />
+        <meta name="date" content="2023-02-27" />
     
     <title>Retrieve Endowment Funds</title>
 
@@ -2873,7 +2873,7 @@ border: 0;
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Rose
 Evard</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-26</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-02-27</p>
           </div>
    </div>
      
@@ -2904,7 +2904,10 @@ Evard</p>
 <p>Note: Zero was coded as false and One as true for Checkbox
 questions.</p>
 </blockquote>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>endowment_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;./data/endowment_filter_data_990.RDS&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>endowment_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;./data/endowment_filter_data_990.RDS&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>names <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;./data/companies.csv&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">EIN =</span> <span class="fu">as.character</span>(ein)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ein)</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">##Graphing difference between beginning and end periods  </span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>endowment_data <span class="sc">%&gt;%</span></span>
@@ -2937,9 +2940,12 @@ questions.</p>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Filled_Sch_D <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN) <span class="sc">%&gt;%</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_times_fil_sche_D =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(num_times_fil_sche_D)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;EINs that filled out Schedule D at least once&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;# Times Schedule D was filled out&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;450px&quot;</span>)</span></code></pre></div>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(names, <span class="at">by =</span> <span class="st">&quot;EIN&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>dance_styles) <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(num_times_fil_sche_D)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, organization_name, num_times_fil_sche_D) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;EINs that filled out Schedule D at least once&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Organization Name&quot;</span>, <span class="st">&quot;# Times Schedule D was filled out&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">&quot;450px&quot;</span>)</span></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; ">
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
@@ -2955,6 +2961,9 @@ Schedule D at least once</b></span>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
 EIN
 </th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
+Organization Name
+</th>
 <th style="text-align:right;font-weight: bold;color: white !important;background-color: #43494C !important;position: sticky; top:0; background-color: #FFFFFF;">
 # Times Schedule D was filled out
 </th>
@@ -2965,6 +2974,9 @@ EIN
 <td style="text-align:left;">
 131882106
 </td>
+<td style="text-align:left;">
+American Ballet Theatre
+</td>
 <td style="text-align:right;">
 7
 </td>
@@ -2972,6 +2984,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 132685755
+</td>
+<td style="text-align:left;">
+Ballet Hispanico
 </td>
 <td style="text-align:right;">
 7
@@ -2981,6 +2996,9 @@ EIN
 <td style="text-align:left;">
 237101094
 </td>
+<td style="text-align:left;">
+Pittsburgh Ballet Theatre
+</td>
 <td style="text-align:right;">
 7
 </td>
@@ -2988,6 +3006,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 930765746
+</td>
+<td style="text-align:left;">
+Eugene Ballet
 </td>
 <td style="text-align:right;">
 7
@@ -2997,6 +3018,9 @@ EIN
 <td style="text-align:left;">
 942427112
 </td>
+<td style="text-align:left;">
+Nevada Ballet Theatre
+</td>
 <td style="text-align:right;">
 7
 </td>
@@ -3004,6 +3028,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 042312734
+</td>
+<td style="text-align:left;">
+NA
 </td>
 <td style="text-align:right;">
 6
@@ -3013,6 +3040,9 @@ EIN
 <td style="text-align:left;">
 132584273
 </td>
+<td style="text-align:left;">
+Alvin Ailey American Dance Theater
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3020,6 +3050,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 132642091
+</td>
+<td style="text-align:left;">
+Dance Theatre of Harlem
 </td>
 <td style="text-align:right;">
 6
@@ -3029,6 +3062,9 @@ EIN
 <td style="text-align:left;">
 132947386
 </td>
+<td style="text-align:left;">
+New York City Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3036,6 +3072,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 231629970
+</td>
+<td style="text-align:left;">
+Pennsylvania Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3045,6 +3084,9 @@ EIN
 <td style="text-align:left;">
 237273533
 </td>
+<td style="text-align:left;">
+The Tallahassee Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3052,6 +3094,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 310858562
+</td>
+<td style="text-align:left;">
+BalletMet
 </td>
 <td style="text-align:right;">
 6
@@ -3061,6 +3106,9 @@ EIN
 <td style="text-align:left;">
 364009741
 </td>
+<td style="text-align:left;">
+Joffrey Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3068,6 +3116,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 382026127
+</td>
+<td style="text-align:left;">
+Grand Rapids Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3077,6 +3128,9 @@ EIN
 <td style="text-align:left;">
 391387619
 </td>
+<td style="text-align:left;">
+Madison Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3084,6 +3138,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 510394850
+</td>
+<td style="text-align:left;">
+First State Ballet Theatre
 </td>
 <td style="text-align:right;">
 6
@@ -3093,6 +3150,9 @@ EIN
 <td style="text-align:left;">
 520846173
 </td>
+<td style="text-align:left;">
+The Washington Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3100,6 +3160,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 581047778
+</td>
+<td style="text-align:left;">
+Atlanta Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3109,6 +3172,9 @@ EIN
 <td style="text-align:left;">
 581314711
 </td>
+<td style="text-align:left;">
+Charlotte Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3116,6 +3182,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 581440788
+</td>
+<td style="text-align:left;">
+Nashville Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3125,6 +3194,9 @@ EIN
 <td style="text-align:left;">
 621018942
 </td>
+<td style="text-align:left;">
+Ballet Memphis
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3132,6 +3204,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 730667485
+</td>
+<td style="text-align:left;">
+Tulsa Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3141,6 +3216,9 @@ EIN
 <td style="text-align:left;">
 741394920
 </td>
+<td style="text-align:left;">
+Houston Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3148,6 +3226,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 841150857
+</td>
+<td style="text-align:left;">
+Aspen Santa Fe Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3157,6 +3238,9 @@ EIN
 <td style="text-align:left;">
 841622654
 </td>
+<td style="text-align:left;">
+Texas Ballet Theater
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3164,6 +3248,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 860367773
+</td>
+<td style="text-align:left;">
+Ballet Arizona
 </td>
 <td style="text-align:right;">
 6
@@ -3173,6 +3260,9 @@ EIN
 <td style="text-align:left;">
 910897129
 </td>
+<td style="text-align:left;">
+Pacific Northwest Ballet
+</td>
 <td style="text-align:right;">
 6
 </td>
@@ -3180,6 +3270,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 941415298
+</td>
+<td style="text-align:left;">
+San Francisco Ballet
 </td>
 <td style="text-align:right;">
 6
@@ -3189,6 +3282,9 @@ EIN
 <td style="text-align:left;">
 391134735
 </td>
+<td style="text-align:left;">
+Milwaukee Ballet
+</td>
 <td style="text-align:right;">
 5
 </td>
@@ -3196,6 +3292,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 436052680
+</td>
+<td style="text-align:left;">
+Kansas City Ballet
 </td>
 <td style="text-align:right;">
 5
@@ -3205,6 +3304,9 @@ EIN
 <td style="text-align:left;">
 592578534
 </td>
+<td style="text-align:left;">
+Miami City Ballet
+</td>
 <td style="text-align:right;">
 5
 </td>
@@ -3212,6 +3314,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 630813626
+</td>
+<td style="text-align:left;">
+The Alabama Ballet
 </td>
 <td style="text-align:right;">
 5
@@ -3221,6 +3326,9 @@ EIN
 <td style="text-align:left;">
 650135900
 </td>
+<td style="text-align:left;">
+The Sarasota Ballet
+</td>
 <td style="text-align:right;">
 5
 </td>
@@ -3228,6 +3336,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 746060386
+</td>
+<td style="text-align:left;">
+Ballet Austin
 </td>
 <td style="text-align:right;">
 5
@@ -3237,6 +3348,9 @@ EIN
 <td style="text-align:left;">
 870264274
 </td>
+<td style="text-align:left;">
+Ballet West
+</td>
 <td style="text-align:right;">
 5
 </td>
@@ -3244,6 +3358,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 931009305
+</td>
+<td style="text-align:left;">
+Oregon Ballet Theatre
 </td>
 <td style="text-align:right;">
 5
@@ -3253,6 +3370,9 @@ EIN
 <td style="text-align:left;">
 356006394
 </td>
+<td style="text-align:left;">
+Fort Wayne Ballet
+</td>
 <td style="text-align:right;">
 4
 </td>
@@ -3260,6 +3380,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 421366753
+</td>
+<td style="text-align:left;">
+Ballet Quad Cities
 </td>
 <td style="text-align:right;">
 4
@@ -3269,6 +3392,9 @@ EIN
 <td style="text-align:left;">
 546049848
 </td>
+<td style="text-align:left;">
+Richmond Ballet
+</td>
 <td style="text-align:right;">
 4
 </td>
@@ -3276,6 +3402,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 550397803
+</td>
+<td style="text-align:left;">
+The Charleston Ballet
 </td>
 <td style="text-align:right;">
 4
@@ -3285,6 +3414,9 @@ EIN
 <td style="text-align:left;">
 237247909
 </td>
+<td style="text-align:left;">
+New Mexico Ballet Company
+</td>
 <td style="text-align:right;">
 3
 </td>
@@ -3292,6 +3424,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 210732575
+</td>
+<td style="text-align:left;">
+American Repertory Ballet
 </td>
 <td style="text-align:right;">
 2
@@ -3301,6 +3436,9 @@ EIN
 <td style="text-align:left;">
 846038137
 </td>
+<td style="text-align:left;">
+Colorado Ballet
+</td>
 <td style="text-align:right;">
 2
 </td>
@@ -3308,6 +3446,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 943417247
+</td>
+<td style="text-align:left;">
+Ballet Des Moines
 </td>
 <td style="text-align:right;">
 2
@@ -3317,6 +3458,9 @@ EIN
 <td style="text-align:left;">
 237427817
 </td>
+<td style="text-align:left;">
+Orlando Ballet
+</td>
 <td style="text-align:right;">
 1
 </td>
@@ -3325,6 +3469,9 @@ EIN
 <td style="text-align:left;">
 316000101
 </td>
+<td style="text-align:left;">
+Dayton Ballet
+</td>
 <td style="text-align:right;">
 1
 </td>
@@ -3332,6 +3479,9 @@ EIN
 <tr>
 <td style="text-align:left;">
 840776736
+</td>
+<td style="text-align:left;">
+Canyon Concert Ballet
 </td>
 <td style="text-align:right;">
 1
@@ -3397,9 +3547,9 @@ Total
 </table>
 <p>There are 241 uniquely filed Schedule D’s.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>filed_schd_d <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(TaxPeriodBeginDt, EIN, Filled_Sch_D) <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(TaxPeriodEndDt, EIN, Filled_Sch_D) <span class="sc">%&gt;%</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Filled_Sch_D <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(TaxPeriodBeginDt, <span class="dv">1</span>, <span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(TaxPeriodEndDt, <span class="dv">1</span>, <span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">num_sch_d_in_year =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(year)) <span class="sc">%&gt;%</span></span>
@@ -3426,10 +3576,18 @@ Total Schedule D’s filed within the year
 <tbody>
 <tr>
 <td style="text-align:left;">
+2021
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 2020
 </td>
 <td style="text-align:right;">
-8
+40
 </td>
 </tr>
 <tr>
@@ -3453,7 +3611,7 @@ Total Schedule D’s filed within the year
 2017
 </td>
 <td style="text-align:right;">
-40
+42
 </td>
 </tr>
 <tr>
@@ -3461,7 +3619,7 @@ Total Schedule D’s filed within the year
 2016
 </td>
 <td style="text-align:right;">
-42
+37
 </td>
 </tr>
 <tr>
@@ -3469,7 +3627,7 @@ Total Schedule D’s filed within the year
 2015
 </td>
 <td style="text-align:right;">
-37
+35
 </td>
 </tr>
 <tr>
@@ -3477,12 +3635,12 @@ Total Schedule D’s filed within the year
 2014
 </td>
 <td style="text-align:right;">
-34
+1
 </td>
 </tr>
 </tbody>
 </table>
-<p>Years represented in the data are 2014-2020, based on the beginning
+<p>Years represented in the data are 2014-2021, based on the beginning
 financial year date.</p>
 </div>
 <div id="determining-which-needed-to-file-schedule-d-for-endowment" class="section level2">
@@ -3737,8 +3895,10 @@ who filed it previously.</p>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">interval</span>(before, TaxPeriodBeginDt),</span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">as.numeric</span>(gap, <span class="st">&quot;days&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gap <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, gap, before, TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;Schedule D Filing Gaps&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Gap Length&quot;</span>, <span class="st">&quot;Gap Start Date&quot;</span>, <span class="st">&quot;Gap End Date&quot;</span>))</span></code></pre></div>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(names, <span class="at">by =</span> <span class="st">&quot;EIN&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>dance_styles) <span class="sc">%&gt;%</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, organization_name, gap, before, TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;Schedule D Filing Gaps&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Organization Name&quot;</span>, <span class="st">&quot;Gap Length&quot;</span>, <span class="st">&quot;Gap Start Date&quot;</span>, <span class="st">&quot;Gap End Date&quot;</span>))</span></code></pre></div>
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 <center>
@@ -3752,6 +3912,9 @@ Gaps</b></span>
 <tr>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
 EIN
+</th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
+Organization Name
 </th>
 <th style="text-align:right;font-weight: bold;color: white !important;background-color: #43494C !important;">
 Gap Length
@@ -3769,6 +3932,9 @@ Gap End Date
 <td style="text-align:left;">
 650135900
 </td>
+<td style="text-align:left;">
+The Sarasota Ballet
+</td>
 <td style="text-align:right;">
 367
 </td>
@@ -3782,6 +3948,9 @@ Gap End Date
 <tr>
 <td style="text-align:left;">
 237247909
+</td>
+<td style="text-align:left;">
+New Mexico Ballet Company
 </td>
 <td style="text-align:right;">
 366
@@ -3797,6 +3966,9 @@ Gap End Date
 <td style="text-align:left;">
 356006394
 </td>
+<td style="text-align:left;">
+Fort Wayne Ballet
+</td>
 <td style="text-align:right;">
 32
 </td>
@@ -3811,6 +3983,9 @@ Gap End Date
 <td style="text-align:left;">
 421366753
 </td>
+<td style="text-align:left;">
+Ballet Quad Cities
+</td>
 <td style="text-align:right;">
 731
 </td>
@@ -3824,6 +3999,9 @@ Gap End Date
 <tr>
 <td style="text-align:left;">
 870264274
+</td>
+<td style="text-align:left;">
+Ballet West
 </td>
 <td style="text-align:right;">
 397
@@ -3849,8 +4027,10 @@ Gap End Date
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">interval</span>(before, TaxPeriodBeginDt),</span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">gap =</span> <span class="fu">as.numeric</span>(gap, <span class="st">&quot;days&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(gap <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, gap, before, TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;990 Filing Gaps for EINs</span><span class="sc">\n</span><span class="st">which once filed Schedule D&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Gap Length&quot;</span>, <span class="st">&quot;Gap Start Date&quot;</span>, <span class="st">&quot;Gap End Date&quot;</span>))</span></code></pre></div>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(names, <span class="at">by =</span> <span class="st">&quot;EIN&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>dance_styles) <span class="sc">%&gt;%</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, organization_name, gap, before, TaxPeriodBeginDt) <span class="sc">%&gt;%</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;990 Filing Gaps for EINs</span><span class="sc">\n</span><span class="st">which once filed Schedule D&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Organization Name&quot;</span>, <span class="st">&quot;Gap Length&quot;</span>, <span class="st">&quot;Gap Start Date&quot;</span>, <span class="st">&quot;Gap End Date&quot;</span>))</span></code></pre></div>
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 <center>
@@ -3864,6 +4044,9 @@ which once filed Schedule D</b></span>
 <tr>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
 EIN
+</th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
+Organization Name
 </th>
 <th style="text-align:right;font-weight: bold;color: white !important;background-color: #43494C !important;">
 Gap Length
@@ -3881,6 +4064,9 @@ Gap End Date
 <td style="text-align:left;">
 840776736
 </td>
+<td style="text-align:left;">
+Canyon Concert Ballet
+</td>
 <td style="text-align:right;">
 367
 </td>
@@ -3894,6 +4080,9 @@ Gap End Date
 <tr>
 <td style="text-align:left;">
 650135900
+</td>
+<td style="text-align:left;">
+The Sarasota Ballet
 </td>
 <td style="text-align:right;">
 367
@@ -3909,6 +4098,9 @@ Gap End Date
 <td style="text-align:left;">
 237247909
 </td>
+<td style="text-align:left;">
+New Mexico Ballet Company
+</td>
 <td style="text-align:right;">
 366
 </td>
@@ -3922,6 +4114,9 @@ Gap End Date
 <tr>
 <td style="text-align:left;">
 356006394
+</td>
+<td style="text-align:left;">
+Fort Wayne Ballet
 </td>
 <td style="text-align:right;">
 32
@@ -3937,6 +4132,9 @@ Gap End Date
 <td style="text-align:left;">
 421366753
 </td>
+<td style="text-align:left;">
+Ballet Quad Cities
+</td>
 <td style="text-align:right;">
 731
 </td>
@@ -3951,6 +4149,9 @@ Gap End Date
 <td style="text-align:left;">
 870264274
 </td>
+<td style="text-align:left;">
+Ballet West
+</td>
 <td style="text-align:right;">
 397
 </td>
@@ -3964,6 +4165,9 @@ Gap End Date
 <tr>
 <td style="text-align:left;">
 550397803
+</td>
+<td style="text-align:left;">
+The Charleston Ballet
 </td>
 <td style="text-align:right;">
 367
@@ -4045,9 +4249,11 @@ Gap End Date
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TaxPeriodBeginDt, TaxPeriodEndDt, ReturnDate, EIN, Filled_Sch_D, Need_Sch_D) <span class="sc">%&gt;%</span></span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">num_dups =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(num_dups <span class="sc">&lt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN) <span class="sc">%&gt;%</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;EINS that filled out Schedule D sometimes,</span><span class="sc">\n</span><span class="st">but not always&quot;</span>, <span class="at">col_names =</span> <span class="st">&quot;EIN&quot;</span>)</span></code></pre></div>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(names, <span class="at">by =</span> <span class="st">&quot;EIN&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>dance_styles) <span class="sc">%&gt;%</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(EIN, organization_name) <span class="sc">%&gt;%</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">make_table</span>(<span class="at">title =</span> <span class="st">&quot;EINS that filled out Schedule D sometimes,</span><span class="sc">\n</span><span class="st">but not always&quot;</span>, <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;EIN&quot;</span>, <span class="st">&quot;Organization Name&quot;</span>))</span></code></pre></div>
 <table class=" lightable-material" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
 <caption>
 <center>
@@ -4062,6 +4268,9 @@ Schedule D sometimes, but not always</b></span>
 <th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
 EIN
 </th>
+<th style="text-align:left;font-weight: bold;color: white !important;background-color: #43494C !important;">
+Organization Name
+</th>
 </tr>
 </thead>
 <tbody>
@@ -4069,35 +4278,56 @@ EIN
 <td style="text-align:left;">
 210732575
 </td>
+<td style="text-align:left;">
+American Repertory Ballet
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 550397803
+</td>
+<td style="text-align:left;">
+The Charleston Ballet
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 746060386
 </td>
+<td style="text-align:left;">
+Ballet Austin
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 840776736
+</td>
+<td style="text-align:left;">
+Canyon Concert Ballet
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 846038137
 </td>
+<td style="text-align:left;">
+Colorado Ballet
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 931009305
 </td>
+<td style="text-align:left;">
+Oregon Ballet Theatre
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
 943417247
+</td>
+<td style="text-align:left;">
+Ballet Des Moines
 </td>
 </tr>
 </tbody>
