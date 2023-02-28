@@ -333,6 +333,8 @@ The book value will decrease because of depreciation, so the normal trend of an 
   1) Abruptly going down
   2) going up at any point
   3) appear less than 3 years
+  
+(Currently I'm just doing this by eyeballing but I will write code for it later)
 
 ```{r}
 #dataframe with higher Book Values
@@ -351,6 +353,6 @@ weird EIN: 546049868
 low <- bookvalues %>% 
   filter(BookValueSum < 1e+07) 
 ```
-
+10372997
 
 

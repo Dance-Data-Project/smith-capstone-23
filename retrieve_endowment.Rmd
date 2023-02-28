@@ -19,19 +19,20 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 
-knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 ```
 
 ```{r}
 
 # make kable table with consistent formatting
-make_table <- function(..., title = "") {
+make_table <- function(..., title = "", col_names = c("")) {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
                   title,
                   "</span></b><center>")
    as_tibble(...) %>%
-    kbl(caption = title) %>%
+    kbl(caption = title,
+        col.names = col_names) %>%
     kable_material() %>%
     row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
 }
@@ -46,7 +47,7 @@ endowment_data <- read_rds("User/Desktop/Spring 2023/SDS 410/data/endowment_filt
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 ##Graphing difference between beginning and end periods  
 
 endowment_data %>%
@@ -63,42 +64,87 @@ endowment_data %>%
         legend.position = "none") +
   labs(title = "Comparing Fiscal Year Beginning and End Endowment Totals") +
   scale_y_continuous(labels = scales::label_dollar())
+
+
+
 ```
 
-## Which Years and Companies Filled out Endowments   
+## Which Years and Companies Filled out Schedule D  
+
 ```{r}
 ##Identifying those that DID fill out schedule D for Endowment, as they supplied info in any numeric column
 ##Assuming the sum of from cols 4-31 (schedule D finances) is not zero
 filed_schd_d <- endowment_data %>%
  mutate(Filled_Sch_D = ifelse(rowSums(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct), na.rm = TRUE) != 0, "Yes", "No")) %>%
-  select(ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, Filled_Sch_D) %>%
+  select(TaxPeriodBeginDt, TaxPeriodEndDt, ReturnDate, EIN, DonorRstrOrQuasiEndowmentsInd, Filled_Sch_D) %>%
   mutate(Need_Sch_D = case_when(is.na(DonorRstrOrQuasiEndowmentsInd) ~ "NA",
                                 DonorRstrOrQuasiEndowmentsInd == TRUE ~ "Yes",
-                                DonorRstrOrQuasiEndowmentsInd == FALSE ~ "No"))
+                                DonorRstrOrQuasiEndowmentsInd == FALSE ~ "No")) %>%
+  select(-DonorRstrOrQuasiEndowmentsInd)
 ```
 
 ```{r}
 filed_schd_d %>%
-  select(ReturnDate, EIN, Filled_Sch_D) %>%
+  select(EIN, Filled_Sch_D) %>%
   filter(Filled_Sch_D == "Yes") %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
-  make_table(title = "EINs that filled out Schedule D")
+  make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "# Times Schedule D was filled out")) %>%
+  scroll_box(height = "450px")
+
 ```
 
-There are 47 EINs which, at one point, have filled out Schedule D. 
+```{r}
+# plot to show same information as previous table
+filed_schd_d %>%
+  select(EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  group_by(EIN) %>%
+  summarize(num_times_fil_sche_D = n()) %>%
+  group_by(num_times_fil_sche_D) %>%
+  summarize(num_ein = n()) %>%
+  ggplot(aes(x = num_times_fil_sche_D, y = as.integer(num_ein))) +
+  geom_bar(stat="identity") +
+  scale_x_continuous(breaks = 1:7) +
+  labs(title = "For Companies that Filled out Schedule D at Least Once,\nNumber of Times Schedule D Was Filled Out",
+       x = "Number of Times Filled Out",
+       y = "Number of EINs") +
+  geom_label(aes(label = num_ein)) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 13),
+        axis.title = element_text(size = 16, face = "bold"),
+        legend.position = "none")
+```
+
+There are `r filed_schd_d %>% filter(Filled_Sch_D == "Yes") %>%pull(EIN) %>% unique() %>% length()` EINs which, at one point, have filled out Schedule D. 
+
+```{r}
+#How many unique schedule D's are there
+filed_schd_d %>%
+ select(EIN, Filled_Sch_D) %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  summarize(num_sch_d = n()) %>%
+  make_table(title = "Total Number of Unique Schedule D's", col_names = c("Total"))  %>%
+  row_spec(row = 0:1, align = "center")
+```
+
+There are 241 uniquely filed Schedule D's. 
 
 ```{r}
 filed_schd_d %>%
-  select(ReturnDate, EIN, Filled_Sch_D) %>%
+  select(TaxPeriodEndDt, EIN, Filled_Sch_D) %>%
   filter(Filled_Sch_D == "Yes") %>%
-  mutate(year = substr(ReturnDate, 1, 4)) %>%
+  mutate(year = substr(TaxPeriodEndDt, 1, 4)) %>%
   group_by(year) %>%
   summarize(num_sch_d_in_year = n()) %>%
   arrange(desc(year)) %>%
-  make_table(title = "Years with an EIN filled out")
+  make_table(title = "Years with Schedule D Filed", col_names = c("Year", "Total Schedule D's filed within the year"))
 ```
+
+Years represented in the data are 2014-2020, based on the beginning financial year date. 
 
 
 ## Determining Which Needed to File Schedule D for Endowment
@@ -110,12 +156,238 @@ Not all those that fill out schedule D do so for endowment, so I focused on Ques
 filed_schd_d %>%
   group_by(Need_Sch_D) %>%
   summarize(n = n()) %>%
-  make_table(title = "Total EINs checked YES on Q10")
+  arrange(desc(Need_Sch_D)) %>%
+  make_table(title = "Total EINs checked YES on Q10", col_names = c("Need Schedule D on Q10", "Total Filings"))
+```
+
+```{r}
+# plot showing same information as previous table
+filed_schd_d %>%
+  group_by(Need_Sch_D) %>%
+  summarize(`Total Filings` = n()) %>%
+  arrange(desc(Need_Sch_D)) %>%
+  ggplot(aes(x = Need_Sch_D, y = `Total Filings`)) +
+  geom_bar(stat="identity") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 15, face="bold"),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 16, face = "bold")) +
+  labs(x = "Response on Q10",
+       title = "Responses for Whether They Needed Schedule D on Q10") +
+  scale_y_continuous(n.breaks = 6)
+```
+
+```{r}
 
 ##Seeing those that DID and or DID NOT need to fill out Schedule D, yet Did or Did Not
 filed_schd_d %>%
   group_by(Need_Sch_D, Filled_Sch_D) %>%
   summarize(n = n()) %>%
-  make_table(title = "990 Q10 answer and If They Filled out Schedule D")
+  arrange(desc(Need_Sch_D)) %>%
+  make_table(title = "Whether Individual 990 Filings Needed Schedule D", col_names = c("Need Schedule D on Q10", "Filed Schedule D", "Total Filings"))
+
+
+
 ```
+
+
+```{r, fig.width = 10}
+# bar plot with same information as table above
+filed_schd_d %>%
+  group_by(Need_Sch_D, Filled_Sch_D) %>%
+  summarize(n = n()) %>%
+  arrange(desc(Need_Sch_D)) %>%
+  ungroup() %>%
+  mutate(Need_Sch_D = paste0("Needed Schedule D: ", Need_Sch_D)) %>%
+  ggplot(aes(x = Filled_Sch_D, y = n)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~Need_Sch_D) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, hjust = .5, face="bold"),
+        plot.subtitle = element_text(hjust = .5, face="italic"),
+        axis.text.x = element_text(size = 15, face="bold"),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 16, face = "bold"),
+        strip.text = element_text(face="bold",size = 14)) +
+  labs(title = "Number of Filings where Schedule D was Filled Out",
+       subtitle = "By Whether They Actually Needed it by Question 10",
+       x = "Filled out Schedule D",
+       y = "Number of Filings")
+```
+
+
+
+Total which needed schedule D and proceeded to file it matches total who filed it previously.  
+
+# Examining Gaps in Filing Schedule D's  
+         
+```{r}
+
+filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Schedule D submission by EIN\nacross time")
+```
+
+```{r}
+#Getting EINS of those who have filled out Schedule D
+ein_with_sch_d <- filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  pull(EIN) %>%
+  unique()
+
+#Gap plot
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Filing history for all EINs\nthat filed at least one schedule D ")
+```
+
+
+```{r}
+#Retrieving list of schedule D filing gaps 
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d & Filled_Sch_D == "Yes") %>%
+  select(EIN, 
+         TaxPeriodBeginDt, #calc dates b/w schedule d 
+         TaxPeriodEndDt) %>%
+  group_by(EIN) %>%
+  arrange(TaxPeriodBeginDt) %>%
+  mutate(before =  lag(TaxPeriodEndDt, n =1),
+        gap = interval(before, TaxPeriodBeginDt),
+        gap = as.numeric(gap, "days")) %>%
+  filter(gap > 1) %>%
+  select(EIN, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "Schedule D Filing Gaps", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
+```
+
+```{r}
+#Retrieving list of 990 filing gaps, for those who have once filled out an EIN
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  select(EIN, 
+         TaxPeriodBeginDt, 
+         TaxPeriodEndDt) %>%
+  group_by(EIN) %>%
+  arrange(TaxPeriodBeginDt) %>%
+  mutate(before =  lag(TaxPeriodEndDt, n =1),
+        gap = interval(before, TaxPeriodBeginDt),
+        gap = as.numeric(gap, "days")) %>%
+  filter(gap > 1) %>%
+  select(EIN, gap, before, TaxPeriodBeginDt) %>%
+  make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Gap Length", "Gap Start Date", "Gap End Date"))
+```
+
+# Aligning 990 Filing Gaps and Schedule D Filing Gaps  
+Important note: Filing Schedule D guarantees they filed a 990.  
+
+
+```{r}
+##Plotting both 990 gaps and Schedule D Gaps
+schd_d_gap <- filed_schd_d %>%
+  filter(Filled_Sch_D == "Yes") %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Schedule D Included")
+
+##Gap plot  
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
+             xmax = TaxPeriodEndDt, 
+             y = EIN,
+             color = type)) +
+  geom_linerange(size = 1, alpha = .8) +
+  theme_bw() + 
+  theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
+        axis.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 11,angle=20, vjust = .7),
+        axis.text.y = element_text(size = 4),
+        strip.text = element_text(face="bold",size = 18)) +
+  scale_x_date(date_breaks = "12 months",
+               date_labels = "%b %Y") +
+  scale_color_manual(values = c("darkgoldenrod1", "blue4")) +
+  labs(y = "EIN",
+       x = "Date",
+       title = "Schedule D and 990 Filing Dates",
+       color = "Type of Filing")
+
+## Table Identifying those that don't line up 
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  group_by(EIN) %>%
+  arrange(EIN, type, TaxPeriodBeginDt) %>%
+  select(-type) %>%
+  anyDuplicated()  
+
+filed_schd_d %>%
+  filter(EIN %in% ein_with_sch_d) %>%
+  mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
+         time = as.numeric(time, "days")) %>%
+  group_by(EIN) %>%
+  mutate(sum_coverage = sum(time),
+         type = "Only 990 Filed") %>%
+  bind_rows(schd_d_gap) %>%
+  select(-c(type, time, sum_coverage)) %>%
+  group_by(TaxPeriodBeginDt, TaxPeriodEndDt, ReturnDate, EIN, Filled_Sch_D, Need_Sch_D) %>%
+  mutate(num_dups = n()) %>%
+  filter(num_dups < 2) %>%
+  group_by(EIN) %>%
+  summarize() %>%
+  make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = "EIN")
+
+```
+There are seven EINs which do not always fill out Schedule D when they fill out 990.  
+
 

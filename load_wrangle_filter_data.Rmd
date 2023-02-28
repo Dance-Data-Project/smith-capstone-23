@@ -213,6 +213,8 @@ get_endowment <- function(filename) {
   # Retrieving the same endowment information for all 
   variables <- c("//Return//ReturnHeader//ReturnTs", 
                  "//Return//ReturnHeader//Filer//EIN", 
+                  "//Return//ReturnHeader//TaxPeriodBeginDt",
+                  "//Return//ReturnHeader//TaxPeriodEndDt",
                  "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
                  "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
@@ -257,6 +259,8 @@ get_endowment <- function(filename) {
   # Column name; order matters, needs to align with retrieval order
   variables_no_path <- c("ReturnTs", 
                          "EIN",
+                         "TaxPeriodBeginDt",
+                         "TaxPeriodEndDt",
                          "DonorRstrOrQuasiEndowmentsInd",
                         "CYBeginningYearBalanceAmt", 
                         "CYContributionsAmt", 
@@ -331,15 +335,23 @@ filter_ids <- filter_data %>%
 ## Adjusting data type, filtering to proper 990s
 endowment_data <- endowment_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
-                              format = "%Y-%m-%d")) %>%
+                              format = "%Y-%m-%d"),
+         TaxPeriodBeginDt = as.Date(TaxPeriodBeginDt,
+                                  format = "%Y-%m-%d"),
+         TaxPeriodEndDt = as.Date(TaxPeriodEndDt,
+                                  format = "%Y-%m-%d"),
+         fiscal_year = as.factor(year(TaxPeriodEndDt))) %>%
   mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
                 as.numeric)) %>%
-  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
+  mutate(across(c(EndowmentsHeldRelatedOrgInd, 
+                  EndowmentsHeldUnrelatedOrgInd,
+                  DonorRstrOrQuasiEndowmentsInd),
                 ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
   
   filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
   right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
-  select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
+  #Removing columns needed for filtering
+  select(-c(ReturnTypeCd,AmendedReturnInd)) 
 ```
 
 ```{r}
