@@ -42,7 +42,7 @@ companies_to_ein <- read_csv("./data/companies.csv") %>%
 
 # make kable table with consistent formatting
 make_table <- function(df, title = "", ...) {
-  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+  title <- paste0("<center><span style = 'font-size:110%;color:black'><b>",
                   title,
                   "</span></b><center>")
    as_tibble(df) %>%
@@ -158,6 +158,8 @@ crossref <- endowment_data %>%
 ```{r}
 
 # plot missingness for a given variable 
+# number of observations = number of observations 
+# where that EIN had that variable (not NA)
 plot_missing <- function(variable) {
   
   endowment_data %>%
