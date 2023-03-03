@@ -58,12 +58,13 @@ library(xml2)
 library(kableExtra)
 library(lubridate)
 library(forcats)
+library(here)
 
 
 ```
 
 ```{r}
-all_data_filtered <- read_rds("./data/data_filter_990.RDS")
+all_data_filtered <- read_rds(here("data", "data_filter_990.RDS"))
 ```
 
 ```{r}
