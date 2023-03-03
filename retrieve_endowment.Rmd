@@ -18,6 +18,7 @@ library(tidyverse)
 library(kableExtra)
 library(lubridate)
 library(forcats)
+library(here)
 
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
@@ -39,12 +40,12 @@ make_table <- function(..., title = "", col_names = c("")) {
 
 ```
 
-> Note: Zero was coded as false and One as true for Checkbox questions.
-
+> Note: Zero was coded as false and One as true for Checkbox questions.  
+> Additional note: Put the companies.csv file into your data folder 
 
 ```{r retrieving endowment info}
-endowment_data <- read_rds("./data/endowment_filter_data_990.RDS")
-names <- read_csv("./data/companies.csv") %>% 
+endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS"))
+names <- read_csv(here("data", "companies.csv")) %>% 
   mutate(EIN = as.character(ein)) %>%
   select(-ein)
 ```
