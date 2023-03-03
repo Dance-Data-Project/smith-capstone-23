@@ -9,7 +9,7 @@ output:
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
-      output_dir = "./output_html")})
+      output_dir = "output_html")})
 ---
 
 By the end of this file, you should have three RDS's:  
