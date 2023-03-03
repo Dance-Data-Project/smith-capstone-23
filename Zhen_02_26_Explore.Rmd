@@ -2,7 +2,14 @@
 title: "explore"
 author: "Zhen"
 date: "2023-02-26"
-output: html_document
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
 ---
 
 
@@ -11,15 +18,65 @@ library(dplyr)
 library(purrr)
 library(xml2)
 library(ggplot2)
+library(kableExtra)
 library(shiny)
 ```
 
+```{r copied from "load_wrangle_filter_data" to get the variables needed for the next chunk}
+################################################################################
+# extract variables in the IRS990ScheduleD node from the given file
+################################################################################
+# output is a dataframe with the filename and name of each variable extracted
 
-```{r}
+collect_sched_d_vars <- function(input_file) {
+  example_file <- xml2::read_xml(input_file)%>% xml_ns_strip()
+
+  # look at all variable names in schedule D
+  IRS990ScheduleD_vars <- example_file %>% 
+    xml_find_all("//ReturnData//IRS990ScheduleD")  %>%
+    xml_contents() %>% 
+    xml_path() 
+  
+  # look at variable names of children nodes of the schedule D nodes
+  IRS990ScheduleD_var_children <- IRS990ScheduleD_vars %>% 
+    map(~xml_find_all(example_file,
+                      xpath = gsub("/", 
+                                   "//" ,
+                                   .x, 
+                                   fixed = TRUE) ) %>%
+          xml_children() %>% 
+          xml_path()) %>%
+    unlist()
+  
+    # include both first level schedule D nodes and children nodes
+    vars <- c(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)
+    
+    tibble(variables = vars,
+           filename = input_file)
+}
+
+# file paths in the directory
+files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+               full.names = TRUE)
+
+# iterate over all files and extract variables present
+# output is a data frame with a file name column and variable name column
+all_vars <- map_df(files, collect_sched_d_vars)
+
+all_vars
+```
+
+
+```{r all the variables to add to the meta dataframe}
 # after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
 
 # Find all variable names that include building information
+
+
+all_vars <- map_df(files, collect_sched_d_vars)
+
 to_add <- c()
+
 for(row in 1:nrow(all_vars)){
   if(grepl("OtherLandBuildingsGrp", all_vars[row, ]$variables) | grepl("BuildingsGrp", all_vars[row, ]$variables)){
     to_add <- append(to_add, all_vars[row, ]$variables)
@@ -31,7 +88,8 @@ to_add
 ```
 
 
-## Buildings Grouop Explanation from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
+## Buildings Grouop Explanation
+Copied from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
 
 Part VI. Land, Buildings, and Equipment
 Complete Part VI if the organization answered “Yes” on Form 990, Part IV, line 11a, and reported an amount on Form 990, Part X, line 10a. Reporting is required if any amount other than zero is reported on those lines.
@@ -45,7 +103,7 @@ Column (c). Enter the accumulated depreciation recorded for the assets listed in
 amount in column (c) for line 1a, Land. The total of column (c) must equal the amount reported on Form 990, Part X,
 line 10b.
 
-Column (d). Enter the sum of column (a) and column (b) minus column (c). The total of column (
+Column (d). Enter the sum of column (a) and column (b) minus column (c). 
 
 ```{r}
 ##From Rose's get_endowment function
@@ -185,6 +243,13 @@ files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20
 endowment_data_building <- map_df(files, ~
                      get_endowment(.x)) 
 
+all_data<-readRDS("./data/data_990.RDS")
+filter_data <- all_data %>%
+  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
+  mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
+  group_by(EIN, fiscal_year) %>%
+  slice_max(order_by =amended_return_filled, n = 1) %>%
+  ungroup()
 ##Retriving Ts and EINs for filtered data 
 filter_ids <- filter_data %>%
   select(ReturnTs, EIN)
@@ -226,11 +291,7 @@ data_each_year<-list(
 
 ```
 
-```{r}
-a = deparse(substitute(data_2015))
-a
-substr(a,6,9)
-```
+
 
 ```{r}
 BookValueSum <- list()
@@ -248,16 +309,39 @@ for(i in c(1:8)){
     mutate(year = 2014+i,
            EIN = as.numeric(EIN)))
            
-  print(df)
+  #print(df)
   BookValueSum[[i]] = df
 }
+#  convert the list into dataframe
+bookvalues <- do.call(rbind, BookValueSum)
 ```
 
 I notice that bookvalue of 131882106 turned to 0 in 2018
 
 
-```{r}
-bookvalues <- do.call(rbind, BookValueSum)
+
+
+```{r mutate bookvalue dataframe with quantile and business name}
+# rank book value based on quantile
+bookvalues<-bookvalues %>%
+  mutate(quantile = ntile(BookValueSum, 10),
+         EIN = as.character(EIN)) %>% 
+  arrange(desc(EIN)) %>% 
+  inner_join(y = ein_to_name, by = "EIN")
+```
+
+
+```{r divide bookvalues into high medium and low}
+#dataframe with higher Book Values
+high <- bookvalues %>% 
+  filter(quantile <=3)
+
+medium <-bookvalues %>% 
+  filter(quantile > 3 & quantile < 7)
+#weird EIN: 546049868
+
+low <- bookvalues %>% 
+  filter(quantile >=8) 
 ```
  
 
@@ -280,9 +364,7 @@ ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
 ```{r}
 # separate EIN with medium and low building book value according to previous graph
 # high
-bookvalues %>% 
-  filter(BookValueSum >= 1e+07) %>% 
-  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
   geom_line()+
   theme_bw()+
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -294,12 +376,12 @@ bookvalues %>%
        x = "Year",
        title = "Schedule D Sum of Buildings Book Value Change (High)",
        subtitle = "By Fiscal Year")
+```
 
 
+```{r}
 # medium
-bookvalues %>% 
-  filter(BookValueSum < 1e+07 & BookValueSum > 2.5e+06) %>% 
-  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  ggplot(medium, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -311,11 +393,12 @@ bookvalues %>%
        x = "Year",
        title = "Schedule D Sum of Buildings Book Value Change (Medium)",
        subtitle = "By Fiscal Year")
+```
 
+
+```{r}
 # low
-bookvalues %>% 
-  filter(BookValueSum < 2.5e+06) %>% 
-  ggplot(aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
+  ggplot(low, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -334,25 +417,29 @@ The book value will decrease because of depreciation, so the normal trend of an 
   2) going up at any point
   3) appear less than 3 years
   
-(Currently I'm just doing this by eyeballing but I will write code for it later)
 
-```{r}
-#dataframe with higher Book Values
-high <- bookvalues %>% 
-  filter(BookValueSum > 1e+07)
-```
-weird EIN: 132584273, 621018942
+Caveat: ways of splitting up
+split up by quantile
+add geom_point
 
+## Unusual EIN's
 ```{r}
-medium <-bookvalues %>% 
-  filter(BookValueSum < 1e+07 & BookValueSum > 2.5e+06)
-```
-weird EIN: 546049868
+# rank book value based on quantile
+EIN_appearl_less_than_3<-bookvalues %>%
+  mutate(quantile = ntile(BookValueSum, 10),
+         EIN = as.character(EIN)) %>% 
+  group_by(EIN) %>% 
+  summarise(appear_times = n()) %>% 
+  filter(appear_times < 3) %>% 
+  inner_join(y=ein_to_name, by = c("EIN"))
 
-```{r}
-low <- bookvalues %>% 
-  filter(BookValueSum < 1e+07) 
 ```
-10372997
+
+
+## Percentage ranking
+```{r}
+bookvalues
+```
+
 
 
