@@ -369,7 +369,9 @@ ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
   labs(y = "Schedule D Sum of Buildings Book Value",
        x = "Year",
        title = "Schedule D Sum of Buildings Book Value Change",
-       subtitle = "By Fiscal Year")
+       subtitle = "By Fiscal Year")+
+  theme(legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))
 
 ```
 ```{r}
@@ -451,27 +453,19 @@ EIN_appearl_less_than_3<-bookvalues %>%
 
 ## Percentage change
 ```{r}
-test<-bookvalues %>% 
-  filter (EIN == "131882106")
-
-#change 2015 means the percentage change of building book values from 2015 to 2016
-val_2015 = test %>% filter(year == 2015) %>% select(BookValueSum)
-val_2016 = test %>% filter(year == 2016) %>% select(BookValueSum)
-change_2015 = (val_2016-val_2015) / val_2015 * 100
-
-years = as.character(c(2015:2022))
-
-test<-test %>% select(EIN, year, BookValueSum)
-test<-test %>% pivot_wider(names_from = "year", values_from = "BookValueSum")
-
-test<-test %>% 
-  mutate(change_2015 = (test$"2016"-test$"2015")/test$"2015",
-         change_2016 = (test$"2017"-test$"2016")/test$"2016",
-         change_2017 = (test$"2018"-test$"2017")/test$"2017",
-         change_2018 = (test$"2019"-test$"2018")/test$"2018",
-         change_2019 = (test$"2020"-test$"2019")/test$"2019",
-         change_2020 = (test$"2021"-test$"2020")/test$"2020")
+changes<-bookvalues %>% 
+  group_by(EIN) %>% 
+  mutate(change = (BookValueSum - lag(BookValueSum))/lag(BookValueSum) * 100) %>% 
+  select(EIN, year, BookValueSum, change, BusinessName.x)
 ```
 
+```{r}
+ggplot(changes, aes(x = year, y = change, color = as.factor(EIN)))+
+  geom_line()+
+  theme_bw()+
+  theme(legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))+
+  ylab("Change in Buildings BookValue Each Year (%)")
+```
 
 
