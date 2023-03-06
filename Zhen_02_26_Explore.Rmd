@@ -66,6 +66,7 @@ all_vars <- map_df(files, collect_sched_d_vars)
 all_vars
 ```
 
+## Adding Building related variables to endowment data
 
 ```{r all the variables to add to the meta dataframe}
 # after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
@@ -87,6 +88,15 @@ to_add<-unique(to_add)
 to_add
 ```
 
+```{r}
+ein_to_name <- all_data_filtered %>%
+  select(EIN, BusinessName) %>%
+  group_by(EIN) %>%
+  mutate(n_names = n_distinct(BusinessName)) %>%
+  slice_head(n=1) %>%
+  select(EIN, BusinessName)
+
+```
 
 ## Buildings Grouop Explanation
 Copied from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
@@ -316,8 +326,6 @@ for(i in c(1:8)){
 bookvalues <- do.call(rbind, BookValueSum)
 ```
 
-I notice that bookvalue of 131882106 turned to 0 in 2018
-
 
 
 
@@ -365,13 +373,13 @@ ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(EIN))) +
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
         axis.text.x = element_text(size = 10),
-        strip.text = element_text(face="bold",size = 5)) +
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) +
   labs(y = "Schedule D Sum of Buildings Book Value",
        x = "Year",
        title = "Schedule D Sum of Buildings Book Value Change",
-       subtitle = "By Fiscal Year")+
-  theme(legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7))
+       subtitle = "By Fiscal Year")
 
 ```
 ```{r}
@@ -453,19 +461,56 @@ EIN_appearl_less_than_3<-bookvalues %>%
 
 ## Percentage change
 ```{r}
-changes<-bookvalues %>% 
+changes <- bookvalues %>% 
   group_by(EIN) %>% 
-  mutate(change = (BookValueSum - lag(BookValueSum))/lag(BookValueSum) * 100) %>% 
+  mutate(change = (BookValueSum - lag(BookValueSum)) / lag(BookValueSum) * 100) %>%
   select(EIN, year, BookValueSum, change, BusinessName.x)
+
+changes[145, ]$change = NA
 ```
 
 ```{r}
-ggplot(changes, aes(x = year, y = change, color = as.factor(EIN)))+
-  geom_line()+
-  theme_bw()+
+ggplot(changes, aes(x = year, y = changes$change, color = as.factor(EIN))) +
+  geom_line(na.rm = FALSE, size = 0.2) +
+  ylim(-200, 800)+
+  theme_bw() +
   theme(legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7))+
-  ylab("Change in Buildings BookValue Each Year (%)")
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 6),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Change in Buildings Book Value Each Year (%)",
+       x = "Year",
+       title = "% Change in Bookvalues of Building Endowment each Fiscal Year",
+       color = "EIN")
 ```
 
+```{r}
+# filter out EIN with normal depreciation change
+changes <- changes %>% 
+  mutate(change_abs = abs(change)) 
+
+changes %>% 
+  filter(change_abs > 10) %>% 
+  ggplot(aes(x = year, y = change, color = as.factor(EIN))) +
+  geom_line(na.rm = FALSE, size = 0.2) +
+  ylim(-200, 800)+
+  theme_bw() +
+  theme(legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 6),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Change in Buildings Book Value Each Year (%)",
+       x = "Year",
+       title = "% Change in Bookvalues of Building Endowment each Fiscal Year",
+       color = "EIN")
+  
+```
 
