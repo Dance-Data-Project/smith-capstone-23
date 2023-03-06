@@ -10,7 +10,7 @@ output:
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
-      output_dir = "./output_html")})
+      output_dir = "output_html")})
 ---
 
 
@@ -20,13 +20,14 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
 library(tidyverse)
 library(kableExtra)
 library(scales)
+library(here)
 ```
 
 ```{r read data}
 
-endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") 
+endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS")) 
 
-companies_to_ein <- read_csv("./data/companies.csv") %>%
+companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
   mutate(EIN = as.character(ein))
 
 ```
