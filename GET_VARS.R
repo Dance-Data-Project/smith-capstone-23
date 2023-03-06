@@ -5,14 +5,22 @@
 #########################################################
 
 get_df <- function(variables,
-                   filename) {
+                   filename,
+                   names) {
   
   naming_vars <- c("//Return//ReturnHeader//ReturnTs",  
                    "//Return//ReturnHeader//Filer//EIN")
   
   variables_full <- c(naming_vars, variables)
-  # create column names with just the variables (no paths)
   variables_no_path <- gsub("*.*\\/", "", variables_full)
+  # create column names with just the variables (no paths)
+  # If they want specified names, uses provided column
+  if(length(names) == 0) {
+    variable_names <- variables_no_path
+  } else {  
+    variable_names <- c("ReturnTs", "EIN", names)
+  }
+
   
   xml_file <- read_xml(filename)
   xml_file <- xml_ns_strip(xml_file)
@@ -26,8 +34,7 @@ get_df <- function(variables,
                     NA, 
                     xml_text(value)) })
   
-  names(extracted) <- variables_no_path
-  
+  names(extracted) <- variable_names
   extracted <- extracted %>%
     as_tibble()
   
@@ -44,7 +51,7 @@ get_df <- function(variables,
       value <- ifelse(length(value) ==0, 
                       NA, 
                       xml_text(value)) })
-    names(extracted) <- variables_no_path
+    names(extracted) <- variable_names
     
     extracted <- extracted %>%
       as_tibble()
