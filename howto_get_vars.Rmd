@@ -16,7 +16,7 @@ knit: (function(input, ...) {
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 ```
 
-## Example for Retrieving Variables
+## Example for Retrieving and Filtering Variables
 ```{r}
 source("GET_VARS.R")
 files <- dir( "./ballet_990_released_20230208",
@@ -24,6 +24,8 @@ files <- dir( "./ballet_990_released_20230208",
 data_test <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
                            filename = .x,
-                           names = c("test", "test"))) 
+                           names = c())) 
+
+data <- filter_ein(data_test)
 ```
 
