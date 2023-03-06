@@ -6,9 +6,14 @@
 library(here)
 library(tidyverse)
 
+# variables: variables to retrieve
+# filename: name of file to read
+# names: column names (if different than names of variables to extract); optional
+# note that input vectors variables and names should be the same length
+# and in corresponding order
 get_df <- function(variables,
                    filename,
-                   names) {
+                   names = c()) {
   
   naming_vars <- c("//Return//ReturnHeader//ReturnTs",  
                    "//Return//ReturnHeader//Filer//EIN")
