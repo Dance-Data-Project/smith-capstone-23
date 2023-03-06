@@ -195,7 +195,7 @@ filter_data <- all_data %>%
 saveRDS(filter_data, "./data/data_filter_990.RDS") 
 ## Saving just the ReturnTs and EIN for later filtering 
 filter_data %>%
-  select(ReturnTs, EIN) %>%
+  select(ReturnTs, EIN, filename) %>%
   saveRDS(here("data", "ein_ts_filter.RDS"))
 ```
 
@@ -341,6 +341,9 @@ get_endowment <- function(filename) {
    
    extracted <- extracted %>%
      as_tibble()
+ # add name of file to data frame
+ extracted %>%
+   mutate(filename = gsub("*.*\\/", "", filename))
 }
 ```
 
