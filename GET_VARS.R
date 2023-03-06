@@ -5,17 +5,20 @@
 #########################################################
 
 get_df <- function(variables,
-                   filename, 
-                   include_paths = TRUE) {
+                   filename) {
   
+  naming_vars <- c("//Return//ReturnHeader//ReturnTs",  
+                   "//Return//ReturnHeader//Filer//EIN")
+  
+  variables_full <- c(naming_vars, variables)
   # create column names with just the variables (no paths)
-  variables_no_path <- gsub("*.*\\/", "", variables )
+  variables_no_path <- gsub("*.*\\/", "", variables_full)
   
   xml_file <- read_xml(filename)
   xml_file <- xml_ns_strip(xml_file)
   
   # extract each variable; if it isn't present, put NA 
-  extracted <- map(variables, ~{
+  extracted <- map(variables_full, ~{
     value <- xml_find_all(
       xml_file, 
       xpath =.x)
@@ -27,24 +30,6 @@ get_df <- function(variables,
   
   extracted <- extracted %>%
     as_tibble()
-  
-  
-  # add columns with the paths to each variable within the xml file
-  if(include_paths) {
-    paths <- map(variables, ~ {
-      value <- xml_find_all(
-        xml_file, 
-        xpath = paste0(.x)) 
-      value <- ifelse(length(value) ==0, 
-                      NA, 
-                      xml_path(value)) })
-    
-    names(paths) <- paste0(variables_no_path, "_path")
-    
-    extracted <- extracted %>%
-      bind_cols(as_tibble(paths)) 
-    
-  }
   
   # check how many of the entries are NA
   # if all NA, prefix 'irs:' may be needed
