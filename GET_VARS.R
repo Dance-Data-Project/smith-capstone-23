@@ -3,6 +3,8 @@
 ## Assumes you have: the 990s, ein_ts_filter.RDS  ###
 ## Author: Rose Evard
 #########################################################
+library(here)
+library(tidyverse)
 
 get_df <- function(variables,
                    filename,
@@ -60,4 +62,11 @@ get_df <- function(variables,
   # add name of file to data frame
   extracted %>%
     mutate(filename = gsub("*.*\\/", "", filename))
+}
+
+filter_ein <- function(dataset) {
+  filter_vars <- readRDS(here("data", "ein_ts_filter.RDS"))
+  filter_vars %>% 
+    left_join(dataset, by = c("ReturnTs", "EIN", "filename")) %>%
+    return()
 }
