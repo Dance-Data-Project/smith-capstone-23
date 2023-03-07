@@ -1,10 +1,12 @@
 #########################################################
-## Function to retrieve data from 990s ## 
+## Functions to retrieve and filter data from 990s ## 
 ## Assumes you have: the 990s, ein_ts_filter.RDS  ###
 ## Author: Rose Evard
 #########################################################
 library(here)
 library(tidyverse)
+library(xml2)
+library(lubridate)
 
 # variables: variables to retrieve
 # filename: name of file to read
@@ -15,17 +17,18 @@ get_df <- function(variables,
                    filename,
                    names = c()) {
   
-  naming_vars <- c("//Return//ReturnHeader//ReturnTs",  
-                   "//Return//ReturnHeader//Filer//EIN")
+  standard_vars <- c("//Return//ReturnHeader//ReturnTs",  
+                   "//Return//ReturnHeader//Filer//EIN",
+                   "//Return//ReturnHeader//TaxPeriodEndDt")
   
-  variables_full <- c(naming_vars, variables)
+  variables_full <- c(standard_vars, variables)
   variables_no_path <- gsub("*.*\\/", "", variables_full)
   # create column names with just the variables (no paths)
   # If they want specified names, uses provided column
   if(length(names) == 0) {
     variable_names <- variables_no_path
   } else {  
-    variable_names <- c("ReturnTs", "EIN", names)
+    variable_names <- c("ReturnTs", "EIN", "TaxPeriodEndDt", names)
   }
 
   
@@ -42,8 +45,13 @@ get_df <- function(variables,
                     xml_text(value)) })
   
   names(extracted) <- variable_names
+  #Converting to tibble, adding fiscal_year
   extracted <- extracted %>%
-    as_tibble()
+    as_tibble() %>%
+    mutate(TaxPeriodEndDt = as.Date(TaxPeriodEndDt, format = "%Y-%m-%d"),
+           fiscal_year = year(TaxPeriodEndDt),
+           fiscal_year = factor(fiscal_year)) %>%
+    select(-TaxPeriodEndDt)
   
   # check how many of the entries are NA
   # if all NA, prefix 'irs:' may be needed
@@ -60,8 +68,14 @@ get_df <- function(variables,
                       xml_text(value)) })
     names(extracted) <- variable_names
     
+    #Converting to tibble, adding fiscal_year
     extracted <- extracted %>%
-      as_tibble()
+      as_tibble() %>%
+      mutate(TaxPeriodEndDt = as.Date(TaxPeriodEndDt, format = "%Y-%m-%d"),
+             fiscal_year = year(TaxPeriodEndDt),
+             fiscal_year = factor(fiscal_year)) %>%
+      select(-TaxPeriodEndDt)
+      
   }
   
   # add name of file to data frame
@@ -69,6 +83,9 @@ get_df <- function(variables,
     mutate(filename = gsub("*.*\\/", "", filename))
 }
 
+# Filters the dataset based on previously gathered filenames, EIN, and ReturnTs
+# dataset: the datafile of 990s, assumes has ReturnTs, EIN, and filename
+# Assumse you've ran code in load_wrangle_filter to have ein_ts_filter
 filter_ein <- function(dataset) {
   filter_vars <- readRDS(here("data", "ein_ts_filter.RDS"))
   filter_vars %>% 
