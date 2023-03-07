@@ -188,12 +188,14 @@ filter_data <- all_data %>%
   mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
   group_by(EIN, fiscal_year) %>%
   slice_max(order_by =amended_return_filled, n = 1) %>%
-  ungroup()
+  ungroup()  
 ```
 
 ```{r}
 ## Saving data
-saveRDS(filter_data, here("data", "data_filter_990.RDS"))
+filter_data %>%
+  select(ReturnTs, EIN, filename) %>%
+  saveRDS(here("data", "ein_ts_filter.RDS"))
 ```
 
 # Extracting Endowment Data  
@@ -317,8 +319,30 @@ get_endowment <- function(filename) {
   
    names(extracted) <- variables_no_path
    
+  # check how many of the entries are NA
+  # if all NA, prefix 'irs:' may be needed
+  columns_not_na <- map_dbl(as.data.frame(extracted), ~!is.na(.x)) %>% sum()
+  
+  # handle case where prefix 'irs' is in front
+  if(columns_not_na == 0){
+    
+    extracted <- map(variables_no_path, ~ {
+      value <- xml_find_all(xml_file, 
+                            xpath = paste0("//irs:", .x)) 
+      value <- ifelse(length(value) ==0, 
+                      NA, 
+                      xml_text(value)) })
+    names(extracted) <- variables_no_path
+    
+    extracted <- extracted %>%
+      as_tibble()
+  }
+   
    extracted <- extracted %>%
      as_tibble()
+ # add name of file to data frame
+ extracted %>%
+   mutate(filename = gsub("*.*\\/", "", filename))
 }
 ```
 
@@ -331,7 +355,7 @@ endowment_data <- map_df(files, ~
 filter_ids <- filter_data %>%
   select(ReturnTs, EIN)
 ## Adjusting data type, filtering to proper 990s
-endowment_data <- endowment_data %>%
+endowment_data2 <- endowment_data %>%
   mutate(ReturnDate = as.Date(ReturnTs,
                               format = "%Y-%m-%d"),
          TaxPeriodBeginDt = as.Date(TaxPeriodBeginDt,
