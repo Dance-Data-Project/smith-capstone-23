@@ -19,10 +19,11 @@ library(purrr)
 library(xml2)
 library(ggplot2)
 library(kableExtra)
+library(plotly)
 library(shiny)
 ```
 
-```{r copied from "load_wrangle_filter_data" to get the variables needed for the next chunk}
+```{r copied from "data_dictionary" to get the variables needed for the next chunk}
 ################################################################################
 # extract variables in the IRS990ScheduleD node from the given file
 ################################################################################
@@ -470,7 +471,7 @@ changes[145, ]$change = NA
 ```
 
 ```{r}
-ggplot(changes, aes(x = year, y = changes$change, color = as.factor(EIN))) +
+all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color = as.factor(changes$BusinessName.x))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
   theme_bw() +
@@ -486,6 +487,8 @@ ggplot(changes, aes(x = year, y = changes$change, color = as.factor(EIN))) +
        x = "Year",
        title = "% Change in Bookvalues of Building Endowment each Fiscal Year",
        color = "EIN")
+
+ggplotly(all_changes_pct)
 ```
 
 ```{r}
@@ -493,7 +496,7 @@ ggplot(changes, aes(x = year, y = changes$change, color = as.factor(EIN))) +
 changes <- changes %>% 
   mutate(change_abs = abs(change)) 
 
-changes %>% 
+filtered_changes <- changes %>% 
   filter(change_abs > 10) %>% 
   ggplot(aes(x = year, y = change, color = as.factor(EIN))) +
   geom_line(na.rm = FALSE, size = 0.2) +
@@ -511,6 +514,27 @@ changes %>%
        x = "Year",
        title = "% Change in Bookvalues of Building Endowment each Fiscal Year",
        color = "EIN")
-  
+
+
+ggplotly(p = filtered_changes)
+```
+
+
+```{r}
+changes %>% 
+  filter(change_abs > 10) %>% 
+  kbl(caption = "Unusual EIN (appear less than 3 times)") %>%
+  kable_material() %>%
+  row_spec(row = 0, background = "red", color = "white", bold = TRUE)
+```
+
+
+
+```{r}
+ranking<-changes %>% 
+  arrange(desc(change_abs)) %>% 
+  kbl(caption = "Ranking of Single Book Value change (%)") %>%
+  kable_material() %>%
+  row_spec(row = 0, background = "red", color = "white", bold = TRUE)
 ```
 
