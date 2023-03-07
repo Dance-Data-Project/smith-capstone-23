@@ -465,8 +465,10 @@ EIN_appearl_less_than_3<-bookvalues %>%
 changes <- bookvalues %>% 
   group_by(EIN) %>% 
   mutate(change = (BookValueSum - lag(BookValueSum)) / lag(BookValueSum) * 100) %>%
-  select(EIN, year, BookValueSum, change, BusinessName.x)
+  select(EIN, BusinessName.x, year, BookValueSum, change) %>% 
+  mutate(change_abs = abs(change)) 
 
+#Making an infinite value NA
 changes[145, ]$change = NA
 ```
 
@@ -493,9 +495,6 @@ ggplotly(all_changes_pct)
 
 ```{r}
 # filter out EIN with normal depreciation change
-changes <- changes %>% 
-  mutate(change_abs = abs(change)) 
-
 filtered_changes <- changes %>% 
   filter(change_abs > 10) %>% 
   ggplot(aes(x = year, y = change, color = as.factor(EIN))) +
@@ -531,8 +530,9 @@ changes %>%
 
 
 ```{r}
-ranking<-changes %>% 
+ranking<-changes %>%
   arrange(desc(change_abs)) %>% 
+  select(EIN, BusinessName.x, year, change, BookValueSum) %>% 
   kbl(caption = "Ranking of Single Book Value change (%)") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
