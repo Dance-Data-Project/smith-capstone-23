@@ -13,16 +13,33 @@ library(lubridate)
 # names: column names (if different than names of variables to extract); optional
 # note that input vectors variables and names should be the same length
 # and in corresponding order
-get_df <- function(variables,
+get_df <- function(variables = c(),
                    filename,
-                   names = c()) {
+                   names = c(),
+                   schedule = NULL) {
   
+  
+  if(length(variables)==0 & is.null(schedule)) {
+    stop("Schedule or Variable Names Must be Provided")
+  }
+  
+  xml_file <- read_xml(filename)
+  xml_file <- xml_ns_strip(xml_file)
+  
+  # variables to always extract
   standard_vars <- c("//Return//ReturnHeader//ReturnTs",  
                    "//Return//ReturnHeader//Filer//EIN",
                    "//Return//ReturnHeader//TaxPeriodEndDt")
   
+  # option for extracting all variables for given schedule
+  if (!is.null(schedule)) {
+    variables <- get_vars_by_schedule(xml_file, schedule)
+  }
+  
   variables_full <- c(standard_vars, variables)
+  
   variables_no_path <- gsub("*.*\\/", "", variables_full)
+  
   # create column names with just the variables (no paths)
   # If they want specified names, uses provided column
   if(length(names) == 0) {
@@ -31,9 +48,6 @@ get_df <- function(variables,
     variable_names <- c("ReturnTs", "EIN", "TaxPeriodEndDt", names)
   }
 
-  
-  xml_file <- read_xml(filename)
-  xml_file <- xml_ns_strip(xml_file)
   
   # extract each variable; if it isn't present, put NA 
   extracted <- map(variables_full, ~{
@@ -92,3 +106,66 @@ filter_ein <- function(dataset) {
     left_join(dataset, by = c("ReturnTs", "EIN", "filename")) %>%
     return()
 }
+
+
+
+get_vars_by_schedule <- function(file, schedule) {
+  
+  schedule_path <- paste0("//IRS990Schedule", toupper(schedule))
+
+  schedule_children <- file %>% 
+    xml_find_all(xpath = "//ReturnData") %>%
+    xml_children() %>% 
+    xml_find_all(schedule_path) %>%
+    xml_children() 
+  
+  schedule_children %>%
+    xml_path()
+  
+}
+
+
+# convenience function to see what all children variables
+# of some node are; often we will not want to extract
+# all children due to duplicate names 
+get_all_children <- function(filename, xpath, quiet = TRUE) {
+  
+  xml_file <- read_xml(filename)
+  xml_file <- xml_ns_strip(xml_file)
+  
+  
+  children <- xml_file %>% 
+    xml_find_all(xpath = xpath) %>%
+    xml_children() 
+  
+  new_nodes <- children
+  
+  all_paths <- children %>%
+    xml_path()
+  
+  # assume depth of xml file is less than 100
+  # breaks when no child nodes are found 
+  for (i in 1:100) {
+  
+    new_nodes <- new_nodes %>%
+      xml_children()
+    
+    if(length(new_nodes) == 0) break
+    
+    if(!quiet) message(paste0(
+      "Iteration: ", i,
+      "\nNew Nodes:\n", paste0(xml_path(new_nodes),
+                               collapse="\n")))
+    
+    # add new node paths to existing list of paths
+    all_paths <- c(all_paths, xml_path(new_nodes))
+  }
+  return(all_paths)
+}
+
+
+
+
+
+
+

@@ -73,3 +73,43 @@ data <- map_df(files, ~
                            ))
 data <- filter_ein(data)
 ```
+
+
+
+
+## Example for Retrieving Variables by Schedule
+
+Extract variables associated with given schedule ('a', 'b', 'd', 'g', 'm', 'o', or 'r').
+
+```{r}
+
+
+schedule_o <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'o')) %>%
+  filter_ein()
+
+glimpse(schedule_o)
+
+schedule_d <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'd')) %>%
+  filter_ein()
+
+glimpse(schedule_d)
+
+
+
+```
+
+
+## Function for Seeing All Children of a Given Node
+
+This is just a quick way to see all children of a node of interest, for example, a schedule node, to help get a better understanding for the structure of the file.
+
+```{r}
+
+get_all_children(files[1], "//ReturnData//IRS990ScheduleO")
+
+```
+
+
+
