@@ -6,10 +6,11 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: show
+    css: css/template.css
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
-      output_dir = "./output_html")})
+      output_dir = here::here("output_html"))})
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +29,7 @@ This will load the functions into your environment.
 
 To apply the `get_df`, run this: 
 ```{r}
-files <- dir( "./ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)  
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -46,7 +47,7 @@ The `get_df` parameter `filename` should always be `.x`.  It just means "For a g
 
 ```{r}
 ##Example with names
-files <- dir( "./ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -65,7 +66,7 @@ Overall, you can copy and paste this chunk, specify the variables you want, and 
 ```{r}
 ##Example with names
 source("GET_VARS.R")
-files <- dir( "./ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
