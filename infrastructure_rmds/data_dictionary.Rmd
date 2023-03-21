@@ -18,6 +18,7 @@ library(tidyverse)
 library(xml2)
 library(rvest)
 library(kableExtra)
+library(here)
 ```
 
 ```{css, echo =FALSE}
@@ -59,7 +60,7 @@ max-width:2300px;
 
 # function development for single file 
 
-varnames <- read_html("./data_dict_html/irs_info_xi.html") 
+varnames <- read_html(here("infrastructure_rmds", "data_dict_html", "irs_info_xi.html")) 
 
 
 content_table <- varnames %>%
@@ -175,11 +176,10 @@ make_table <- function(..., title = "") {
 ```{r}
 # iterate through all html files in html directory and extract variable information
 variable_descriptions <- map_df(
-  dir("./data_dict_html", full.names= TRUE),
+  dir(here("infrastructure_rmds", "data_dict_html"), full.names= TRUE),
   get_var_info)
 
-saveRDS(variable_descriptions, 
-        "./data/schedule_d_variable_descriptions.RDS")
+saveRDS(variable_descriptions, here("data", "schedule_d_variable_descriptions.RDS"))
 
 # make table
 variable_descriptions %>%
@@ -275,7 +275,7 @@ readable_names <- tibble(original_variable = variables_no_path) %>%
                            readable)) %>% 
   select(original_variable, readable)
 
-saveRDS(readable_names, "./data/readable_names.RDS") 
+saveRDS(readable_names, here("data", "readable_names.RDS")) 
 
 readable_names
 
@@ -293,7 +293,7 @@ It may be good to get a sense for the variables that are present in the most of 
 # FUNCTION DEVELOPMENT W/ TEST EXAMPLE
 ############################################
 
-files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
                full.names = TRUE)
 
 example_file <- xml2::read_xml(files[10]) %>% xml_ns_strip()
@@ -354,7 +354,7 @@ collect_sched_d_vars <- function(input_file) {
 }
 
 # file paths in the directory
-files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
                full.names = TRUE)
 
 # iterate over all files and extract variables present

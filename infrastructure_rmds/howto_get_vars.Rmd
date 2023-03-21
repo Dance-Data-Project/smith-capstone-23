@@ -9,26 +9,28 @@ output:
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
-      output_dir = "./output_html")})
+      output_dir = "output_html")})
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(here)
 ```
 
 ## Example for Retrieving and Filtering Variables  
 
-In order to use the `get_df` and `filter_ein` functions in `GET_VARS.R`, you need to first run the following code:  
+In order to use the `get_df` and `filter_ein` functions in `GET_VARS.R`, you need to first run load the package `here`, then run the following code:  
 
 ```{r}
-source("GET_VARS.R")
+library(here)
+source(here("GET_VARS.R"))
 ```
 
 This will load the functions into your environment.  
 
 To apply the `get_df`, run this: 
 ```{r}
-files <- dir( "./ballet_990_released_20230208",
+files <- dir( here("ballet_990_released_20230208"),
               full.names = TRUE)  
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -46,7 +48,7 @@ The `get_df` parameter `filename` should always be `.x`.  It just means "For a g
 
 ```{r}
 ##Example with names
-files <- dir( "./ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -63,9 +65,10 @@ data <- filter_ein(data)
 
 Overall, you can copy and paste this chunk, specify the variables you want, and choose if you want to specify names: 
 ```{r}
-##Example with names
-source("GET_VARS.R")
-files <- dir( "./ballet_990_released_20230208",
+##Example with names  
+library(here)
+source(here("GET_VARS.R"))
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
