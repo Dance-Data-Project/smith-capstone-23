@@ -23,6 +23,7 @@ library(ggplot2)
 library(kableExtra)
 library(plotly)
 library(shiny)
+library(here)
 ```
 
 ```{r copied from "data_dictionary" to get the variables needed for the next chunk, eval = FALSE}
@@ -59,8 +60,7 @@ collect_sched_d_vars <- function(input_file) {
 }
 
 # file paths in the directory
-files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
-               full.names = TRUE)
+files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
 
 # iterate over all files and extract variables present
 # output is a data frame with a file name column and variable name column
@@ -94,7 +94,7 @@ to_add
 ```
 
 ```{r}
-all_data_filtered<-readRDS("./data/all_data_filtered.RDS")
+all_data_filtered<-readRDS(here("data", "endowment_filter_data_990.RDS"))
 ein_to_name <- all_data_filtered %>%
   select(EIN, BusinessName) %>%
   group_by(EIN) %>%
@@ -253,8 +253,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir( "/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
-              full.names = TRUE)
+files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
 
 endowment_data_building <- map_df(files, ~
                      get_endowment(.x)) 
@@ -296,7 +295,7 @@ Term explained:
 # filter out all data each year
 data_each_year<-list(
   data_2015 <- filter(endowment_data_building, grepl("2015", ReturnTs)),
-  data_2016 <- filter(endowment_data_building, grepl("2016", ReturnTs)),f
+  data_2016 <- filter(endowment_data_building, grepl("2016", ReturnTs)),
   data_2017 <- filter(endowment_data_building, grepl("2017", ReturnTs)),
   data_2018 <- filter(endowment_data_building, grepl("2018", ReturnTs)),
   data_2019 <- filter(endowment_data_building, grepl("2019", ReturnTs)),

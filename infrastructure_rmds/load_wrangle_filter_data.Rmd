@@ -349,7 +349,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir( "./data/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
 endowment_data <- map_df(files, ~

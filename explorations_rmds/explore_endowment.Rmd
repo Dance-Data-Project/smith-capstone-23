@@ -26,16 +26,17 @@ library(tidyverse)
 library(kableExtra)
 library(scales)
 library(plotly)
+library(here)
 ```
 
 
 ```{r read data}
 
 # starting by only exploring the CY* variables
-endowment_data <- read_rds("./data/endowment_filter_data_990.RDS") %>%
+endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS")) %>%
   select(EIN, fiscal_year, contains("CY"))
 
-companies_to_ein <- read_csv("./data/companies.csv") %>%
+companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
   mutate(EIN = as.character(ein)) %>%
   select(EIN, organization_name)
 
