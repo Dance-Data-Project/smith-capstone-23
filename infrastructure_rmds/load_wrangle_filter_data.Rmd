@@ -197,6 +197,9 @@ filter_data <- all_data %>%
 filter_data %>%
   select(ReturnTs, EIN, filename) %>%
   saveRDS(here("data", "ein_ts_filter.RDS"))
+
+saveRDS(filter_data, here("data", "data_filter_990.RDS"))
+
 ```
 
 # Extracting Endowment Data  
