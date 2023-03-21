@@ -136,6 +136,7 @@ get_df <- function(variables,
 
 # path assumes zip-file is unzipped in smith-capstone-23 directory
 # generates vector of the full paths to all files in the ballet_990_released_20230208 directory
+
 files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
@@ -348,6 +349,9 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
+files <- dir( "./data/ballet_990_released_20230208",
+              full.names = TRUE)
+
 endowment_data <- map_df(files, ~
                      get_endowment(.x)) 
 

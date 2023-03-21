@@ -48,6 +48,7 @@ endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS"))
 names <- read_csv(here("data", "companies.csv")) %>% 
   mutate(EIN = as.character(ein)) %>%
   select(-ein)
+
 ```
 
 
