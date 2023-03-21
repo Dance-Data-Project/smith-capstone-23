@@ -1,13 +1,26 @@
 
 ##################################################################
 # simple R script to knit all Rmarkdown file and generate outputs
-# in the output_html directory
+# in the output_html directory within each file 
 ##################################################################
 
 library(rmarkdown)
+library(here)
 
-render("./load_wrangle_filter_data.Rmd", output_dir = "./output_html" )
-render("./generate_table.Rmd", output_dir = "./output_html")
-render("./filter_out_filings.Rmd",output_dir = "./output_html")
-render("./retrieve_endowment.Rmd", output_dir = "./output_html")
-render("./data_dictionary.Rmd", output_dir = "./output_html")
+# exploration folder
+files <- dir(here("explorations_rmds"),
+             full.names = TRUE)
+output <- here("explorations_rmds", "output_html")
+
+for (i in files) {
+  render(i, output_dir = output)
+}
+
+# Infrastructure folder 
+files <- dir(here("infrastructure_rmds"),
+             full.names = TRUE)
+output <- here("infrastructure_rmds", "output_html")
+
+for (i in files) {
+  render(i, output_dir = output)
+}
