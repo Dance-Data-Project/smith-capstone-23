@@ -9,7 +9,7 @@ output:
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
-      output_dir = "./output_html")})
+      output_dir = "output_html")})
 ---
 
 ```{css, echo = FALSE}
@@ -27,7 +27,8 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 
 library(tidyverse)
 library(kableExtra)
-all_data <- readRDS("./data/data_990.RDS")
+library(here)
+all_data <- readRDS(here("data", "data_990.RDS"))
 
 ```
 
