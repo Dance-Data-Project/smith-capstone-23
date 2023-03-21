@@ -13,7 +13,7 @@ files <- dir(here("explorations_rmds"),
 output <- here("explorations_rmds", "output_html")
 
 for (i in files) {
-  render(i, output_dir = output)
+  if(grepl(".Rmd", i)) { render(i, output_dir = output)}
 }
 
 # Infrastructure folder 
@@ -22,5 +22,6 @@ files <- dir(here("infrastructure_rmds"),
 output <- here("infrastructure_rmds", "output_html")
 
 for (i in files) {
-  render(i, output_dir = output)
+  print(i)
+  if(grepl(".Rmd", i)){render(i, output_dir = output)}
 }
