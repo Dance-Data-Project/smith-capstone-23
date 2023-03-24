@@ -6,6 +6,7 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+    css: !expr here::here('css', 'template.css')
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
@@ -13,7 +14,7 @@ knit: (function(input, ...) {
 ---
 
 
-```{r}
+```{r,message=FALSE}
 
 library(tidyverse)
 library(xml2)
