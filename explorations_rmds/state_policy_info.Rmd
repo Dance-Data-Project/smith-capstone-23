@@ -119,6 +119,13 @@ add <- add %>% group_by(EIN) %>%
   ungroup()
 
 
+add %>%
+  select(EIN, organization_name,
+         business_state_cd,
+         books_state_cd,
+         state) %>%
+  saveRDS(here('data', 'ein_to_state.RDS'))
+
 # check there is one state per EIN
  # add %>%
  #   group_by(EIN) %>%
