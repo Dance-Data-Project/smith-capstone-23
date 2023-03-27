@@ -3,7 +3,7 @@ title: "Endowment Spenddown"
 author: "Rose Evard"
 date: "`r Sys.Date()`"
 output:
-  rmdformats::readthedown:
+  rmdformats::html_clean:
     df_print: paged
     code_folding: hide
     css: !expr here::here('css', 'template.css')
@@ -125,7 +125,8 @@ ggplot(spend_down, aes(x = pct_spend_down)) +
 spend_down %>%
   filter(pct_spend_down != Inf) %>%
   select(organization_name, fiscal_year, pct_spend_down) %>%
-  make_table(title = "Percent Spend Down", col_names = c("Name", "Fiscal Year", "% Spend Down"))
+  make_table(title = "Percent Spend Down", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
+  scroll_box(height = "450px")
 ```
 
 **(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
@@ -245,7 +246,8 @@ spend_down %>%
   filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
   select(organization_name, pct_spend_down, fiscal_year) %>%
   arrange(desc(fiscal_year)) %>%
-  make_table(title = "Percent Spend Down within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) 
+  make_table(title = "Percent Spend Down within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) %>%
+  scroll_box(height = "450px")
 ```
 
 ```{r}
