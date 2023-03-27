@@ -214,6 +214,8 @@ ggplotly(limited_scale) %>%
   layout(showlegend = FALSE)
 ```
 
+
+## Within the Pandemic  
 ```{r}  
 ## Pandemic Years
 spend_down_plot <- spend_down %>%
@@ -250,6 +252,15 @@ spend_down %>%
   scroll_box(height = "450px")
 ```
 
+```{r}
+spend_down %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_spend_down, fiscal_year) %>%
+  group_by(fiscal_year) %>%
+  summarize(total_in_year = n())
+```
+
+## Range of Endowment Spend Down
 ```{r}
 ## Ranges of different spend-downs  
 # reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_spend_down)))), na.rm = TRUE)
