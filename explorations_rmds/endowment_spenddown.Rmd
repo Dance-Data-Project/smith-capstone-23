@@ -1,0 +1,293 @@
+---
+title: "Endowment Spenddown"
+author: "Rose Evard"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: !expr here::here('css', 'template.css')
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "output_html")})
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(plotly)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(..., title = "", col_names = c("")) {
+  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(...) %>%
+    kbl(caption = title,
+        col.names = col_names) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+```{r}
+## Loading in data
+endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS"))
+names <- read_csv(here("data", "companies.csv")) %>% 
+  mutate(EIN = as.character(ein)) %>%
+  select(-ein)
+```
+
+## Calculating Percent Spend Down
+
+```{r, eval = FALSE}
+## Calculating Spend Down, NOT including the CYMs   
+## 100 - (EYE/BYB * 100)
+spend_down_calc1 <- endowment_data %>%
+  filter(!is.na(CYBeginningYearBalanceAmt)) %>%
+  mutate(spend_down = 100 - (CYEndYearBalanceAmt/CYBeginningYearBalanceAmt * 100)) %>%
+  arrange(desc(spend_down)) %>%
+  select(EIN, CYEndYearBalanceAmt, CYBeginningYearBalanceAmt, spend_down)
+
+spend_down_calc1 %>%   
+  filter(!is.na(spend_down) & spend_down != -Inf) %>%
+  summarize(avg_spend_down = mean(spend_down),
+            median_spend_down = median(spend_down),
+            sd_spend_down = sd(spend_down))
+
+ggplot(spend_down_calc1, aes(x = spend_down)) +
+  geom_histogram(binwidth = 10) + 
+  xlab("Spend Down") + 
+  ggtitle(label = "Histogram", subtitle = "Spend Down = 100 - (EYB / BYB * 100)")
+```
+
+```{r, eval = FALSE}
+## Calculating Spend Down, NOT including the CYMs   
+## EYE/BYB * 100
+spend_down_calc2 <- endowment_data %>%
+  filter(!is.na(CYBeginningYearBalanceAmt)) %>%
+  mutate(spend_down = (CYEndYearBalanceAmt/CYBeginningYearBalanceAmt * 100)) %>%
+  arrange(desc(spend_down)) %>%
+  select(EIN, CYEndYearBalanceAmt, CYBeginningYearBalanceAmt, spend_down)
+
+spend_down_calc2 %>%   
+  filter(!is.na(spend_down) & spend_down != -Inf) %>%
+  summarize(avg_spend_down = mean(spend_down),
+            median_spend_down = median(spend_down),
+            sd_spend_down = sd(spend_down))
+
+ggplot(spend_down_calc2, aes(x = spend_down)) +
+  geom_histogram(binwidth = 10) + 
+  xlab("Spend Down") + 
+  ggtitle(label = "Histogram", subtitle = "Spend Down = (EYB / BYB * 100)")
+```
+
+```{r, eval = TRUE}
+## Calculating Spend Down, NOT including the CYMs   
+## (EYB - BYB)/BYB * 100
+## Rose has notes on her choice for this calculation
+spend_down <- endowment_data %>%
+  filter(!is.na(CYBeginningYearBalanceAmt)) %>%
+  mutate(spend_down = CYEndYearBalanceAmt - CYBeginningYearBalanceAmt,
+         pct_spend_down = spend_down/CYBeginningYearBalanceAmt * 100) %>%
+  arrange(desc(pct_spend_down)) %>%
+  left_join(names, by = "EIN")
+
+# Basic summary stats
+spend_down %>%   
+  filter(!is.na(pct_spend_down) & pct_spend_down != Inf) %>%
+  summarize(avg_spend_down = mean(pct_spend_down),
+            median_spend_down = median(pct_spend_down),
+            sd_spend_down = sd(pct_spend_down))
+
+spend_down %>%   
+  filter(!is.na(pct_spend_down) & pct_spend_down != Inf) %>%
+  group_by(EIN) %>%
+  summarize(avg_spend_down = mean(pct_spend_down),
+            median_spend_down = median(pct_spend_down),
+            sd_spend_down = sd(pct_spend_down))
+
+# Basic histogram summarizing it
+ggplot(spend_down, aes(x = pct_spend_down)) +
+  geom_histogram(binwidth = 20) + 
+  xlab("% Spend Down\n(EYB - BYB) / BYB * 100") + 
+  ggtitle(label = "Percentage of Spend Down", subtitle = "Red Line indicates 100%") +
+  theme_classic() + 
+  geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
+
+spend_down %>%
+  filter(pct_spend_down != Inf) %>%
+  select(organization_name, fiscal_year, pct_spend_down) %>%
+  make_table(title = "Percent Spend Down", col_names = c("Name", "Fiscal Year", "% Spend Down"))
+```
+
+**(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
+
+> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
+> If BYB is larger, negative result. Meaning a DECREASE in total funds.
+> If result is above 100, the fund was at least DOUBLED.  
+
+
+```{r}  
+## Spend Down over Time
+spend_down_plot <- spend_down %>%
+  ggplot(aes(x = fiscal_year, y = pct_spend_down, 
+             group = organization_name, color = organization_name)) +
+  geom_line(alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Spend Down",
+       x = "Fiscal Year",
+       title = "Percentage of Endowment Spend Down",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+ggplotly(spend_down_plot) %>%
+  layout(showlegend = FALSE)
+```
+
+```{r}  
+## Spend Down over Time
+### WITHOUT ARIAZONA
+spend_down_plot <- spend_down %>%
+  filter(organization_name != "Ballet Arizona") %>% 
+  ggplot(aes(x = fiscal_year, y = pct_spend_down, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Spend Down",
+       x = "Fiscal Year",
+       title = "Percentage of Endowment Spend Down",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::breaks_pretty(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+ggplotly(spend_down_plot) %>%
+  layout(showlegend = FALSE)
+
+```
+
+```{r}
+##Plot with Y scale between -100 and 100 
+limited_scale <- spend_down %>%
+  ggplot(aes(x = fiscal_year, y = pct_spend_down, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Spend Down",
+       x = "Fiscal Year",
+       title = "Percentage of Endowment Spend Down (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))
+ggplotly(limited_scale) %>%
+  layout(showlegend = FALSE)
+```
+
+```{r}  
+## Pandemic Years
+spend_down_plot <- spend_down %>%
+  filter(fiscal_year %in% c("2018", "2019", "2020", "2021", "2022")) %>% 
+  ggplot(aes(x = fiscal_year, y = pct_spend_down, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Spend Down",
+       x = "Fiscal Year",
+       title = "Percentage of Endowment Spend Down",
+       subtitle = "Within Pandemic Years") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+ggplotly(spend_down_plot)  %>%
+  layout(showlegend = FALSE)
+```
+
+```{r}
+## Table of available in-pandemic data 
+spend_down %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_spend_down, fiscal_year) %>%
+  arrange(desc(fiscal_year)) %>%
+  make_table(title = "Percent Spend Down within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) 
+```
+
+```{r}
+## Ranges of different spend-downs  
+# reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_spend_down)))), na.rm = TRUE)
+# Reordering by standard deviation of pct_spend down
+spend_down_box <- spend_down %>%
+  group_by(organization_name) %>%
+  filter(pct_spend_down != Inf) %>%
+  summarize(sd = sd(pct_spend_down, na.rm = TRUE)) %>%
+  right_join(spend_down, by = "organization_name") %>%
+  select(organization_name, EIN, pct_spend_down, sd) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
+
+## Unlimited 
+box_plot <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Spend Downper Company",
+       x = "Dance Company",
+       y = "Percent of Endowment Spend Down") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot) %>%
+  layout(showlegend = FALSE)
+
+##Limited to 100 for visibility 
+box_plot_lim <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Spend Down (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percent of Endowment Spend Down") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+ggplotly(box_plot_lim) %>%
+  layout(showlegend = FALSE)
+
+
+```
+
+
