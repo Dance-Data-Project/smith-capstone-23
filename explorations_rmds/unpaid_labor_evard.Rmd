@@ -127,3 +127,4 @@ There are `r count_no_employs` companies who reported zero employees.
 
 > Do those who don't report employees report volunteers?  
 > What's the revenue for those companies?  
+> Start doing company-by-company analysis 
