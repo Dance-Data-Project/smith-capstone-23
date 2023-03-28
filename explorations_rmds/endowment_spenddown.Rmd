@@ -45,8 +45,15 @@ names <- read_csv(here("data", "companies.csv")) %>%
   select(-ein)
 ```
 
-## Calculating Percent Spend Down
+## Calculating Percent Spend Down 
 
+
+**(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
+
+> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
+> If BYB is larger, negative result. Meaning a DECREASE in total funds.  
+> If result is above 100, the fund was at least DOUBLED.  
+ 
 ```{r, eval = FALSE}
 ## Calculating Spend Down, NOT including the CYMs   
 ## 100 - (EYE/BYB * 100)
@@ -140,12 +147,50 @@ spend_down %>%
   scroll_box(height = "450px")
 ```
 
-**(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
+## Range of Endowment Spend Down
+```{r}
+## Ranges of different spend-downs  
+# reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_spend_down)))), na.rm = TRUE)
+# Reordering by standard deviation of pct_spend down
+spend_down_box <- spend_down %>%
+  group_by(organization_name) %>%
+  filter(pct_spend_down != Inf) %>%
+  summarize(sd = sd(pct_spend_down, na.rm = TRUE)) %>%
+  right_join(spend_down, by = "organization_name") %>%
+  select(organization_name, EIN, pct_spend_down, sd) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
 
-> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
-> If BYB is larger, negative result. Meaning a DECREASE in total funds.
-> If result is above 100, the fund was at least DOUBLED.  
+## Unlimited 
+box_plot <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Spend Downper Company",
+       x = "Dance Company",
+       y = "Percent of Endowment Spend Down") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot) %>%
+  layout(showlegend = FALSE)
 
+##Limited to 100 for visibility 
+box_plot_lim <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Spend Down (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percent of Endowment Spend Down") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+ggplotly(box_plot_lim) %>%
+  layout(showlegend = FALSE)
+
+
+```
+
+## Spend Down over Time  
 ```{r}  
 ## Spend Down over Time
 spend_down_plot <- spend_down %>%
@@ -269,48 +314,3 @@ spend_down %>%
   group_by(fiscal_year) %>%
   summarize(total_in_year = n())
 ```
-
-## Range of Endowment Spend Down
-```{r}
-## Ranges of different spend-downs  
-# reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_spend_down)))), na.rm = TRUE)
-# Reordering by standard deviation of pct_spend down
-spend_down_box <- spend_down %>%
-  group_by(organization_name) %>%
-  filter(pct_spend_down != Inf) %>%
-  summarize(sd = sd(pct_spend_down, na.rm = TRUE)) %>%
-  right_join(spend_down, by = "organization_name") %>%
-  select(organization_name, EIN, pct_spend_down, sd) %>%
-  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
-
-## Unlimited 
-box_plot <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
-  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
-  geom_point(size = 1, alpha = 0.5) + 
-  theme_bw() + 
-  labs(title = "Range of Endowment Spend Downper Company",
-       x = "Dance Company",
-       y = "Percent of Endowment Spend Down") + 
-  theme(axis.text.x = element_blank()) + 
-  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
-ggplotly(box_plot) %>%
-  layout(showlegend = FALSE)
-
-##Limited to 100 for visibility 
-box_plot_lim <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down)) + 
-  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
-  geom_point(size = 1, alpha = 0.5) + 
-  theme_bw() + 
-  labs(title = "Range of Endowment Spend Down (Max of 100) per Company",
-       x = "Dance Company",
-       y = "Percent of Endowment Spend Down") + 
-  theme(axis.text.x = element_blank()) + 
-  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
-                     limit = c(-100,100))
-ggplotly(box_plot_lim) %>%
-  layout(showlegend = FALSE)
-
-
-```
-
-
