@@ -184,7 +184,7 @@ box_plot_lim <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_
   theme(axis.text.x = element_blank()) + 
   scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
                      limit = c(-100,100))
-ggplotly(box_plot_lim) %>%
+ggplotly(box_plot_lim)  %>%
   layout(showlegend = FALSE)
 
 
@@ -212,8 +212,7 @@ spend_down_plot <- spend_down %>%
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
-ggplotly(spend_down_plot) %>%
-  layout(showlegend = FALSE)
+ggplotly(spend_down_plot) 
 ```
 
 ```{r}  
@@ -239,8 +238,7 @@ spend_down_plot <- spend_down %>%
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::breaks_pretty(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
-ggplotly(spend_down_plot) %>%
-  layout(showlegend = FALSE)
+ggplotly(spend_down_plot)
 
 ```
 
@@ -265,8 +263,7 @@ limited_scale <- spend_down %>%
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))
-ggplotly(limited_scale) %>%
-  layout(showlegend = FALSE)
+ggplotly(limited_scale)
 ```
 
 
@@ -293,8 +290,7 @@ spend_down_plot <- spend_down %>%
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
-ggplotly(spend_down_plot)  %>%
-  layout(showlegend = FALSE)
+ggplotly(spend_down_plot) 
 ```
 
 ```{r}
