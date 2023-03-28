@@ -21,6 +21,22 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+
+# make kable table with consistent formatting
+make_table <- function(..., title = "", col_names = c("")) {
+  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(...) %>%
+    kbl(caption = title,
+        col.names = col_names) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+```{r}
 source(here("GET_VARS.R"))
 ```
 
@@ -62,10 +78,17 @@ ggplot(volun_data, aes(x = TotalVolunteersCnt)) +
   geom_histogram(binwidth = 20) + 
   theme_bw()
 
-## How many didn't report volunteers 
+## How many didn't answer question to  volunteers 
 volun_data %>%
-  mutate(report_volun = ifelse(!is.na(TotalVolunteersCnt), "Yes", "No")) %>%
+  mutate(report_volun = ifelse(!is.na(TotalVolunteersCnt), "Answer", "NA")) %>%
   group_by(report_volun) %>%
+  summarize(n = n()) %>%
+  make_table(title = "How many 990s ANSWER volunteer question", col_names = c("Answer Question", "Total 990s"))
+
+## How many report no volunteers
+volun_data %>%
+  filter(TotalVolunteersCnt < 1) %>%
+  group_by(TotalVolunteersCnt) %>%
   summarize(n = n())
 ```
 
