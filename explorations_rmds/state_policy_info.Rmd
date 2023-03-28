@@ -22,6 +22,21 @@ library(forcats)
 library(readxl)
 ```
 
+
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(df, title = "", ...) {
+  title <- paste0("<center><span style = 'font-size:110%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(df) %>%
+    kbl(caption = title, ... ) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+```
+
 # Identify State of Each Company
 
 ```{r}
@@ -42,11 +57,12 @@ files <- dir(here("ballet_990_released_20230208"),
 add <- map_df(files,
               ~get_df(filename =.x, 
                       variables = c(
+                        '//Return//ReturnHeader//BusinessName',
                         '//Return/ReturnHeader//ReturnTypeCd',
                         '//Return/ReturnData/IRS990/USAddress/StateAbbreviationCd',
                         '//Return/ReturnData/IRS990/BooksInCareOfDetail/USAddress/StateAbbreviationCd',
                         '/Return/ReturnData/IRS990EZ/BooksInCareOfDetail/USAddress/State'),
-              names = c('type_code', 'business_state_cd', 'books_state_cd', 'books_state'))) %>%
+              names = c('name', 'type_code', 'business_state_cd', 'books_state_cd', 'books_state'))) %>%
   filter_ein()
 
 # if business_state_cd is NA, use where they have bookings 
@@ -70,36 +86,41 @@ add <- add %>%
 
 
   
-
-
-
-```
-
-
-```{r, include=FALSE}
-
-# did companies report in some years but not others?
-# 78 did not report business_state_cd in any year on file
-add %>%
-  select(EIN, fiscal_year, business_state_cd) %>%
+# number that did not report for any year on file
+no_business_cd <- add %>%
+  mutate(name = tolower(name)) %>%
   group_by(EIN) %>%
-  mutate(num_nas = sum(is.na(business_state_cd)),
-         total = n()) %>%
-  filter(num_nas == total)
+  summarize(business_state_cd = list(unique(na.omit(business_state_cd))),
+            num_states = map_dbl(business_state_cd, length),
+            name = paste(unique(name), collapse = ", ")) %>%
+  filter(num_states == 0) 
+
 
 ```
+
+## Missingness in State Reported
+
+
 
 The ideal classification of state is when we have the Business Address `IRS990/USAddress/StateAbbreviationCd`.
 
-However, `r add %>% filter(is.na(business_state_cd)) %>% pull(EIN) %>% unique() %>% length()` do not report this variable. For these companies, we set the state to where the company has their bookings, taht is,  `BooksInCareOfDetail/USAddress/StateAbbreviationCd`.
 
+However, are `r no_business_cd %>% nrow()` states that do not report the business state code in any year on file. These companies are:
+
+`r no_business_cd %>% pull(name) %>% paste(collapse = "<br>")`.
+  
+
+For these companies, we set the state to where the company has their bookings, that is,  `BooksInCareOfDetail/USAddress/StateAbbreviationCd`.
+
+
+## Changes in State Reported
 
 
 `r add %>% group_by(EIN) %>% 
   mutate(states = n_distinct(state)) %>% 
   filter(states>1) %>% pull(EIN) %>% unique() %>% length()` companies changed in geographic state:
 
-* EIN `454864757` (Dissonance Dance Theatre)  did not have a business state in 2015-2016, but had bookings in UT in 2017. From 2018 onward, the business state was in DC.
+* EIN `454864757` (Dissonance Dance Theatre)  did not have a business state in 2015-2016, but had bookings in UT in 2016. From 2018 onward, the business state was in DC.
 * EIN `813872831` (Ballet Sun Valley) had the business state CA in 2017-2019 but changed to ID in 2022.
 
 
@@ -113,15 +134,21 @@ add %>% group_by(EIN) %>%
          books_state_cd, fiscal_year)
 
 
-add <- add %>% group_by(EIN) %>% 
+add <- add %>% 
+  group_by(EIN) %>%
   arrange(fiscal_year) %>%
-  slice_max(n = 1, order_by=fiscal_year) %>%
-  ungroup()
+  mutate(business_state_cd = list(unique(na.omit(business_state_cd))),
+         state_cd = map_chr(business_state_cd, 
+                            ~ifelse(length(.x) == 0, 
+                                    NA,
+                                    .x[length(.x)]))) 
 
 
 add %>%
-  select(EIN, organization_name,
-         business_state_cd,
+  select(EIN,
+         name,
+         organization_name,
+         business_state_cd = state_cd,
          books_state_cd,
          state) %>%
   saveRDS(here('data', 'ein_to_state.RDS'))
