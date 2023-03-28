@@ -125,4 +125,5 @@ There are `r count_NA_employs` companies who have missing data regarding employe
 
 There are `r count_no_employs` companies who reported zero employees.  
 
-> Do they report employees?
+> Do those who don't report employees report volunteers?  
+> What's the revenue for those companies?  
