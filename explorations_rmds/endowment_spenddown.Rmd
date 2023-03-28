@@ -127,6 +127,17 @@ spend_down %>%
   select(organization_name, fiscal_year, pct_spend_down) %>%
   make_table(title = "Percent Spend Down", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
   scroll_box(height = "450px")
+
+spend_down %>%
+  filter(pct_spend_down != Inf) %>%
+  select(organization_name, fiscal_year, pct_spend_down) %>%
+  group_by(fiscal_year) %>%
+  summarize(total = n(),
+            avg = mean(pct_spend_down),
+            med = median(pct_spend_down),
+            sd = sd(pct_spend_down)) %>%
+  make_table(title = "Percent Spend Down By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Spend Down", "Median % Spend Down", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
 ```
 
 **(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
@@ -134,7 +145,6 @@ spend_down %>%
 > If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
 > If BYB is larger, negative result. Meaning a DECREASE in total funds.
 > If result is above 100, the fund was at least DOUBLED.  
-
 
 ```{r}  
 ## Spend Down over Time
