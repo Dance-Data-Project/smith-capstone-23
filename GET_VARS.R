@@ -26,6 +26,17 @@ get_df <- function(variables = c(),
   xml_file <- read_xml(filename)
   xml_file <- xml_ns_strip(xml_file)
   
+  # adjust paths to replace with /IRS990/ with /IRS990EZ/ 
+  # for those with return type EZ 
+  return_code <- xml_file %>% 
+    xml_find_all("//ReturnHeader/ReturnTypeCd") %>% 
+    xml_text()
+  
+  if( !(length(return_code) ==0)) {
+    if(return_code == "990EZ") {
+      variables = gsub('/IRS990/', '/IRS990EZ/', variables, fixed= TRUE)
+    }
+  } 
   # variables to always extract
   standard_vars <- c("//Return//ReturnHeader//ReturnTs",  
                    "//Return//ReturnHeader//Filer//EIN",
