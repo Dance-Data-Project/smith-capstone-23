@@ -123,7 +123,7 @@ filter_ein <- function(dataset) {
 get_vars_by_schedule <- function(file, schedule) {
   
   schedule_path <- paste0("//IRS990Schedule", toupper(schedule))
-
+  
   schedule_children <- file %>% 
     xml_find_all(xpath = "//ReturnData") %>%
     xml_children() %>% 
@@ -173,6 +173,8 @@ get_all_children <- function(filename, xpath, quiet = TRUE) {
   }
   return(all_paths)
 }
+
+
 
 
 
