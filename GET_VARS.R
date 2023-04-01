@@ -25,11 +25,13 @@ get_df <- function(variables = c(),
   
   # add a warning/message when user tries to extract endowment variables
   
-  if(grepl("Endwmt", variables)) {
-    warning(paste0("If you are using endowment variables, make sure you",
-    "retrieve these from endowments_by_most_recent_filings.RDS.",
-    "Retrieving them just with this function will not account for discrepancies in filings."))
-  }
+  if(length(variables) != 0) {
+    if (grepl("Endwmt", variables)) {
+      warning(paste0("If you are using endowment variables, make sure you",
+                     "retrieve these from endowments_by_most_recent_filings.RDS.",
+                     "Retrieving them just with this function will not account for discrepancies in filings."))
+    }
+  } 
   
   if(!is.null(schedule)) {
     if(schedule == 'd') {
@@ -232,13 +234,16 @@ get_all_children <- function(xml_file, xpath, quiet = TRUE) {
 # TESTING get_df
 #########################
 
+files <- dir(here("ballet_990_released_20230208"),
+             full.names=TRUE)
+
 # test that warning is provided if user tries to extract endowment variables with get_df
 testthat::expect_warning(
   get_df(filename = files[1],
          variables = c('/Return/ReturnData/IRS990ScheduleD/CYMinus4YrEndwmtFundGrp/ContributionsAmt')),
   regexp = "discrepancies")
 
-testthat::expect_warning(
+testthat::expect_message(
   get_df(filename = files[1],
          schedule = 'd'),
   regexp = "Schedule D")

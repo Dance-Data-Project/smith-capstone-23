@@ -6,7 +6,7 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
-    css: css/template.css
+    css: !expr here::here('css', 'template.css')
     toc_depth: 4
 knit: (function(input, ...) {
     rmarkdown::render(
@@ -649,6 +649,8 @@ intersections <- crossref_all %>%
 discord_in_all <- Reduce(intersect, intersections$EINs) %>% unique() %>% length() 
 discord_at_least_one <- Reduce(union, intersections$EINs) %>% unique() %>% length() 
 
+Reduce(union, intersections$EINs) %>% unique()  %>%
+  saveRDS(here("data", "discordant_EINS.RDS"))
 
 ```
 
@@ -656,6 +658,7 @@ The number of companies with a discordant report for all variables was `r discor
 and the number of companies with at least one  discordant report for all variables was `r discord_at_least_one`.
 
 ```{r, fig.height =8.5, fig.width = 13}
+
 
 
 # visualize discordances in given variable_name 
@@ -831,6 +834,8 @@ vars_disc <- crossref_all %>%
 
 # extract Schedule O for all variables
 source(here("GET_VARS.R"))
+
+
 files <- dir(here("ballet_990_released_20230208"),
              full.names=TRUE)
 
@@ -839,7 +844,17 @@ schedule_o <- map_df(files,
 
 schedule_o <- schedule_o %>%
   filter_ein() %>%
-  mutate(fiscal_year = as.numeric(as.character(fiscal_year)))
+  mutate(fiscal_year = as.numeric(as.character(fiscal_year))) %>%
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleO/", "", .)) %>%
+  select(fiscal_year,
+         EIN, 
+         `SupplementalInformationDetail[1]`,
+         `SupplementalInformationDetail[2]`,
+         `SupplementalInformationDetail[3]`,
+         `SupplementalInformationDetail[4]`,
+         `SupplementalInformationDetail[5]`,
+         `SupplementalInformationDetail[6]`,
+         `SupplementalInformationDetail[7]`)
 
 ```
 
