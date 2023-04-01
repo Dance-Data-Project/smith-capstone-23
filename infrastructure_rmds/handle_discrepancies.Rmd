@@ -1,28 +1,46 @@
 ---
-title: "Testing"
+title: "Endowment Data: Taking Most Recent Data Available"
 author: "Quinn White"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: show
+    css: !expr here::here('css', 'template.css')
+    toc_depth: 4
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "output_html")})
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE)
 library(tidyverse)
 library(here)
 ```
 
 
 ```{r}
-d 
-source('GET_VARS.R')
 
+# needed for variable extraction 
+source(here('GET_VARS.R'))
+
+
+```
+
+# Extract All Schedule D Variables
+
+```{r}
 files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
+# get data frame with all schedule D variables 
 all_sched_d <- map_df(files, ~get_df(
   filename = .x, 
   schedule = 'd')) %>%
-  filter_ein()
+  filter_ein() %>%
+  mutate(fiscal_year = as.numeric(paste(fiscal_year)))
 
 
 
@@ -40,67 +58,40 @@ endowment <- all_sched_d %>%
             CYMinus4YrEndwmtFundGrp)) %>%
   # rename to CM* using the same formatting as we have throughout the project
   rename_with(~gsub("EndwmtFundGrp/|inus|Yr", "", .)) %>%
-  mutate(across(matches("CY"), as.numeric))
+  mutate(across( matches("CY"), as.numeric)) 
   
 
 # endowment variables that do not have data across multiple years
 add_vars <- all_sched_d %>%
   select(fiscal_year, EIN, contains("end")) %>%
   select(fiscal_year, EIN, !matches("CY|Minus", ignore.case= FALSE))  %>%
-  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .)) 
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))  %>%
+  mutate(across(contains("Pct"), as.numeric))
 
 
   
 
 ```
 
+# Check Which Variables Have Data Across Multiple Years
 
 ```{r}
 
+# base names of variables of interest
 base_names <- colnames(endowment) %>% 
   gsub('CY|CYM1|CYM2|CYM3|CYM4', '', .) %>%
   unique() 
 
 base_names <- base_names[!base_names %in% c("EIN", "fiscal_year")]
 
+```
 
-base_name <- base_names[1]
+# Use Most Recent Data Available 
 
+```{r}
 
-
-
-endowment_most_recent <- endowment %>%
-  select(EIN, fiscal_year, contains(base_name)) %>%
-  # make sure each has every fiscal years with NAs for fiscal years that are missing
-   pivot_wider(names_from = fiscal_year, 
-               values_from=contains(base_name)) %>%
-   pivot_longer(cols = contains(base_name),
-                names_to = "variable_year") %>%
-   separate(variable_year, sep = "_", into = c("variable_name", "fiscal_year")) %>%
-   mutate(fiscal_year = as.integer(fiscal_year)) %>%
-    mutate(value_year = case_when(
-     variable_name == paste0("CY", base_name) ~ fiscal_year,
-     variable_name == paste0("CYM1", base_name) ~ fiscal_year -1,
-     variable_name == paste0("CYM2", base_name) ~ fiscal_year -2,
-     variable_name == paste0("CYM3", base_name) ~ fiscal_year -3,
-     variable_name == paste0("CYM4", base_name) ~ fiscal_year -4),
-     source = ifelse(grepl("CYM", variable_name), 
-                     substr(variable_name, 1,4), 
-                     "CY"),
-     source = paste0(source, fiscal_year)) %>%
-    group_by(EIN, value_year) %>%
-    filter(!is.na(value)) %>%
-    slice_max(n = 1, order_by = fiscal_year)%>% 
-    ungroup() %>%
-    mutate(variable_name = base_name,
-           year = value_year,
-           value,
-           # assignment operator := needed when we use !! on the left side of an assigment
-           name = !!base_name) %>%
-  select(EIN, fiscal_year = year, source, value, name)
-
-
-
+# for a given base name of the variable, for each fiscal year, takes the most 
+# recently available value
 get_most_recent <- function(endowment_df, base_name) {
   endowment_df %>%
     select(EIN, fiscal_year, contains(base_name)) %>%
@@ -110,7 +101,7 @@ get_most_recent <- function(endowment_df, base_name) {
      pivot_longer(cols = contains(base_name),
                   names_to = "variable_year") %>%
      separate(variable_year, sep = "_", into = c("variable_name", "fiscal_year")) %>%
-     mutate(fiscal_year = as.integer(fiscal_year)) %>%
+      mutate(fiscal_year = as.integer(fiscal_year)) %>%
       mutate(value_year = case_when(
        variable_name == paste0("CY", base_name) ~ fiscal_year,
        variable_name == paste0("CYM1", base_name) ~ fiscal_year -1,
@@ -134,24 +125,24 @@ get_most_recent <- function(endowment_df, base_name) {
 
 }
 
+```
+
+# Check Results are Concordant with Those from `get_df` Except in Cases Where the EIN has a Discrepancy 
+
+```{r}
 
 
+# iterate over each variable of interest 
 endowment_recent <- map_df(base_names,
        ~get_most_recent(endowment, base_name = .x))
 
-# endowment_recent <- endowment_recent %>% 
-#   pivot_wider(names_from = name,
-#               values_from = value)
+
+endowment_recent_long <- endowment_recent %>% 
+  mutate(version = "recent") %>%
+  select(-source)
 
 
-endowment_recent_long <- endowment_recent %>% mutate(version = "recent") %>% select(-source)
-
-endowment_recent_long <- endowment_recent %>%
-  select(-source) %>%
-  pivot_longer(-c(fiscal_year,EIN)) %>%
-  mutate(version = "recent") 
-
-
+# check correspondence with data frame extracted *without* accounting for discrepancies
 end_original <- endowment %>%
   select(fiscal_year, EIN, paste0("CY", base_names)) %>%
   pivot_longer(-c(fiscal_year,EIN)) %>%
@@ -159,96 +150,37 @@ end_original <- endowment %>%
   mutate(fiscal_year = as.numeric(paste(fiscal_year))) %>%
   mutate(version = "original")
 
+# read vector of EINS that had discordant values
+eins_discord <- readRDS(here("data", "discordant_EINS.RDS"))
 
-endowment_recent_long %>%
+# test that only eins where there is a difference is in those with discrepancies
+testthat::expect_equal( { endowment_recent_long %>%
   bind_rows(end_original) %>%
   # group_by(EIN, fiscal_year, name, version) %>%
   # dplyr::mutate(n = dplyr::n(), .groups = "drop") %>%  
   pivot_wider(names_from = version, values_from = value) %>%
   filter(!is.na(original)) %>%
-  filter(recent != original)
+  filter(recent != original) %>%
+  filter(!EIN %in% eins_discord)  %>% nrow() }, 0)
 
 
-  inner_join(end_original, by = c('name', 'value', 'EIN', 'fiscal_year'))
+```
 
+# Save Results
 
-get_most_recent(endowment,base_names[2] )
+```{r}
 
+# add variables that don't have values across multiple years
 
-
-
-endowment_most_recent <- endowment %>%
-  select(EIN, fiscal_year, contains(base_name)) %>%
-  # make sure each has every fiscal years with NAs for fiscal years that are missing
-   pivot_wider(names_from = fiscal_year, 
-               values_from=contains(base_name)) %>%
-   pivot_longer(cols = contains(base_name),
-                names_to = "variable_year") %>%
-   separate(variable_year, sep = "_", into = c("variable_name", "fiscal_year")) %>%
-   mutate(fiscal_year = as.integer(fiscal_year)) %>%
-    mutate(value_year = case_when(
-     variable_name == paste0("CY", base_name) ~ fiscal_year,
-     variable_name == paste0("CYM1", base_name) ~ fiscal_year -1,
-     variable_name == paste0("CYM2", base_name) ~ fiscal_year -2,
-     variable_name == paste0("CYM3", base_name) ~ fiscal_year -3,
-     variable_name == paste0("CYM4", base_name) ~ fiscal_year -4),
-     source = ifelse(grepl("CYM", variable_name), 
-                     substr(variable_name, 1,4), 
-                     "CY"),
-     source = paste0(source, fiscal_year)) %>%
-    group_by(EIN, value_year) %>%
-    filter(!is.na(value)) %>%
-    slice_max(n = 1, order_by = fiscal_year)%>% 
-    ungroup() %>%
-    mutate(variable_name = base_name,
-           year = value_year,
-           # assignment operator := needed when we use !! on the left side of an assigment
-           !!base_name := value) %>%
-  rename(base_name= value) %>%
-  select(EIN, fiscal_year = year, source, !!base_name)
+ endowment_recent_long %>% 
+  select(-version) %>%
+   pivot_wider(names_from = name,
+               values_from = value) %>%
+  left_join(add_vars) %>%
+  saveRDS(here("data", "endowments_by_most_recent_filings.RDS"))
 
 
 
-
-
-    mutate(most_recent = value[which.max(!is.na(fiscal_year))]) %>%
-  filter(EIN == "042312734") %>%
-  arrange(value_year) %>% View()
-
-
-
-    slice_max(n=1, order_by= fiscal_year) %>%
-     ungroup() %>% 
-    mutate(variable_name = base_name,
-           year = value_year,
-           # assignment operator := needed when we use !! on the left side of an assigment
-           !!base_name := value) %>%
-  rename(base_name= value) %>%
-  select(EIN, fiscal_year = year, source, !!base_name)
-
-
-
-end %>%
-  filter(EIN == "042312734")
-
-endowment %>%
-  filter(EIN == "042312734")%>%
-  select(EIN, fiscal_year, CYBeginningYearBalanceAmt)
-           
-
-endowment %>%
-  select(EIN, fiscal_year, CYBeginningYearBalanceAmt)
-           
-           
-           = ifelse(grepl("CYM", name), substr(name, 1,4), "CY"),
-           year_lag = ifelse(grepl("CYM", name), substr(source, 4,4), 0),
-           year_lag = as.numeric(year_lag),
-           fiscal_year = as.integer(paste0(fiscal_year)))
-
-
-  mutate(lag = )
-   pivot_wider(names_from = variable_name, values_from = value) %>%
-   mutate(fiscal_year = as.factor(as.numeric(fiscal_year)))
 
 ```
 
@@ -257,39 +189,4 @@ endowment %>%
 
 
 
-```{r,eval = FALSE}
-# scratch
-
-
-# get names of all schedule D variables present in any file
-all_sched_d <- map(files, ~get_all_children(
-  filename = .x, 
-  xpath =  "//IRS990ScheduleD"))
-
-all_sched_d <- all_sched_d %>% unlist() %>% unique()
-
-
-
-endowment <- map_df(files, ~get_df(variables = path_to_name$path, 
-                      names = path_to_name$name,
-                      filename = .x))
-
-
-add_vars <-c("/Return/ReturnData/IRS990ScheduleD/BoardDesignatedBalanceEOYPct",
-                 "/Return/ReturnData/IRS990ScheduleD/PrmnntEndowmentBalanceEOYPct",
-                 "/Return/ReturnData/IRS990ScheduleD/TermEndowmentBalanceEOYPct",
-                 "/Return/ReturnData/IRS990ScheduleD/EndowmentsHeldUnrelatedOrgInd",
-                 "/Return/ReturnData/IRS990ScheduleD/EndowmentsHeldRelatedOrgInd")
-  
-  
-  
-# clean paths to names
-path_to_name <- tibble(path = all_sched_d) %>%
-  filter(grepl("CY|CYM", path) | path %in% add_vars) %>%
-  # rename to CM* using the same formatting as we have throughout the project
-  mutate(name = gsub("EndwmtFundGrp/|inus|Yr", "", path),
-         name = gsub('.*./', '', name))
-  
-
-```
 
