@@ -39,6 +39,7 @@ files <- dir(here("ballet_990_released_20230208"),
 all_sched_d <- map_df(files, ~get_df(
   filename = .x, 
   schedule = 'd')) %>%
+  # only take amended filings
   filter_ein() %>%
   mutate(fiscal_year = as.numeric(paste(fiscal_year)))
 
