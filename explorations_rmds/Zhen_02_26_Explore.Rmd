@@ -1,7 +1,7 @@
 ---
 title: "Building Endowment Preliminary Analysis"
-author: "Zhen"
-date: "2023-02-26"
+author: "Zhen Nie"
+date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
     df_print: paged
@@ -11,8 +11,6 @@ knit: (function(input, ...) {
       input,
       output_dir = "./output_html")})
 ---
-
-
 ```{r library}
 library(dplyr)
 library(wesanderson)
@@ -26,6 +24,7 @@ library(shiny)
 library(here)
 ```
 
+## Importing variables related to the endowment of building 
 ```{r copied from "data_dictionary" to get the variables needed for the next chunk, eval = FALSE}
 ################################################################################
 # extract variables in the IRS990ScheduleD node from the given file
@@ -90,21 +89,19 @@ for(row in 1:nrow(all_vars)){
 to_add<-unique(to_add)
 to_add
 
-
 ```
 
 ```{r}
-all_data_filtered<-readRDS(here("data", "endowment_filter_data_990.RDS"))
-ein_to_name <- all_data_filtered %>%
-  select(EIN, BusinessName) %>%
-  group_by(EIN) %>%
-  mutate(n_names = n_distinct(BusinessName)) %>%
-  slice_head(n=1) %>%
-  select(EIN, BusinessName)
-
+#all_data_filtered<-readRDS(here("data", "endowment_filter_data_990.RDS"))
+#ein_to_name <- all_data_filtered %>%
+#  select(EIN, BusinessName) %>%
+#  group_by(EIN) %>%
+#  mutate(n_names = n_distinct(BusinessName)) %>%
+#  slice_head(n=1) %>%
+#  select(EIN, BusinessName)
 ```
 
-## Buildings Grouop Explanation
+## Buildings Group Variable Explanation
 Copied from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
 
 Part VI. Land, Buildings, and Equipment
@@ -253,12 +250,14 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
+files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+              full.names = TRUE)
 
 endowment_data_building <- map_df(files, ~
                      get_endowment(.x)) 
 
-all_data<-readRDS("./data/data_990.RDS")
+all_data<-readRDS(here("data","data_990.RDS"))
+
 filter_data <- all_data %>%
   filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
   mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
@@ -281,9 +280,9 @@ endowment_data_building <- endowment_data_building %>%
   right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
   select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
 
-saveRDS(endowment_data_building, "./data/endowment_filtered_buildings.RDS")
+saveRDS(endowment_data_building, "./endowment_filtered_buildings.RDS")
 
-saveRDS(all_data_filtered, "./data/all_data_filtered.RDS")
+saveRDS(all_data_filtered, "./all_data_filtered.RDS")
 ```
 
 
@@ -304,6 +303,7 @@ data_each_year<-list(
   data_2022 <- filter(endowment_data_building, grepl("2022", ReturnTs))
 )
 
+#change this to FY instead (use get_var)
 
 ```
 
@@ -448,11 +448,6 @@ The book value will decrease because of depreciation, so the normal trend of an 
   1) Abruptly going down
   2) going up at any point
   3) appear less than 3 years
-  
-
-Caveat: ways of splitting up
-split up by quantile
-add geom_point
 
 ## Unusual EIN's
 ```{r}
@@ -471,7 +466,7 @@ EIN_appearl_less_than_3
 ```
 
 
-## Percentage change
+## Percentage change of building's book value
 ```{r}
 changes <- bookvalues %>% 
   group_by(EIN) %>% 
@@ -485,6 +480,7 @@ changes[145, ]$change = NA
 ```
 
 ```{r}
+# line graph of all percentage change from 2015-2022
 all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color =  as.factor(BusinessName))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
@@ -541,8 +537,15 @@ big_change
 ```
 
 
-Book Value Change Ranking (%)
+## Book Value Changes %
+
 ```{r}
+# summarize all companies changes
+summary(changes$change) 
+```
+
+```{r}
+#ranking of all change in book values
 ranking<-changes %>%
   arrange(desc(change_abs)) %>% 
   select(EIN, BusinessName, year, change, BookValueSum) %>% 
@@ -553,9 +556,11 @@ ranking
 ```
 
 ```{r}
+#filter out small changes 
 change_less_than_10<-changes %>% 
   filter(change_abs <=10)
 
+#istogram of all large changes 
 ggplotly(
   ggplot(change_less_than_10, aes(x = change_abs)) + 
   geom_histogram()+
@@ -565,9 +570,11 @@ ggplotly(
 
 
 ```{r}
+# filter out all % change larger than 10
 change_larger_than_10 <- changes %>% 
   filter(change_abs > 10)
 
+# generate histogram of all absolute changes 
 ggplotly(
   ggplot(change_larger_than_10, aes(x = change_abs)) + 
   geom_histogram()+
@@ -578,6 +585,7 @@ ggplotly(
 
 
 ```{r}
+# All summary statistics 
 changes %>% 
   drop_na() %>% 
   group_by(year) %>% 
@@ -589,6 +597,5 @@ changes %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
 ```
-
 
 
