@@ -285,6 +285,15 @@ saveRDS(endowment_data_building, "./endowment_filtered_buildings.RDS")
 saveRDS(all_data_filtered, "./all_data_filtered.RDS")
 ```
 
+```{r}
+# use get_var
+
+source(here::here("GET_VARS.R"))
+buildings <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'd')) %>%
+  filter_ein() %>% 
+  select(ReturnTs, EIN,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp)
+```
 
 ## Preliminary Analysis of PartIV Data
 
