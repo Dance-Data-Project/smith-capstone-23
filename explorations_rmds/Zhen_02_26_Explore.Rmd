@@ -25,274 +25,19 @@ library(here)
 ```
 
 ## Importing variables related to the endowment of building 
-```{r copied from "data_dictionary" to get the variables needed for the next chunk, eval = FALSE}
-################################################################################
-# extract variables in the IRS990ScheduleD node from the given file
-################################################################################
-# output is a dataframe with the filename and name of each variable extracted
-
-collect_sched_d_vars <- function(input_file) {
-  example_file <- xml2::read_xml(input_file)%>% xml_ns_strip()
-
-  # look at all variable names in schedule D
-  IRS990ScheduleD_vars <- example_file %>% 
-    xml_find_all("//ReturnData//IRS990ScheduleD")  %>%
-    xml_contents() %>% 
-    xml_path() 
-  
-  # look at variable names of children nodes of the schedule D nodes
-  IRS990ScheduleD_var_children <- IRS990ScheduleD_vars %>% 
-    map(~xml_find_all(example_file,
-                      xpath = gsub("/", 
-                                   "//" ,
-                                   .x, 
-                                   fixed = TRUE) ) %>%
-          xml_children() %>% 
-          xml_path()) %>%
-    unlist()
-  
-    # include both first level schedule D nodes and children nodes
-    vars <- c(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)
-    
-    tibble(variables = vars,
-           filename = input_file)
-}
-
-# file paths in the directory
-files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
-
-# iterate over all files and extract variables present
-# output is a data frame with a file name column and variable name column
-all_vars <- map_df(files, collect_sched_d_vars)
-
-all_vars
-```
-
-## Adding Building related variables to endowment data
-
-```{r all the variables to add to the meta dataframe, eval = FALSE}
-# after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
-
-# Find all variable names that include building information
-
-
-all_vars <- map_df(files, collect_sched_d_vars)
-
-to_add <- c()
-
-for(row in 1:nrow(all_vars)){
-  if(grepl("OtherLandBuildingsGrp", all_vars[row, ]$variables) | grepl("BuildingsGrp", all_vars[row, ]$variables)){
-    to_add <- append(to_add, all_vars[row, ]$variables)
-  }
-}
-
-to_add<-unique(to_add)
-to_add
-
-```
-
-```{r}
-#all_data_filtered<-readRDS(here("data", "endowment_filter_data_990.RDS"))
-#ein_to_name <- all_data_filtered %>%
-#  select(EIN, BusinessName) %>%
-#  group_by(EIN) %>%
-#  mutate(n_names = n_distinct(BusinessName)) %>%
-#  slice_head(n=1) %>%
-#  select(EIN, BusinessName)
-```
-
-## Buildings Group Variable Explanation
-Copied from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
-
-Part VI. Land, Buildings, and Equipment
-Complete Part VI if the organization answered “Yes” on Form 990, Part IV, line 11a, and reported an amount on Form 990, Part X, line 10a. Reporting is required if any amount other than zero is reported on those lines.
-
-Column (a). Enter the cost or other basis of all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes, such as rental properties.
-
-Column (b). Enter the cost or other basis of all other land, buildings, leasehold improvements, equipment, and other fixed assets held for other than investment purposes, including any land, buildings, and equipment owned and
-used by the organization in conducting its exempt activities. The total amounts reported in columns (a) and (b) must equal the amount reported on Form 990, Part X, line 10a.
-
-Column (c). Enter the accumulated depreciation recorded for the assets listed in columns (a) and (b). Don't enter an
-amount in column (c) for line 1a, Land. The total of column (c) must equal the amount reported on Form 990, Part X,
-line 10b.
-
-Column (d). Enter the sum of column (a) and column (b) minus column (c). 
-
-```{r}
-##From Rose's get_endowment function
-get_endowment <- function(filename) {
-  
-  # Retrieving the same endowment information for all 
-  variables <- c("//Return//ReturnHeader//ReturnTs", 
-                 "//Return//ReturnHeader//Filer//EIN", 
-                 "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//EndYearBalanceAmt",
-                
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//BoardDesignatedBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//PrmnntEndowmentBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//TermEndowmentBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
-                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd",
-                 
-                 # adding BuildingGrp and OtherLandBuildingsGrp
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/DepreciationAmt",             
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/BookValueAmt",                 
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/OtherCostOrOtherBasisAmt",              
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/DepreciationAmt",                       
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/BookValueAmt",                          
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
-                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
-                 
-                 "//AmendedReturnInd",
-                 "//Return//ReturnHeader//ReturnTypeCd"
-                 )
-  
-  # Column name; order matters, needs to align with retrieval order
-  variables_no_path <- c("ReturnTs", 
-                         "EIN",
-                         "DonorRstrOrQuasiEndowmentsInd",
-                        "CYBeginningYearBalanceAmt", 
-                        "CYContributionsAmt", 
-                        "CYInvestmentEarningsOrLossesAmt",
-                        "CYOtherExpendituresAmt",
-                        "CYEndYearBalanceAmt",
-                        
-                        "CYM1BeginningYearBalanceAmt", 
-                        "CYM1ContributionsAmt", 
-                        "CYM1InvestmentEarningsOrLossesAmt",
-                        "CYM1OtherExpendituresAmt",
-                        "CYM1EndYearBalanceAmt",
-                        
-                        "CYM2BeginningYearBalanceAmt", 
-                        "CYM2ContributionsAmt", 
-                        "CYM2InvestmentEarningsOrLossesAmt",
-                        "CYM2OtherExpendituresAmt",
-                        "CYM2EndYearBalanceAmt",
-                        
-                        "CYM3BeginningYearBalanceAmt", 
-                        "CYM3ContributionsAmt", 
-                        "CYM3InvestmentEarningsOrLossesAmt",
-                        "CYM3OtherExpendituresAmt",
-                        "CYM3EndYearBalanceAmt",
-                        
-                        "CYM4BeginningYearBalanceAmt", 
-                        "CYM4ContributionsAmt", 
-                        "CYM4InvestmentEarningsOrLossesAmt",
-                        "CYM4OtherExpendituresAmt",
-                        "CYM4EndYearBalanceAmt",
-                        
-                        "BoardDesignatedBalanceEOYPct",
-                        "PrmnntEndowmentBalanceEOYPct",
-                        "TermEndowmentBalanceEOYPct",
-                        "EndowmentsHeldUnrelatedOrgInd",
-                        "EndowmentsHeldRelatedOrgInd",
-                        
-                         "OtherLandBuildingsGrp_OtherCostOrOtherBasisAmt",     
-                         "OtherLandBuildingsGrp_DepreciationAmt",             
-                         "OtherLandBuildingsGrp_BookValueAmt",                 
-                         "BuildingsGrp_OtherCostOrOtherBasisAmt",              
-                         "BuildingsGrp_DepreciationAmt",                       
-                         "BuildingsGrp_BookValueAmt",                          
-                         "OtherLandBuildingsGrp_InvestmentCostOrOtherBasisAmt",
-                        "BuildingsGrp_InvestmentCostOrOtherBasisAmt",         
-                        
-                        "AmendedReturnInd",
-                        "ReturnTypeCd"
-                        )
-  
-  xml_file <- read_xml(filename)
-  xml_file <- xml_ns_strip(xml_file)
-  
-  # extract each variable; if it isn't present, put NA 
-  extracted <- map(variables, ~{
-    value <- xml_find_all(
-      xml_file, 
-      xpath =.x)
-    value <- ifelse(length(value) ==0, 
-                    NA, 
-                    xml_text(value)) })
-  
-   names(extracted) <- variables_no_path
-   
-   extracted <- extracted %>%
-     as_tibble()
-}
-```
-
-```{r retrieving endowment info}
-##Applying get_endowment to entire output 
-files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
-              full.names = TRUE)
-
-endowment_data_building <- map_df(files, ~
-                     get_endowment(.x)) 
-
-all_data<-readRDS(here("data","data_990.RDS"))
-
-filter_data <- all_data %>%
-  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
-  mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
-  group_by(EIN, fiscal_year) %>%
-  slice_max(order_by =amended_return_filled, n = 1) %>%
-  ungroup()
-##Retriving Ts and EINs for filtered data 
-filter_ids <- filter_data %>%
-  select(ReturnTs, EIN)
-## Adjusting data type, filtering to proper 990s
-endowment_data_building <- endowment_data_building %>%
-  mutate(ReturnDate = as.Date(ReturnTs,
-                              format = "%Y-%m-%d")) %>%
-  mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
-                as.numeric)) %>%
-  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
-                ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
-  
-  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
-  right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
-  select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
-
-saveRDS(endowment_data_building, "./endowment_filtered_buildings.RDS")
-
-saveRDS(all_data_filtered, "./all_data_filtered.RDS")
-```
 
 ```{r}
 # use get_var
-
+files<- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+              full.names = TRUE)  
 source(here::here("GET_VARS.R"))
 buildings <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein() %>% 
-  select(ReturnTs, EIN,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp)
+  select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp)
+
+library(readr)
+companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/companies.csv")
 ```
 
 ## Preliminary Analysis of PartIV Data
@@ -302,17 +47,15 @@ Term explained:
 ```{r}
 # filter out all data each year
 data_each_year<-list(
-  data_2015 <- filter(endowment_data_building, grepl("2015", ReturnTs)),
-  data_2016 <- filter(endowment_data_building, grepl("2016", ReturnTs)),
-  data_2017 <- filter(endowment_data_building, grepl("2017", ReturnTs)),
-  data_2018 <- filter(endowment_data_building, grepl("2018", ReturnTs)),
-  data_2019 <- filter(endowment_data_building, grepl("2019", ReturnTs)),
-  data_2020 <- filter(endowment_data_building, grepl("2020", ReturnTs)),
-  data_2021 <- filter(endowment_data_building, grepl("2021", ReturnTs)),
-  data_2022 <- filter(endowment_data_building, grepl("2022", ReturnTs))
+  data_2015 <- filter(buildings, grepl("2015", ReturnTs)),
+  data_2016 <- filter(buildings, grepl("2016", ReturnTs)),
+  data_2017 <- filter(buildings, grepl("2017", ReturnTs)),
+  data_2018 <- filter(buildings, grepl("2018", ReturnTs)),
+  data_2019 <- filter(buildings, grepl("2019", ReturnTs)),
+  data_2020 <- filter(buildings, grepl("2020", ReturnTs)),
+  data_2021 <- filter(buildings, grepl("2021", ReturnTs)),
+  data_2022 <- filter(buildings, grepl("2022", ReturnTs))
 )
-
-#change this to FY instead (use get_var)
 
 ```
 
@@ -325,11 +68,11 @@ BookValueSum <- list()
 for(i in c(1:8)){
   data = data_each_year[[i]]
   df <- data.frame(data %>% 
-    filter(!is.na(BuildingsGrp_BookValueAmt)) %>% 
-    mutate_at(c("BuildingsGrp_BookValueAmt", "BuildingsGrp_DepreciationAmt"), as.numeric) %>% 
+    filter(!is.na(TotalBookValueLandBuildingsAmt)) %>% 
+    mutate_at(c("TotalBookValueLandBuildingsAmt"), as.numeric) %>% 
     group_by(EIN) %>% 
     summarise(
-      BookValueSum = sum(BuildingsGrp_BookValueAmt)
+      BookValueSum = sum(TotalBookValueLandBuildingsAmt)
     ) %>% 
     mutate(year = 2014+i,
            EIN = as.numeric(EIN)))
@@ -348,7 +91,7 @@ bookvalues<-bookvalues %>%
   mutate(quantile = ntile(BookValueSum, 10),
          EIN = as.character(EIN)) %>% 
   arrange(desc(EIN)) %>% 
-  inner_join(y = ein_to_name, by = "EIN") 
+  inner_join(y = companies, by = "EIN") 
 ```
 
 
@@ -606,5 +349,8 @@ changes %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
 ```
+
+## Regional Analysis
+
 
 
