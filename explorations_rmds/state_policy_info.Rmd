@@ -20,6 +20,7 @@ library(tidyverse)
 library(here)
 library(forcats)
 library(readxl)
+library(kableExtra)
 ```
 
 
@@ -49,6 +50,14 @@ source(here("GET_VARS.R"))
 files <- dir(here("ballet_990_released_20230208"),
                full.names = TRUE)
 
+
+# (stable) company names from file
+companies <- read_csv(here("data", "companies.csv")) %>%
+  mutate(EIN = as.character(ein))%>%
+  select(organization_name, EIN, ein) %>%
+  distinct()
+
+
 # iterate over all files and extract the state of their address  
 # NOTE:
 # the variable '/Return/ReturnData/IRS990EZ/BooksInCareOfDetail/USAddress/State'
@@ -60,65 +69,138 @@ add <- map_df(files,
                         '//Return//ReturnHeader//BusinessName',
                         '//Return/ReturnHeader//ReturnTypeCd',
                         '//Return/ReturnData/IRS990/USAddress/StateAbbreviationCd',
+                        '//Return/ReturnData/IRS990/USAddress/ZIPCd',
                         '//Return/ReturnData/IRS990/BooksInCareOfDetail/USAddress/StateAbbreviationCd',
                         '/Return/ReturnData/IRS990EZ/BooksInCareOfDetail/USAddress/State'),
-              names = c('name', 'type_code', 'business_state_cd', 'books_state_cd', 'books_state'))) %>%
+              names = c('name', 'type_code', 'business_state_cd', 'business_zipcode',
+                        'books_state_cd', 'books_state'))) %>%
   filter_ein()
 
-# if business_state_cd is NA, use where they have bookings 
-add <- add %>%
-  mutate(state = case_when(
-    !is.na(business_state_cd) ~ business_state_cd,
-    is.na(business_state_cd) & !is.na(books_state_cd) ~ books_state_cd,
-    is.na(business_state_cd) & is.na(books_state_cd) ~ books_state
-  )) 
-
-# (stable) company names from file
-companies <- read_csv(here("data", "companies.csv")) %>%
-  mutate(EIN = as.character(ein))%>%
-  select(organization_name, EIN, ein) %>%
-  distinct()
 
 
 add <- add %>% 
   left_join(companies) 
 
+add %>% 
+  filter(is.na(business_state_cd)) 
+
+
 
 
   
-# number that did not report for any year on file
+# number of unique state codes and zipcodes reported by EIN
 no_business_cd <- add %>%
   mutate(name = tolower(name)) %>%
   group_by(EIN) %>%
-  summarize(business_state_cd = list(unique(na.omit(business_state_cd))),
-            num_states = map_dbl(business_state_cd, length),
-            name = paste(unique(name), collapse = ", ")) %>%
-  filter(num_states == 0) 
+  summarize(business_state_codes = list(unique(na.omit(business_state_cd))),
+            num_states = n_distinct(na.omit(business_state_cd)),
+            name = paste(unique(name), collapse = ", "),
+            zipcodes = list(unique(na.omit(business_zipcode))),
+            num_zip =   n_distinct(na.omit(business_zipcode, length)))
 
+
+# EINs and names of businesses that did not report state code
+no_business_state_code <- no_business_cd %>% 
+  filter(num_states == 0) %>%
+  select(EIN, name) %>%
+  distinct()
 
 ```
 
 ## Missingness in State Reported
 
 
+### Reporting of State Code 
 
 The ideal classification of state is when we have the Business Address `IRS990/USAddress/StateAbbreviationCd`.
 
 
-However, are `r no_business_cd %>% nrow()` states that do not report the business state code in any year on file. These companies are:
+However, are `r no_business_state_code %>% nrow()` states that do not report the business state code in any year on file. These companies are:
 
-`r no_business_cd %>% pull(name) %>% paste(collapse = "<br>")`.
+`r no_business_state_code %>% pull(name) %>% paste(collapse = "<br>")`.
+
+
+### Reporting of Zip Code 
+
+Since no company provided a ZIP code but not the state code, we cannot use the ZIP code of the business address to fill in missing values.
+
+```{r, fig.cap = "\\label{table:zipcode}"}
+
+
+no_business_cd %>%
+  mutate(EIN = factor(EIN)) %>%
+  mutate(category = case_when(
+    num_zip == 0 & num_states == 0 ~ "Reported Neither",
+    num_zip != 0 & num_states == 0 ~ "Reported Zipcode but Not State Code",
+    num_zip == 0 & num_states != 0 ~ "Reported State Code but Not ZIP Code",
+    num_zip != 0 & num_states != 0 ~ "Reported Both")) %>%
+  mutate(category=factor(category, levels = c("Reported Neither", 
+                                              "Reported Zipcode but Not State Code",
+                                              "Reported State Code but Not ZIP Code",
+                                              "Reported Both"))) %>%
+  group_by(category, .drop = FALSE) %>% 
+  summarize(n_ein = n_distinct(EIN)) %>%
+  arrange(desc(n_ein)) %>%
+  select(`Reporting of State Code and Zipcode` = category,
+         `Number of Companies` = n_ein) %>%
+  make_table(title = "Whether Companies Reported State and/or Zipcode of their Business Address")
+
+
+```
   
 
 For these companies, we set the state to where the company has their bookings, that is,  `BooksInCareOfDetail/USAddress/StateAbbreviationCd`.
 
+### Reporting of Booking State
 
-## Changes in State Reported
+```{r}
+
+# look at reporting counts who reported both or neither 
+add %>% 
+  group_by(EIN) %>%
+  summarize(n_business_state_cd = n_distinct(na.omit(business_state_cd)),
+            n_booking_state_cd =n_distinct(na.omit(books_state_cd)) ) %>%
+  mutate(category = case_when(
+    n_business_state_cd == 0 & n_booking_state_cd == 0 ~ "Reported Neither",
+    n_business_state_cd != 0  & n_booking_state_cd == 0 ~ "Reported State Code but Not Booking Code",
+    n_business_state_cd == 0 & n_booking_state_cd !=0 ~ "Reported Booking Code but Not State Code",
+    n_business_state_cd != 0  & n_booking_state_cd != 0 ~ "Reported Both"
+  )) %>%
+  mutate(category = factor(category, levels =c("Reported Neither",
+                                               "Reported State Code but Not Booking Code",
+                                               "Reported Booking Code but Not State Code",
+                                               "Reported Both") )) %>%
+  group_by(category, .drop = FALSE) %>%
+  summarize(n_ein = n_distinct(EIN))  %>% 
+  arrange(desc(n_ein)) %>%
+  select(`Reporting of State Code and Booking State Code` = category,
+         `Number of Companies` = n_ein) %>%
+  make_table(title = "Whether Companies Reported State and/or Booking State Code of their Business Address")
 
 
-`r add %>% group_by(EIN) %>% 
-  mutate(states = n_distinct(state)) %>% 
-  filter(states>1) %>% pull(EIN) %>% unique() %>% length()` companies changed in geographic state:
+```
+
+```{r}
+
+add %>% 
+  filter(books_state_cd !=  business_state_cd) %>%
+  select(EIN, organization_name, business_state_cd, books_state_cd) %>%
+  distinct() %>%
+  make_table(title = "Companies that Reported Different States for State Code and Booking State")
+
+
+
+```
+
+We see in the table above that of the companies that reported both the business state code and booking state code, there were 4 companies that had a different booking code than state code.
+
+Manual inspection of the business addresses of the `r no_business_state_code %>% nrow()` 
+companies that do not report is likely the safest option to handle the missing data here.
+ 
+
+## Changes in State Reported Over Time
+
+We also need to look at changes in the business state reported or bookings state reported.
 
 * EIN `454864757` (Dissonance Dance Theatre)  did not have a business state in 2015-2016, but had bookings in UT in 2016. From 2018 onward, the business state was in DC.
 * EIN `813872831` (Ballet Sun Valley) had the business state CA in 2017-2019 but changed to ID in 2022.
@@ -126,14 +208,29 @@ For these companies, we set the state to where the company has their bookings, t
 
 ```{r}
 
-# two EINs had a change in business
+# look at changes in business state code -- addressing question:
+# did any companies list different business states for different fiscal years? 
 add %>% group_by(EIN) %>% 
-  mutate(states = n_distinct(state)) %>% 
+  mutate(states = n_distinct(na.omit(business_state_cd))) %>% 
   filter(states>1) %>%
   select(EIN, organization_name, business_state_cd, 
-         books_state_cd, fiscal_year)
+         books_state_cd, fiscal_year) %>% 
+  make_table()
 
 
+# two EINs had a change in business  -- addressing question:
+# did any companies list different booking states for different fiscal years? 
+add %>% group_by(EIN) %>% 
+  mutate(states = n_distinct(na.omit(books_state_cd))) %>% 
+  filter(states>1) %>%
+  select(EIN, organization_name, business_state_cd, 
+         books_state_cd, fiscal_year) %>% 
+  make_table()
+
+
+```
+
+```{r}
 add <- add %>% 
   group_by(EIN) %>%
   arrange(fiscal_year) %>%
@@ -149,8 +246,7 @@ add %>%
          name,
          organization_name,
          business_state_cd = state_cd,
-         books_state_cd,
-         state) %>%
+         books_state_cd) %>%
   saveRDS(here('data', 'ein_to_state.RDS'))
 
 # check there is one state per EIN
@@ -162,9 +258,28 @@ add %>%
 
 ```
 
+
+```{r, eval = FALSE}
+
+# if business_state_cd is NA, use where they have bookings 
+add <- add %>%s n
+  mutate(state = case_when(
+    !is.na(business_state_cd) ~ business_state_cd,
+    is.na(business_state_cd) & !is.na(books_state_cd) ~ books_state_cd,
+    is.na(business_state_cd) & is.na(books_state_cd) ~ books_state
+  )) 
+
+
+```
+
+
 ## Number of Companies by State
 
 ```{r, fig.height = 8}
+
+add <- add %>%
+  mutate(state = business_state_cd,
+         state=as.factor(state))
 
 counts_by_state <- add %>%
   group_by(state) %>%
