@@ -30,7 +30,7 @@ This will load the functions into your environment.
 
 To apply the `get_df`, run this: 
 ```{r}
-files <- dir( here("ballet_990_released_20230208"),
+files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
               full.names = TRUE)  
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -85,7 +85,6 @@ data <- filter_ein(data)
 Extract variables associated with given schedule ('a', 'b', 'd', 'g', 'm', 'o', or 'r').
 
 ```{r}
-
 
 schedule_o <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'o')) %>%
