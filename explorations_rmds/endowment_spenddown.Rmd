@@ -39,7 +39,7 @@ make_table <- function(..., title = "", col_names = c("")) {
 
 ```{r}
 ## Loading in data
-endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS"))
+endowment_data <- read_rds(here("data", "endowments_by_most_recent_filings.RDS"))
 names <- read_csv(here("data", "companies.csv")) %>% 
   mutate(EIN = as.character(ein)) %>%
   select(-ein)
@@ -54,7 +54,8 @@ names <- read_csv(here("data", "companies.csv")) %>%
 > If BYB is larger, negative result. Meaning a DECREASE in total funds.  
 > If result is above 100, the fund was at least DOUBLED.  
  
-```{r, eval = FALSE}
+```{r, eval = FALSE}  
+### DO NOT USE ###
 ## Calculating Spend Down, NOT including the CYMs   
 ## 100 - (EYE/BYB * 100)
 spend_down_calc1 <- endowment_data %>%
@@ -76,6 +77,7 @@ ggplot(spend_down_calc1, aes(x = spend_down)) +
 ```
 
 ```{r, eval = FALSE}
+### DO NOT USE ###
 ## Calculating Spend Down, NOT including the CYMs   
 ## EYE/BYB * 100
 spend_down_calc2 <- endowment_data %>%
@@ -97,13 +99,13 @@ ggplot(spend_down_calc2, aes(x = spend_down)) +
 ```
 
 ```{r, eval = TRUE}
-## Calculating Spend Down, NOT including the CYMs   
+#### USE THIS
 ## (EYB - BYB)/BYB * 100
 ## Rose has notes on her choice for this calculation
 spend_down <- endowment_data %>%
-  filter(!is.na(CYBeginningYearBalanceAmt)) %>%
-  mutate(spend_down = CYEndYearBalanceAmt - CYBeginningYearBalanceAmt,
-         pct_spend_down = spend_down/CYBeginningYearBalanceAmt * 100) %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  mutate(spend_down = EndYearBalanceAmt - BeginningYearBalanceAmt,
+         pct_spend_down = spend_down/BeginningYearBalanceAmt * 100) %>%
   arrange(desc(pct_spend_down)) %>%
   left_join(names, by = "EIN")
 
@@ -213,33 +215,6 @@ spend_down_plot <- spend_down %>%
                      breaks = scales::pretty_breaks(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
 ggplotly(spend_down_plot) 
-```
-
-```{r}  
-## Spend Down over Time
-### WITHOUT ARIAZONA
-spend_down_plot <- spend_down %>%
-  filter(organization_name != "Ballet Arizona") %>% 
-  ggplot(aes(x = fiscal_year, y = pct_spend_down, 
-             group = organization_name, color = organization_name)) +
-  geom_line(show.legend = FALSE, alpha = 0.5) + 
-  theme_bw() + 
-  labs(y = "Percent Spend Down",
-       x = "Fiscal Year",
-       title = "Percentage of Endowment Spend Down",
-       subtitle = "By Fiscal Year") + 
-  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
-        axis.title = element_text(size = 12, face = "bold"),
-        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 10, angle = 25),
-        strip.text = element_text(face="bold",size = 5),
-        legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7)) + 
-  scale_y_continuous(labels = scales::comma_format(),
-                     breaks = scales::breaks_pretty(n = 20)) +
-  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
-ggplotly(spend_down_plot)
-
 ```
 
 ```{r}
