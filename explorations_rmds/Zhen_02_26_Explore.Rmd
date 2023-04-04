@@ -13,6 +13,7 @@ knit: (function(input, ...) {
 ---
 ```{r library}
 library(dplyr)
+library(readr)
 library(wesanderson)
 library(purrr)
 library(xml2)
@@ -24,20 +25,52 @@ library(shiny)
 library(here)
 ```
 
+```{r}
+#functions of making graphs and tables
+make_graph <- function(df){
+  graph <- ggplot(df, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  geom_line() +
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5))
+  return(graph)
+}
+
+
+```
+
+
 ## Importing variables related to the endowment of building 
 
 ```{r}
 # use get_var
-files<- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files<- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)  
 source(here::here("GET_VARS.R"))
+
 buildings <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein() %>% 
   select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp)
 
-library(readr)
+```
+
+
+```{r}
 companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/companies.csv")
+
+#load in regional information
+# add state information to buildings dataframe
+ein_to_state <- readRDS(here("./data/ein_to_state.RDS")) 
+
+test_state<-buildings %>% 
+  left_join(y = ein_to_state, by = "EIN")
+
+test_state <- unique(test_state)
+
 ```
 
 ## Preliminary Analysis of PartIV Data
@@ -91,7 +124,10 @@ bookvalues<-bookvalues %>%
   mutate(quantile = ntile(BookValueSum, 10),
          EIN = as.character(EIN)) %>% 
   arrange(desc(EIN)) %>% 
-  inner_join(y = companies, by = "EIN") 
+  left_join(y = companies %>% rename(EIN = ein) %>% mutate(EIN = as.character(EIN)) , by = "EIN") %>% 
+  left_join(y = ein_to_state, by = "EIN")
+
+bookvalues<- unique(bookvalues)
 ```
 
 
@@ -122,9 +158,9 @@ low <- bookvalues %>%
 
 ```{r visualizatoins of the change in buildings book value}
 # visualization of overall book value
-total <- ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+total <- ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(name))) +
   geom_line()+
-  #\scale_color_brewer(palette="BrBG")+
+  #scale_color_brewer(palette="BrBG")+
   theme_bw()+
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
@@ -143,7 +179,7 @@ ggplotly(total)
 # separate EIN with medium and low building book value according to previous graph
 # high
 options(scipen = 999)
-  high<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  high<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(name))) +
   geom_line() +
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -210,7 +246,7 @@ EIN_appearl_less_than_3<-bookvalues %>%
   group_by(EIN) %>% 
   summarise(appear_times = n()) %>% 
   filter(appear_times < 3) %>% 
-  inner_join(y=ein_to_name, by = c("EIN")) %>% 
+  inner_join(y=companies, by = c("EIN")) %>% 
   kbl(caption = "Unusual EIN (appear less than 3 times)") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
@@ -352,5 +388,9 @@ changes %>%
 
 ## Regional Analysis
 
+```{r}
+bookvalues %>% 
+  left_join(y = ein_to_state, by = "EIN")
+```
 
 
