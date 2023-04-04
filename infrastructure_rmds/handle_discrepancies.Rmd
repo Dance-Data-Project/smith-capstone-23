@@ -21,6 +21,10 @@ library(here)
 ```
 
 
+# Prereqs
+
+`cross_referencing.Rmd` must be run before running this file.
+
 ```{r}
 
 # needed for variable extraction 
@@ -38,7 +42,8 @@ files <- dir(here("ballet_990_released_20230208"),
 # get data frame with all schedule D variables 
 all_sched_d <- map_df(files, ~get_df(
   filename = .x, 
-  schedule = 'd')) %>%
+  schedule = 'd',
+  quiet = TRUE)) %>%
   # only take amended filings
   filter_ein() %>%
   mutate(fiscal_year = as.numeric(paste(fiscal_year)))

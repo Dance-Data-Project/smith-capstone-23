@@ -16,7 +16,8 @@ library(lubridate)
 get_df <- function(variables = c(),
                    filename,
                    names = c(),
-                   schedule = NULL) {
+                   schedule = NULL,
+                   quiet = FALSE) {
   
   
   if(length(variables)==0 & is.null(schedule)) {
@@ -25,7 +26,7 @@ get_df <- function(variables = c(),
   
   # add a warning/message when user tries to extract endowment variables
   
-  if(length(variables) != 0) {
+  if(length(variables) != 0 & !quiet) {
     if (grepl("Endwmt", variables)) {
       warning(paste0("If you are using endowment variables, make sure you",
                      "retrieve these from endowments_by_most_recent_filings.RDS.",
@@ -33,7 +34,7 @@ get_df <- function(variables = c(),
     }
   } 
   
-  if(!is.null(schedule)) {
+  if(!is.null(schedule) & !quiet) {
     if(schedule == 'd') {
       message(paste0("Schedule D contains endowment variables, which need to be ",
       "obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings."))
