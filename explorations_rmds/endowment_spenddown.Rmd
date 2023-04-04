@@ -1,5 +1,5 @@
 ---
-title: "Endowment Spenddown"
+title: "Endowment Percent Change"
 author: "Rose Evard"
 date: "`r Sys.Date()`"
 output:
@@ -45,8 +45,9 @@ names <- read_csv(here("data", "companies.csv")) %>%
   select(-ein)
 ```
 
-## Calculating Percent Spend Down 
+# Calculating Percent Change
 
+## Including Investments
 
 **(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
 
@@ -56,7 +57,7 @@ names <- read_csv(here("data", "companies.csv")) %>%
  
 ```{r, eval = FALSE}  
 ### DO NOT USE ###
-## Calculating Spend Down, NOT including the CYMs   
+## Calculating percent change, NOT including the CYMs   
 ## 100 - (EYE/BYB * 100)
 spend_down_calc1 <- endowment_data %>%
   filter(!is.na(CYBeginningYearBalanceAmt)) %>%
@@ -78,7 +79,7 @@ ggplot(spend_down_calc1, aes(x = spend_down)) +
 
 ```{r, eval = FALSE}
 ### DO NOT USE ###
-## Calculating Spend Down, NOT including the CYMs   
+## Calculating Percent Change, NOT including the CYMs   
 ## EYE/BYB * 100
 spend_down_calc2 <- endowment_data %>%
   filter(!is.na(CYBeginningYearBalanceAmt)) %>%
@@ -126,15 +127,15 @@ spend_down %>%
 # Basic histogram summarizing it
 ggplot(spend_down, aes(x = pct_spend_down)) +
   geom_histogram(binwidth = 20) + 
-  xlab("% Spend Down\n(EYB - BYB) / BYB * 100") + 
-  ggtitle(label = "Percentage of Spend Down", subtitle = "Red Line indicates 100%") +
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  ggtitle(label = "Percentage of Change in Endowment Balance", subtitle = "Red Line indicates 100%") +
   theme_classic() + 
   geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
 
 spend_down %>%
   filter(pct_spend_down != Inf) %>%
   select(organization_name, fiscal_year, pct_spend_down) %>%
-  make_table(title = "Percent Spend Down", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
   scroll_box(height = "450px")
 
 spend_down %>%
@@ -145,13 +146,22 @@ spend_down %>%
             avg = mean(pct_spend_down),
             med = median(pct_spend_down),
             sd = sd(pct_spend_down)) %>%
-  make_table(title = "Percent Spend Down By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Spend Down", "Median % Spend Down", "Standard Deviation")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Change", "Median % Change", "Standard Deviation")) %>%
   scroll_box(height = "450px")
 ```
 
-## Range of Endowment Spend Down
+## REMOVING Investments  
+
+**(End Year Balance - Investment Earnings or Losses Amount - Beginning Year Balance) / Beginning Year Balance * 100**
+
+> Positive result: INCREASE in total funds.  
+> Negative result: DECREASE in total funds.  
+> If result is above 100, the fund was at least DOUBLED.  
+
+
+# Range of Endowment Percent Change
 ```{r}
-## Ranges of different spend-downs  
+## Ranges of different percent change  
 # reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_spend_down)))), na.rm = TRUE)
 # Reordering by standard deviation of pct_spend down
 spend_down_box <- spend_down %>%
@@ -167,9 +177,9 @@ box_plot <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_down
   geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
   geom_point(size = 1, alpha = 0.5) + 
   theme_bw() + 
-  labs(title = "Range of Endowment Spend Downper Company",
+  labs(title = "Range of Endowment Percent Change per Company",
        x = "Dance Company",
-       y = "Percent of Endowment Spend Down") + 
+       y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
   geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
 ggplotly(box_plot) %>%
@@ -180,9 +190,9 @@ box_plot_lim <- ggplot(spend_down_box, aes(x = organization_name, y = pct_spend_
   geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
   geom_point(size = 1, alpha = 0.5) + 
   theme_bw() + 
-  labs(title = "Range of Endowment Spend Down (Max of 100) per Company",
+  labs(title = "Range of Endowment % Change (Max of 100) per Company",
        x = "Dance Company",
-       y = "Percent of Endowment Spend Down") + 
+       y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
   scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
                      limit = c(-100,100))
@@ -192,7 +202,7 @@ ggplotly(box_plot_lim)  %>%
 
 ```
 
-## Spend Down over Time  
+# Percent Change over Time  
 ```{r}  
 ## Spend Down over Time
 spend_down_plot <- spend_down %>%
@@ -202,7 +212,7 @@ spend_down_plot <- spend_down %>%
   theme_bw() + 
   labs(y = "Percent Spend Down",
        x = "Fiscal Year",
-       title = "Percentage of Endowment Spend Down",
+       title = "Percentage of Change in Endowment Balance",
        subtitle = "By Fiscal Year") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
@@ -226,7 +236,7 @@ limited_scale <- spend_down %>%
   theme_bw() + 
   labs(y = "Percent Spend Down",
        x = "Fiscal Year",
-       title = "Percentage of Endowment Spend Down (max 100)",
+       title = "Percentage of Change in Endowment Balance (max 100)",
        subtitle = "By Fiscal Year") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
@@ -242,7 +252,7 @@ ggplotly(limited_scale)
 ```
 
 
-## Within the Pandemic  
+# Percent Change Within the Pandemic  
 ```{r}  
 ## Pandemic Years
 spend_down_plot <- spend_down %>%
@@ -253,7 +263,7 @@ spend_down_plot <- spend_down %>%
   theme_bw() + 
   labs(y = "Percent Spend Down",
        x = "Fiscal Year",
-       title = "Percentage of Endowment Spend Down",
+       title = "Percentage of Change in Endowment Balance",
        subtitle = "Within Pandemic Years") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
@@ -274,7 +284,7 @@ spend_down %>%
   filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
   select(organization_name, pct_spend_down, fiscal_year) %>%
   arrange(desc(fiscal_year)) %>%
-  make_table(title = "Percent Spend Down within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) %>%
   scroll_box(height = "450px")
 ```
 
@@ -285,3 +295,5 @@ spend_down %>%
   group_by(fiscal_year) %>%
   summarize(total_in_year = n())
 ```
+
+
