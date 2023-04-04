@@ -85,6 +85,8 @@ data <- filter_ein(data)
 
 Extract variables associated with given schedule ('a', 'b', 'd', 'g', 'm', 'o', or 'r').
 
+Note that the names of the columns will the the full paths to fully represent the nested structure of the xml files. 
+
 ```{r}
 
 
@@ -94,15 +96,34 @@ schedule_o <- map_df(files, ~get_df(filename = .x ,
 
 glimpse(schedule_o)
 
+```
+
+Once we examine which columns we actually need, we can clean the names. The `rename_with` function is particularly helpful for batch renaming.
+
+```{r}
+
+schedule_o %>%
+  select(1:10, fiscal_year) %>%
+  # remove text up to slash
+  rename_with(~gsub(".*/","", .)) %>% glimpse()
+
+```
+
+```{r}
+
 schedule_d <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein()
 
-glimpse(schedule_d)
-
-
+schedule_d %>%
+  # remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared
+  # across all columns
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .)) %>%
+  glimpse()
 
 ```
+
+Depending on which variables you'll want to use, for Schedule D you'll need to be particularly careful about renaming.
 
 
 ## Function for Seeing All Children of a Given Node
@@ -111,7 +132,7 @@ This is just a quick way to see all children of a node of interest, for example,
 
 ```{r}
 
-get_all_children(files[1], "//ReturnData//IRS990ScheduleO")
+get_all_children_by_file(files[1], "//ReturnData//IRS990ScheduleO")
 
 ```
 

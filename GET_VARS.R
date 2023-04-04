@@ -23,6 +23,23 @@ get_df <- function(variables = c(),
     stop("Schedule or Variable Names Must be Provided")
   }
   
+  # add a warning/message when user tries to extract endowment variables
+  
+  if(length(variables) != 0) {
+    if (grepl("Endwmt", variables)) {
+      warning(paste0("If you are using endowment variables, make sure you",
+                     "retrieve these from endowments_by_most_recent_filings.RDS.",
+                     "Retrieving them just with this function will not account for discrepancies in filings."))
+    }
+  } 
+  
+  if(!is.null(schedule)) {
+    if(schedule == 'd') {
+      message(paste0("Schedule D contains endowment variables, which need to be ",
+      "obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings."))
+    }
+  }
+  
   xml_file <- read_xml(filename)
   xml_file <- xml_ns_strip(xml_file)
   
@@ -53,9 +70,12 @@ get_df <- function(variables = c(),
   
   # create column names with just the variables (no paths)
   # If they want specified names, uses provided column
-  if(length(names) == 0) {
-    variable_names <- variables_no_path
-  } else {  
+  if(length(names) == 0 & is.null(schedule)) {
+    variable_names <- variables_no_path }  
+  # if provided schedule, use original paths as names to avoid duplicate names
+  else if(!is.null(schedule)) {
+     variable_names <- c("ReturnTs", "EIN", "TaxPeriodEndDt", variables ) }
+  else {  
     variable_names <- c("ReturnTs", "EIN", "TaxPeriodEndDt", names)
   }
 
@@ -123,15 +143,17 @@ filter_ein <- function(dataset) {
 get_vars_by_schedule <- function(file, schedule) {
   
   schedule_path <- paste0("//IRS990Schedule", toupper(schedule))
-
-  schedule_children <- file %>% 
-    xml_find_all(xpath = "//ReturnData") %>%
-    xml_children() %>% 
-    xml_find_all(schedule_path) %>%
-    xml_children() 
   
-  schedule_children %>%
-    xml_path()
+  get_all_children(file, schedule_path)
+  
+  # schedule_children <- file %>% 
+  #   xml_find_all(xpath = "//ReturnData") %>%
+  #   xml_children() %>% 
+  #   xml_find_all(schedule_path) %>%
+  #   xml_children() 
+  # 
+  # schedule_children %>%
+  #   xml_path()
   
 }
 
@@ -139,7 +161,7 @@ get_vars_by_schedule <- function(file, schedule) {
 # convenience function to see what all children variables
 # of some node are; often we will not want to extract
 # all children due to duplicate names 
-get_all_children <- function(filename, xpath, quiet = TRUE) {
+get_all_children_by_file <- function(filename, xpath, quiet = TRUE) {
   
   xml_file <- read_xml(filename)
   xml_file <- xml_ns_strip(xml_file)
@@ -175,6 +197,56 @@ get_all_children <- function(filename, xpath, quiet = TRUE) {
 }
 
 
+get_all_children <- function(xml_file, xpath, quiet = TRUE) {
+  
+  
+  children <- xml_file %>% 
+    xml_find_all(xpath = xpath) %>%
+    xml_children() 
+  
+  new_nodes <- children
+  
+  all_paths <- children %>%
+    xml_path()
+  
+  # assume depth of xml file is less than 100
+  # breaks when no child nodes are found 
+  for (i in 1:100) {
+    
+    new_nodes <- new_nodes %>%
+      xml_children()
+    
+    if(length(new_nodes) == 0) break
+    
+    if(!quiet) message(paste0(
+      "Iteration: ", i,
+      "\nNew Nodes:\n", paste0(xml_path(new_nodes),
+                               collapse="\n")))
+    
+    # add new node paths to existing list of paths
+    all_paths <- c(all_paths, xml_path(new_nodes))
+  }
+  return(all_paths)
+}
+
+
+#########################
+# TESTING get_df
+#########################
+
+files <- dir(here("ballet_990_released_20230208"),
+             full.names=TRUE)
+
+# test that warning is provided if user tries to extract endowment variables with get_df
+testthat::expect_warning(
+  get_df(filename = files[1],
+         variables = c('/Return/ReturnData/IRS990ScheduleD/CYMinus4YrEndwmtFundGrp/ContributionsAmt')),
+  regexp = "discrepancies")
+
+testthat::expect_message(
+  get_df(filename = files[1],
+         schedule = 'd'),
+  regexp = "Schedule D")
 
 
 

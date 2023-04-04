@@ -21,6 +21,7 @@ files_ordered <- tibble(partial = c(
   "load_wrangle_filter_data.Rmd",
            "loading_error_test.Rmd",
            "filter_out_filings.Rmd",
+            "handle_discrepancies.Rmd",
            "howto_get_vars.Rmd",
            "data_dictionary.Rmd")) %>%
   left_join(files)

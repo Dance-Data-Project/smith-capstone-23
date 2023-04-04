@@ -7,6 +7,7 @@ output:
     df_print: paged
     code_folding: hide
     css: !expr here::here('css', 'template.css')
+    toc_depth: 4
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
@@ -28,7 +29,8 @@ library(here)
 endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS")) 
 
 companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
-  mutate(EIN = as.character(ein))
+  mutate(EIN = as.character(ein)) %>%
+  select(-ein)
 
 ```
 
@@ -38,7 +40,7 @@ companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
 
 # make kable table with consistent formatting
 make_table <- function(df, title = "", ...) {
-  title <- paste0("<center><span style = 'font-size:110%;color:black'><b>",
+  title <- paste0("<center><span style = 'font-size:160%;color:black'><b>",
                   title,
                   "</span></b><center>")
    as_tibble(df) %>%
@@ -356,7 +358,7 @@ crossref %>%
 companies_different <- crossref %>%
   pivot_longer(cols = contains("difference")) %>%
   select(EIN, fiscal_year, name, value) %>%
-  filter(value > 0) %>%
+  filter(value != 0) %>%
    left_join(companies_to_ein, by = c("EIN" = "EIN")) %>%
   arrange(organization_name) %>%
   pull(EIN) %>%
@@ -365,7 +367,7 @@ companies_different <- crossref %>%
 crossref %>%
   pivot_longer(cols = contains("difference")) %>%
   select(EIN, fiscal_year, name, value) %>%
-  filter(value > 0) %>%
+  filter(value != 0) %>%
   left_join(companies_to_ein, by = c("EIN" = "EIN")) %>%
   mutate(year = substr(name, nchar(name), nchar(name)),
          year = paste0("Comparing Current<br> Year Minus ",
@@ -561,6 +563,35 @@ crossref_all %>%
 
 ```
 
+
+## Visualizing Extent of Discrepancies
+
+
+```{r, fig.width = 18, fig.height = 18}
+
+# visualize extent of discrepancies 
+crossref_all %>%
+  left_join(companies_to_ein) %>%
+      pivot_longer(cols = contains("difference")) %>%
+      select(EIN, fiscal_year, name, value, variable, organization_name) %>%
+      filter(value != 0) %>%
+  mutate(sign = ifelse(value >0, "positive", "negative")) %>%
+ # mutate(varyear = paste0(fiscal_year, "_", variable)) %>%
+  ggplot(aes(x = fiscal_year, y = value, group = name, fill=sign)) +
+  geom_bar(stat="identity",position=position_dodge(width = 1.6)) +
+  facet_grid(organization_name~variable, drop = TRUE,scales="free") +
+  viridis::scale_fill_viridis(discrete=TRUE,begin=.2,end=.8) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 18, hjust = .5, face="bold"),
+        strip.text = element_text(face="bold", size = 18)) + 
+  labs(title = "Differences by Fiscal Year, Company Name, and Variable")
+
+
+```
+
+
+## Specific Values of Discrepancies 
+
 ```{r tables by variable, results = 'asis'}
 
 # generate table displaying the discordant values for a given variable
@@ -571,7 +602,7 @@ get_discordant_table <- function(variable_name, data) {
       filter(variable == variable_name) %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value) %>%
-      filter(value > 0) 
+      filter(value !=  0) 
     
     # EINs that have at least one discordance 
     discordant <- cross_ref_for_var %>%
@@ -621,7 +652,7 @@ walk(variables_to_check, ~{
 crossref_all %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value, variable) %>%
-      filter(value > 0) %>%
+      filter(value != 0) %>%
       group_by(EIN) %>%
       summarize(
                 number_variables = length(unique(variable)),
@@ -640,20 +671,28 @@ crossref_all %>%
 intersections <- crossref_all %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value, variable) %>%
-      filter(value > 0) %>%
+      filter(value != 0) %>%
       group_by(variable) %>%
       summarize(EINs = list(unique(EIN)))
 
 discord_in_all <- Reduce(intersect, intersections$EINs) %>% unique() %>% length() 
-discord_at_least_one <- Reduce(union, intersections$EINs) %>% unique() %>% length() 
 
+discord_eins <- Reduce(union, intersections$EINs) %>% unique()
+discord_eins  %>%
+  saveRDS(here("data", "discordant_EINS.RDS"))
+
+
+discord_at_least_one <- length(discord_eins)
 
 ```
+
+
 
 The number of companies with a discordant report for all variables was `r discord_in_all`,
 and the number of companies with at least one  discordant report for all variables was `r discord_at_least_one`.
 
 ```{r, fig.height =8.5, fig.width = 13}
+
 
 
 # visualize discordances in given variable_name 
@@ -663,7 +702,7 @@ plot_reported_for_variable <- function(variable_name, crossref, endowment) {
       filter(variable == variable_name) %>%
       pivot_longer(cols = contains("difference")) %>%
       select(EIN, fiscal_year, name, value) %>%
-      filter(value > 0) 
+      filter(value !=  0) 
     
   discordant <- cross_ref_for_var %>%
       pull(EIN) %>% unique()
@@ -738,47 +777,1110 @@ walk(unique(variables_to_check),
 
 * Should we assume the most recently reported values are (the most) accurate?
 
-```{r,eval=FALSE}
+ 
+# Checking if Problematic Filings Were Amended
 
-crossref %>% 
-  select(EIN, contains("difference")) %>%
-  pivot_longer(cols = contains("difference")) %>%
-  group_by(name) %>%
-  mutate(count_na = sum(is.na(value)),
-            count_not_na = sum(!is.na(value))) %>%
-  ungroup() %>%
-  ggplot(aes(x = value)) +
- # geom_boxplot() +
-  geom_histogram(bins = 50)
+None of the filings with discrepancies were amended filings.
 
-crossref %>% 
-  select(EIN, contains("difference")) %>%
-  pivot_longer(cols = contains("difference")) %>%
-  group_by(name) %>%
-  mutate(count_na = sum(is.na(value)),
-            count_not_na = sum(!is.na(value))) %>%
-  ungroup() %>%
-  ggplot(aes(x = name, y=value)) +
-  geom_boxplot() +
-  geom_jitter(alpha = .5, height = 0, width = .01)
+```{r}
 
-crossref %>% 
-  select(EIN, contains("difference")) %>%
-  pivot_longer(cols = contains("difference")) %>%
-  group_by(name) %>%
-  mutate(count_na = sum(is.na(value)),
-            count_not_na = sum(!is.na(value))) %>%
-  ungroup() %>%
-  ggplot(aes(x = name, y = value)) +
- # geom_boxplot() +
-  geom_density()
+# get amended index from form 990 
+form_990 <- read_rds(here("data", "data_990.RDS"))
 
-
-
-  geom_histogram() +
-  facet_wrap(~name) +
-  scale_x_log10()
+# check if any observations with discrepancies were from amended filing
+crossref_all %>%
+      pivot_longer(cols = contains("difference")) %>%
+      select(EIN, fiscal_year, name, value, variable) %>%
+      filter(value != 0) %>%
+  left_join(form_990) %>%
+  filter(!is.na(AmendedReturnInd))
 
 
 ```
+
+# Further Analysis by Company
+
+
+
+```{r}
+
+companies_different_any_variable <- tibble(EIN = discord_eins) %>%
+  left_join(companies_to_ein)
+
+
+
+# companies with at least one discordance 
+# companies_different_any_variable <- intersections$EINs %>% 
+#   unlist() %>% 
+#   unique() %>%
+#   tibble(EIN = .) %>%
+#   left_join(companies_to_ein)
+
+
+# variables discordant by EIN
+vars_disc <- crossref_all %>%
+      pivot_longer(cols = contains("difference")) %>%
+      select(EIN, fiscal_year, name, value, variable) %>%
+      filter(value != 0) %>%
+      group_by(EIN) %>%
+      summarize(variables = list(unique(variable)))
+
+
+
+########################################
+# extract Schedule O for all variables
+########################################
+source(here("GET_VARS.R"))
+
+
+files <- dir(here("ballet_990_released_20230208"),
+             full.names=TRUE)
+
+schedule_o <- map_df(files,
+                  ~get_df(filename =.x, schedule = 'o')) 
+
+schedule_o <- schedule_o %>%
+  filter_ein() %>%
+  mutate(fiscal_year = as.numeric(as.character(fiscal_year))) %>%
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleO/", "", .)) %>%
+  select(fiscal_year,
+         EIN, 
+         `SupplementalInformationDetail[1]`,
+         `SupplementalInformationDetail[2]`,
+         `SupplementalInformationDetail[3]`,
+         `SupplementalInformationDetail[4]`,
+         `SupplementalInformationDetail[5]`,
+         `SupplementalInformationDetail[6]`,
+         `SupplementalInformationDetail[7]`)
+
+```
+
+
+## BalletMet
+
+### Tables for Each Variable with Discordance
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "BalletMet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+
+## Oregon Ballet Theatre
+
+### Tables for Each Variable with Discordance
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Oregon Ballet Theatre") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+
+## The Washington Ballet
+
+### Tables for Each Variable with Discordance
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "The Washington Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+## Aspen Santa Fe Ballet
+
+
+### Tables for Each Variable with Discordance
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Aspen Santa Fe Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+## San Francisco Ballet
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "San Francisco Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+## Ballet Arizona
+
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Ballet Arizona") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+## Fort Wayne Ballet
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Fort Wayne Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+## Pacific Northwest Ballet
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Pacific Northwest Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+## The Alabama Ballet
+
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "The Alabama Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+## Joffrey Ballet 
+
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Joffrey Ballet") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+## Texas Ballet Theater 
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Texas Ballet Theater") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+
+## Pittsburgh Ballet Theatre
+
+
+### Tables for Each Variable with Discordance
+
+
+```{r, results = 'asis'}
+
+ein <- companies_different_any_variable %>%
+  filter(organization_name == "Pittsburgh Ballet Theatre") %>%
+  pull(EIN)
+  
+vars_to_check <- vars_disc %>% 
+  filter(EIN == ein) %>%
+  pull(variables) %>%
+  unlist()
+
+
+walk(vars_to_check, ~ {
+   name <- companies_to_ein %>%
+    filter(EIN%in%ein) %>%
+    pull(organization_name)
+  
+  table <- crossref_all %>%
+    filter(variable == .x & EIN == ein) %>%
+    select(-c(EIN, contains("difference"), variable)) %>%
+    make_table(title = paste0("Reports for ",
+                              name,
+                               "<br>Variable: ", .x,  
+                              "<br>EIN: ", 
+                              ein))
+  
+  print(table)
+  
+})
+
+
+```
+
+
+### Schedule O Information
+
+
+```{r, results = 'asis'}
+
+# schedule o information for each year for San Francisco 
+
+schedule_o_ein <- schedule_o %>%
+  filter(EIN == ein) %>%
+  arrange(fiscal_year) 
+
+name <- companies_to_ein %>%
+  filter(EIN == ein) %>%
+  pull(organization_name)
+
+# iterate over each fiscal year and print information from each Schedule O variable
+walk(schedule_o_ein$fiscal_year, ~
+       {
+         for_year <- schedule_o_ein %>%
+           filter(fiscal_year == .x)%>%
+           select(-c(where(is.na)))
+         
+         print(paste0("<span style='font-size:160%;'><b>",
+         "-------------------------------- Fiscal Year: ",
+                      .x, 
+         '--------------------------------</b></span><br><br>'))
+         
+         walk(colnames(for_year), ~ { 
+           
+        section <- paste0("<span style='font-size:130%'><b>",
+                             .x,
+                             ": </b></span><br>", 
+                             for_year[.x ],
+                             "<br><br><br>")
+        
+         print(section)
+         }) # end inner walk
+}) # end outer walk
+                   
+
+
+```
+
+```{r,eval=FALSE}
+
+# iterate through EINs where there was discordance and
+# generate a table so we can better see what's going on
+
+variable_name <- "BeginningYearBalanceAmt"
+
+walk(1:length(companies_different), ~{
+  name <- companies_to_ein %>%
+    filter(EIN == companies_different[.x]) %>%
+    pull(organization_name)
+  
+  table <- crossref %>% 
+    rename_with(cols=everything(), ~gsub(variable_name, "", .)) %>%
+    filter(EIN %in% companies_different[.x]) %>%
+    select(-c(EIN, contains("difference"))) %>%
+    make_table(title = paste0("Reports for ",
+                              name, "<br>EIN: ", 
+                              companies_different[.x],
+                               ", Variable: ", variable_name))
+  
+  print(table)
+  
+#  print(table)
+
+})
+
+
+
+```
+
 
