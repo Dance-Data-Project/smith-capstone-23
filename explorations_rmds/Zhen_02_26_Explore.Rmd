@@ -54,7 +54,9 @@ source(here::here("GET_VARS.R"))
 buildings <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein() %>% 
-  select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp)
+  select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp,fiscal_year)
+
+
 
 ```
 
@@ -128,6 +130,7 @@ bookvalues<-bookvalues %>%
   left_join(y = ein_to_state, by = "EIN")
 
 bookvalues<- unique(bookvalues)
+saveRDS(bookvalues,here('data','bookvalues.RDS'))
 ```
 
 
@@ -392,5 +395,17 @@ changes %>%
 bookvalues %>% 
   left_join(y = ein_to_state, by = "EIN")
 ```
+```{r}
+test_state <- test_state %>% 
+  mutate(
+    Time = substring(ReturnTs, 1, 10)
+  )
+```
 
+```{r}
+state_bookvalues <- ggplot(test_state, aes(x = fiscal_year, y = as.numeric(test_state$TotalBookValueLandBuildingsAmt), color=as.factor(state)))+
+  geom_point()
+ggplotly(state_bookvalues)
+  
+```
 
