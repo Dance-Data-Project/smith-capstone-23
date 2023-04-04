@@ -119,7 +119,7 @@ ggplot(pct_change_ds, aes(x = pct_change)) +
 pct_change_ds %>%
   filter(pct_change != Inf) %>%
   select(organization_name, fiscal_year, pct_change) %>%
-  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Change")) %>%
   scroll_box(height = "450px")
 
 pct_change_ds %>%
@@ -161,7 +161,7 @@ ggplot(pct_change_inv_ds, aes(x = pct_change)) +
 pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   select(organization_name, fiscal_year, pct_change) %>%
-  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Spend Down")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Change")) %>%
   scroll_box(height = "450px")
 
 pct_change_inv_ds %>%
@@ -274,7 +274,7 @@ pct_change_plot <- pct_change_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance",
        subtitle = "By Fiscal Year") + 
@@ -298,7 +298,7 @@ limited_scale <- pct_change_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance (max 100)",
        subtitle = "By Fiscal Year") + 
@@ -323,7 +323,7 @@ pct_change_inv_plot <- pct_change_inv_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance",
        subtitle = "By Fiscal Year") + 
@@ -347,7 +347,7 @@ limited_scale_inv <- pct_change_inv_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance (max 100)",
        subtitle = "By Fiscal Year") + 
@@ -374,7 +374,7 @@ pct_change_plot <- pct_change_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance",
        subtitle = "Within Pandemic Years") + 
@@ -397,7 +397,7 @@ pct_change_ds %>%
   filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
   select(organization_name, pct_change, fiscal_year) %>%
   arrange(desc(fiscal_year)) %>%
-  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Change", "Year")) %>%
   scroll_box(height = "450px")
 ```
 
@@ -418,7 +418,7 @@ pct_change_plot_inv <- pct_change_inv_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
   theme_bw() + 
-  labs(y = "Percent Spend Down",
+  labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance",
        subtitle = "Within Pandemic Years") + 
@@ -441,7 +441,7 @@ pct_change_inv_ds %>%
   filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
   select(organization_name, pct_change, fiscal_year) %>%
   arrange(desc(fiscal_year)) %>%
-  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Spend Down", "Year")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Change", "Year")) %>%
   scroll_box(height = "450px")
 ```
 
