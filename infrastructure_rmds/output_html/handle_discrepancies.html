@@ -7,7 +7,7 @@
 
         <meta name="author" content="Quinn White" />
     
-        <meta name="date" content="2023-04-01" />
+        <meta name="date" content="2023-04-04" />
     
     <title>Endowment Data: Taking Most Recent Data Available</title>
 
@@ -2635,6 +2635,7 @@ Available</h1>
 Available</a></h2>
     <div id="toc">
       <ul>
+      <li><a href="#prereqs" id="toc-prereqs">Prereqs</a></li>
       <li><a href="#extract-all-schedule-d-variables" id="toc-extract-all-schedule-d-variables">Extract All Schedule D
       Variables</a></li>
       <li><a href="#check-which-variables-have-data-across-multiple-years" id="toc-check-which-variables-have-data-across-multiple-years">Check
@@ -2651,7 +2652,7 @@ Available</a></h2>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Quinn
 White</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-01</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-04</p>
           </div>
    </div>
      
@@ -2661,8 +2662,13 @@ White</p>
    
 <!-- Don't indent these lines or it will mess pre blocks indentation --> 
 <div id="main">
+<div id="prereqs" class="section level1">
+<h1>Prereqs</h1>
+<p><code>cross_referencing.Rmd</code> must be run before running this
+file.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># needed for variable extraction </span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">here</span>(<span class="st">&#39;GET_VARS.R&#39;</span>))</span></code></pre></div>
+</div>
 <div id="extract-all-schedule-d-variables" class="section level1">
 <h1>Extract All Schedule D Variables</h1>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">dir</span>(<span class="fu">here</span>(<span class="st">&quot;ballet_990_released_20230208&quot;</span>),</span>
@@ -2671,35 +2677,37 @@ White</p>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># get data frame with all schedule D variables </span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>all_sched_d <span class="ot">&lt;-</span> <span class="fu">map_df</span>(files, <span class="sc">~</span><span class="fu">get_df</span>(</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> .x, </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">schedule =</span> <span class="st">&#39;d&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_ein</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(<span class="fu">paste</span>(fiscal_year)))</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">schedule =</span> <span class="st">&#39;d&#39;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># only take amended filings</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_ein</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(<span class="fu">paste</span>(fiscal_year)))</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># select variables that have data across multiple years</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>endowment <span class="ot">&lt;-</span> all_sched_d <span class="sc">%&gt;%</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># contains CY or Minus</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># these are higher level variables in the nested structure, we want to be </span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># working with variables contained in these nodes</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(CYEndwmtFundGrp,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            CYMinus1YrEndwmtFundGrp,</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            CYMinus2YrEndwmtFundGrp,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            CYMinus3YrEndwmtFundGrp,</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            CYMinus4YrEndwmtFundGrp)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rename to CM* using the same formatting as we have throughout the project</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;EndwmtFundGrp/|inus|Yr&quot;</span>, <span class="st">&quot;&quot;</span>, .)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>( <span class="fu">matches</span>(<span class="st">&quot;CY&quot;</span>), as.numeric)) </span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># endowment variables that do not have data across multiple years</span></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>add_vars <span class="ot">&lt;-</span> all_sched_d <span class="sc">%&gt;%</span></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">contains</span>(<span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="sc">!</span><span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>))  <span class="sc">%&gt;%</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .))  <span class="sc">%&gt;%</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;Pct&quot;</span>), as.numeric))</span></code></pre></div>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># select variables that have data across multiple years</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>endowment <span class="ot">&lt;-</span> all_sched_d <span class="sc">%&gt;%</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># contains CY or Minus</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># these are higher level variables in the nested structure, we want to be </span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># working with variables contained in these nodes</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(CYEndwmtFundGrp,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            CYMinus1YrEndwmtFundGrp,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            CYMinus2YrEndwmtFundGrp,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            CYMinus3YrEndwmtFundGrp,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            CYMinus4YrEndwmtFundGrp)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rename to CM* using the same formatting as we have throughout the project</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;EndwmtFundGrp/|inus|Yr&quot;</span>, <span class="st">&quot;&quot;</span>, .)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>( <span class="fu">matches</span>(<span class="st">&quot;CY&quot;</span>), as.numeric)) </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># endowment variables that do not have data across multiple years</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>add_vars <span class="ot">&lt;-</span> all_sched_d <span class="sc">%&gt;%</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">contains</span>(<span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="sc">!</span><span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>))  <span class="sc">%&gt;%</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .))  <span class="sc">%&gt;%</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;Pct&quot;</span>), as.numeric))</span></code></pre></div>
 </div>
 <div id="check-which-variables-have-data-across-multiple-years" class="section level1">
 <h1>Check Which Variables Have Data Across Multiple Years</h1>
@@ -2723,29 +2731,30 @@ White</p>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">contains</span>(base_name),</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">names_to =</span> <span class="st">&quot;variable_year&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>     <span class="fu">separate</span>(variable_year, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;variable_name&quot;</span>, <span class="st">&quot;fiscal_year&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.integer</span>(fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(fiscal_year)) <span class="sc">%&gt;%</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">value_year =</span> <span class="fu">case_when</span>(</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_name) <span class="sc">~</span> fiscal_year,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM1&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM2&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">2</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM3&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">3</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM4&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">4</span>),</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;CYM&quot;</span>, variable_name), </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">substr</span>(variable_name, <span class="dv">1</span>,<span class="dv">4</span>), </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CY&quot;</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">paste0</span>(source, fiscal_year)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(value)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(EIN, value_year) <span class="sc">%&gt;%</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_max</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">order_by =</span> fiscal_year)<span class="sc">%&gt;%</span> </span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">variable_name =</span> base_name,</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">year =</span> value_year,</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             value,</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>             <span class="co"># assignment operator := needed when we use !! on the left side of an assigment</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">name =</span> <span class="sc">!!</span>base_name) <span class="sc">%&gt;%</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, <span class="at">fiscal_year =</span> year, source, value, name)</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>     <span class="co">#  variable_name == paste0(&quot;CY&quot;, base_name) ~ fiscal_year - 0,</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_name) <span class="sc">~</span> fiscal_year,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM1&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM2&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">2</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM3&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">3</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM4&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">4</span>),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;CYM&quot;</span>, variable_name), </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">substr</span>(variable_name, <span class="dv">1</span>,<span class="dv">4</span>), </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CY&quot;</span>),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">paste0</span>(source, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(value)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(EIN, value_year) <span class="sc">%&gt;%</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_max</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">order_by =</span> fiscal_year)<span class="sc">%&gt;%</span> </span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">variable_name =</span> base_name,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">year =</span> value_year,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>             value,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>             <span class="co"># assignment operator := needed when we use !! on the left side of an assigment</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>             <span class="at">name =</span> <span class="sc">!!</span>base_name) <span class="sc">%&gt;%</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, <span class="at">fiscal_year =</span> year, source, value, name)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="check-results-are-concordant-with-those-from-get_df-except-in-cases-where-the-ein-has-a-discrepancy" class="section level1">
 <h1>Check Results are Concordant with Those from <code>get_df</code>
