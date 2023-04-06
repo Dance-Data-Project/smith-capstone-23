@@ -70,7 +70,7 @@ Original data utilized for this project are not contained within this repo.  How
 The folder `css` contains css code to produce standardized knitted HTMLs.  
 
 ## License   
-This work is licenced under an [MIT license](​​https://github.com/Dance-Data-Project/smith-capstone-23/blob/main/LICENSE)
+This work is licenced under an [MIT license](https://github.com/Dance-Data-Project/smith-capstone-23/blob/main/LICENSE)
 
 ## How to Provide Feedback  
 
