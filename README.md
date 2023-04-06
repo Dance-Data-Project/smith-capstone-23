@@ -10,11 +10,11 @@ The project is a part of Smith College Statistical and Data Science Capstone in 
 | Contributions | Name (alpha order) |
 | ----: | :---- |
 | [🤔](# “Ideas and Planning") [🔢](# "Content") [💻](# "Code")  | [Ruth Button](DOI) |
-|  [💻](# "Code") [🚇](“Infrastructure”)  [🔢](# "Content") [🤔](# "Ideas and Planning") [👀](“Reviewed Pull Requests”) | [Rose Evard](DOI) |
-| [🔣](“Data”) [🤔](# "Ideas and Planning") [📆](“Project Management”)| [Andrew Hoekstra](DOI) |
-| [🔢](# "Content") [💻](# "Code") [🤔](# "Ideas and Planning")[👀](“Reviewed Pull Requests”) | [Zhen Nie](DOI) |
-|  [🔣](“Data”) [🔢](# "Content") [💻](# "Code") [🤔](# "Ideas and Planning") [👀](“Reviewed Pull Requests”) | [Quinn White](DOI) | 
-| [💼 ](# "Business") [🤔](# "Ideas and Planning") [📆](“Project Management”)| [Elizabeth Yntema](DOI) | 
+|  [💻](# "Code") [🚇](# “Infrastructure”)  [🔢](# "Content") [🤔](# "Ideas and Planning") [👀](# “Reviewed Pull Requests”) | [Rose Evard](DOI) |
+| [🔣](“Data”) [🤔](# "Ideas and Planning") [📆](# “Project Management”)| [Andrew Hoekstra](DOI) |
+| [🔢](# "Content") [💻](# "Code") [🤔](# "Ideas and Planning")[👀](# “Reviewed Pull Requests”) | [Zhen Nie](DOI) |
+|  [🔣](“Data”) [🔢](# "Content") [💻](# "Code") [🤔](# "Ideas and Planning") [👀](# “Reviewed Pull Requests”) | [Quinn White](DOI) | 
+| [💼 ](# "Business") [🤔](# "Ideas and Planning") [📆](# “Project Management”)| [Elizabeth Yntema](DOI) | 
 
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
