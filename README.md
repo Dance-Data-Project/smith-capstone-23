@@ -36,12 +36,13 @@ The script `RUN_ALL.R` runs all files in the `infrastructure_rmds` directory as 
 
 ## Definitions  
 
-We defined “Dance Companies” as non-profit organizations that have filed an IRS form 990 within the past five years and whose primary purpose involves dance as a performing art.   
+
+* "Dance Companies" refers to non-profit organizations that have filed an IRS form 990 within the past five years and whose primary purpose involves dance as a performing art. 
 * “Building” refers to all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes.   
 * “Net assets” refers to all liquid assets and all fixed assets a company reports in their IRS filings.  
 * “Endowment” refers to endowment funds established by donor-restricted gifts that are maintained to provide a source of income for either a specified period of time or until a specific event occurs.  
 * “Unpaid Labor” is defined as any given company’s use of volunteer work.  
-* “Region” is conceptually defined as one of the five major regions of the United States according to the [National Geographic Society](https://education.nationalgeographic.org/resource/united-states-regions/): Northeast, Southeast, Southwest, Midwest, and West. 
+* “Region” is defined as one of the five major regions of the United States according to the [National Geographic Society](https://education.nationalgeographic.org/resource/united-states-regions/): Northeast, Southeast, Southwest, Midwest, and West. 
 
 ## Data Sources
 
@@ -70,7 +71,7 @@ Original data utilized for this project are not contained within this repo.  How
 The folder `css` contains css code to produce standardized knitted HTMLs.  
 
 ## License   
-This work is licenced under an [MIT license](​​https://github.com/Dance-Data-Project/smith-capstone-23/blob/main/LICENSE)
+This work is licenced under an [MIT license](https://github.com/Dance-Data-Project/smith-capstone-23/blob/main/LICENSE)
 
 ## How to Provide Feedback  
 
