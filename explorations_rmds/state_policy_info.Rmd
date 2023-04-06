@@ -547,7 +547,7 @@ file_to_check <- "ballet_990_released_20230208/202101969349301610_public.xml"
 example_file <- xml2::read_xml(file_to_check) %>% xml_ns_strip()
 
 address_vars <- tibble(varname = get_all_children(file_to_check, "//ReturnData")) %>%
-  filter(grepl("address", varname, ignore.case =TRUE)) %>%
+  filter(grepl("saddress", varname, ignore.case =TRUE)) %>%
   pull(varname)
 
 test <- get_df(filename=file_to_check,
