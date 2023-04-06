@@ -37,12 +37,12 @@ The script `RUN_ALL.R` runs all files in the `infrastructure_rmds` directory as 
 ## Definitions  
 
 
-* "Dance Companies" refers to non-profit organizations that have filed an IRS form 990 within the past five years and whose primary purpose involves dance as a performing art. 
-* “Building” refers to all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes.   
-* “Net assets” refers to all liquid assets and all fixed assets a company reports in their IRS filings.  
-* “Endowment” refers to endowment funds established by donor-restricted gifts that are maintained to provide a source of income for either a specified period of time or until a specific event occurs.  
-* “Unpaid Labor” is defined as any given company’s use of volunteer work.  
-* “Region” is defined as one of the five major regions of the United States according to the [National Geographic Society](https://education.nationalgeographic.org/resource/united-states-regions/): Northeast, Southeast, Southwest, Midwest, and West. 
+* **Dance Companies** refers to non-profit organizations that have filed an IRS form 990 within the past five years and whose primary purpose involves dance as a performing art. 
+* **Building**  refers to all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes.   
+* **Net assets** refers to all liquid assets and all fixed assets a company reports in their IRS filings.  
+* **Endowment** refers to endowment funds established by donor-restricted gifts that are maintained to provide a source of income for either a specified period of time or until a specific event occurs.  
+* **Unpaid Labor** is defined as any given company’s use of volunteer work.  
+* **Region** is defined as one of the five major regions of the United States according to the [National Geographic Society](https://education.nationalgeographic.org/resource/united-states-regions/): Northeast, Southeast, Southwest, Midwest, and West. 
 
 ## Data Sources
 
@@ -59,6 +59,7 @@ Are any data processes automated? If so how often is the data updated? If the da
 ## Repo Architecture  
 
 This repo contains all code created by Smith SDS Capstone `23 students for Dance Data Project.  There are two main files containing rmarkdowns utilized for analyses:    
+
 * `infrastructure_rmds` : contains all wrangling, troubleshooting, dictionary, and testing code.  The most important files within this are `load_wrangle_filter.Rmd`, which establishes the base datasets and filters, and `handle_discrepancies.Rmd`, which identifies reported discrepancies within Form 990’s and produces more flexible dataset with endowment information from Schedule D.   
 * `explorations_rmds` : all analyses, including examinations on labor, endowment balances, compensation, and location.     
 
