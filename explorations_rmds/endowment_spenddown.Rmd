@@ -565,7 +565,8 @@ most_recent_ds %>%
   filter(consistent == TRUE) %>%
   filter(!is.na(TotalEmployeeCnt)) %>%
   select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
-  make_table("Size of Consistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year"))
+  make_table("Size of Consistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year")) %>%
+  scroll_box(height = "450px")
 ```
 
 ```{r}
@@ -574,7 +575,8 @@ most_recent_ds %>%
   filter(consistent == FALSE) %>%
   filter(!is.na(TotalEmployeeCnt)) %>%
   select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
-  make_table("Size of Inconsistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "YFiscal ear"))
+  make_table("Size of Inconsistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "YFiscal ear")) %>%
+  scroll_box(height = "450px")
 ```
 
 # Percent Change Within the Pandemic   
