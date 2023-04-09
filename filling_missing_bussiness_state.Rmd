@@ -1,0 +1,66 @@
+---
+title: "update_company_address"
+author: "Zhen"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+I looked up the legal domicile state of all companies that miss business state in their filings. Since these companies filed 990-EZ, where legal domicile state is not stated. I will just update their business state manually based on where they are located.
+
+```{r}
+index <- which(ein_to_state[, 2] == "PROVIDENCE BALLET THEATRE")
+ein_to_state$business_state_cd[index] = "RI"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("catskill ballet theatre company inc"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet oklahoma inc"))] = "OK"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("luminario ballet of los angeles"))] = "CA"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet misha"))] = "NH"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet nebraska"))] = "NE"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("texture contemporary ballet"))] = "PA"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("morballet inc"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("lemonspongecake contemporary balletco jennifer sher"))] = "CO"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("savannah ballet theatre inc"))] = "GA"
+
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("florida ballet at jacksonville inc"))] = "FL"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("the montgomery civic ballet inc"))] = "AL"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("brandon ballet inc"))] = "FL"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("the montgomery civic ballet in"))] = "AL"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet inc"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet san antonio"))] = "TX"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("bay pointe ballet"))] = "CA"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("florida ballet at jacksonville inc"))] = "FL"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("new chamber ballet inc"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("ballet north texas"))] = "TX"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("complexions foundationc/o complexions"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("east coast contemporary ballet company"))] = "NY"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("the rosin box project inc"))] = "CA"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("chamberdance inc"))] = "DC"
+
+ein_to_state$business_state_cd[which(ein_to_state[,2] == toupper("pacific festival ballet company inc."))] = "CA"
+
+
+saveRDS(ein_to_state, "ein_to_state_update.RDS")
+```
+
