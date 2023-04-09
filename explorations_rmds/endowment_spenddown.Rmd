@@ -202,7 +202,6 @@ pct_change_inv_ds %>%
 ## WITH investments  
 ```{r}
 ## Ranges of different percent change  
-# reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_change)))), na.rm = TRUE)
 # Reordering by standard deviation of pct_spend down
 pct_change_ds_box <- pct_change_ds %>%
   group_by(organization_name) %>%
@@ -408,15 +407,131 @@ limited_scale_inv <- pct_change_inv_ds %>%
 ggplotly(limited_scale_inv)
 ```
 
+# Breaking Companies up by Behavior   
+Using only the dataset normalized for investments, as that has more consistency.  
+
+```{r}
+# Adding var for "Consistency"  
+
+## Between mean +/- SD
+#inv_consist <- pct_change_inv_ds %>%
+ # group_by(organization_name) %>%
+  #filter(pct_change != Inf & pct_change != -Inf) %>%
+#  summarize(mean = mean(pct_change), 
+ #           sd = sd(pct_change)) %>%
+ # mutate(consistent = ifelse(between(mean + sd, -7, 7) | between(mean - sd, -7, 7), TRUE, FALSE))
+
+## Checking if any value is outside of -7:7, can do with min/max
+inv_consist <- pct_change_inv_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf & pct_change != -Inf) %>%
+  summarize(min = min(pct_change), 
+            max = max(pct_change),
+            sd = sd(pct_change)) %>%
+  mutate(consistent = ifelse(between(min + sd, -7, 7) & between(max - sd, -7, 7), TRUE, FALSE),
+         #Manual inspection showed BQC should be marked as consistent but just didnt quite make it math-wise
+         consistent = ifelse(organization_name == "Ballet Quad Cities", TRUE, consistent))
+
+## Adding consistency 
+inv_consist_ds <- inv_consist %>% 
+  select(organization_name, consistent) %>% 
+  right_join(pct_change_inv_ds, by = "organization_name") %>%
+  filter(pct_change != Inf & pct_change != -Inf)
+
+```
+
+```{r}
+##plottinng
+test <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = consistent)) +
+  geom_line(show.legend = TRUE, alpha = 0.3) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5) + 
+  geom_hline(yintercept = 7, alpha = .5, linetype = "dotted") + 
+  geom_hline(yintercept = -7, alpha = .5, linetype = "dotted") 
+
+test
+ggplotly(test)
+
+inv_box <- inv_consist_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf) %>%
+  summarize(sd = sd(pct_change, na.rm = TRUE)) %>%
+  right_join(inv_consist_ds, by = "organization_name") %>%
+  select(organization_name, EIN, pct_change, sd, consistent) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
+
+## Unlimited 
+box_plot <- ggplot(inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = consistent), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Percent Change per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot) %>%
+  layout(showlegend = FALSE)
+
+##Limited to 100 for visibility 
+ggplot(inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = consistent), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.2) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment % Change (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+```
+
+## Examining the Two Classes
+
+### Lists of Companies within Each Class
+```{r}
+## Names in a table  
+# CONSISTENT ones  
+inv_consist %>% 
+  filter(consistent == TRUE) %>%
+  select(-consistent) %>%
+  make_table(title = "Companies with Consistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+ 
+There are `r inv_consist %>% filter(consistent == TRUE) %>% nrow()` companies which have 'consistent' endowment percent change. 
 
 
+```{r}
+## Names in a table  
+# INCONSISTENT ones  
+inv_consist %>% 
+  filter(consistent == FALSE) %>%
+  select(-consistent) %>%
+  make_table(title = "Companies with Inconsistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+
+There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change. 
 
 
-
-
-
-
-
+### Size of Companies in Each Class  
+Based on most recent reported employee count  
 
 # Percent Change Within the Pandemic   
 ## WITH investments 
