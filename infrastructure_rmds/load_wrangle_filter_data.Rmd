@@ -396,7 +396,7 @@ names <- read_csv(here('data', 'companies.csv')) %>%
          EIN = ifelse(nchar(EIN) == 8, paste("0", EIN, sep=""), EIN)) %>%
   select(organization_name, EIN, ein) %>%
   distinct() %>%
-  write_rds(here('data', 'companies.RDS'))
+  saveRDS(here('data', 'companies.RDS'))
 
 ```
 
