@@ -1,0 +1,447 @@
+---
+title: "Endowment Time Series"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: !expr here::here('css', 'template.css')
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "./output_html")})
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
+library(tidyverse)
+library(kableExtra)
+library(scales)
+library(plotly)
+library(here)
+library(glue)
+
+
+
+
+m <- list(
+    l = 50,
+    r = 50,
+    b = 100,
+    t = 150,
+    pad = 0.5
+)
+
+```
+
+```{r load data}
+
+# load companies file of EIN to name and endowment data
+
+companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
+  mutate(EIN = as.character(ein)) %>%
+  select(EIN, organization_name)
+
+
+endowment_data <- read_rds(here("data", 
+                                "endowments_by_most_recent_filings.RDS")) %>%
+  select(-c(EndowmentsHeldUnrelatedOrgInd, EndowmentsHeldRelatedOrgInd)) %>%
+  pivot_longer(-c(EIN, fiscal_year),
+               names_to = "variable_name") %>%
+  left_join(companies_to_ein)
+
+
+
+```
+
+
+# Plots by Rank
+
+```{r}
+
+# function to plot variables of interest against each other
+plot_ranks <- function(var1, var2, data) {
+
+  
+   plt <- data %>%
+    group_by(fiscal_year) %>%
+   # arrange(var1) %>%
+    mutate("{var1}_rank" := rank(!!sym(var1))) %>%
+#    arrange(var2) %>%
+    mutate("{var2}_rank"  := rank(!!sym(var2))) %>%
+    ggplot(aes(x = !!sym(glue("{var1}_rank" )), y =!!sym(glue("{var2}_rank" )),
+               color  = organization_name,
+               label =EIN
+               )) +
+    geom_point() +
+    geom_function(fun=function(x)x,color="darkred", alpha = .8) +
+    labs(x = paste0(var1, " Rank"),
+         y =  paste0(var2, " Rank")) +
+    theme_bw() +
+    labs(title = glue("Rank of {var2}\nvs. Rank of {var1}")) +
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+     facet_wrap(~fiscal_year)+
+      theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold")) 
+  
+  ggplotly(plt) %>%
+    layout(margin = m, height = 500)
+
+}
+
+# function to plot variables of interest against each other
+plot_combo <- function(var1, var2, data) {
+  
+  data %>%
+    ggplot(aes(x = !!sym(var1), y = !!sym(var2), color = EIN)) +
+    geom_point(alpha = .9) +
+   # geom_line(alpha = .5) +
+    facet_wrap(~fiscal_year) +
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+    theme_bw()+
+      theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"),
+            legend.position = "none",
+            axis.text.x = element_text(angle = 60, vjust = .6)) +
+    scale_x_continuous(labels=comma) +
+    scale_y_continuous(labels=comma) +
+    labs(title = paste0(var2, " vs. ", var1),
+         subtitle = "Fill by EIN")
+  
+}
+
+
+endowment_data_wide <- endowment_data %>% 
+  pivot_wider(names_from=variable_name,
+              values_from=value) 
+
+
+```
+
+
+# Plotting Endowment Variables Against Each Other, By Year
+
+## Scale of Original Variables
+
+```{r}
+
+vars <-  unique(endowment_data$variable_name)[!grepl("EOY|Admin", unique(endowment_data$variable_name))]
+
+# pairwise combinations of variables
+variable_combinations <- t(combn(vars, 2)) %>%
+  as.data.frame()
+
+
+```
+
+```{r endowment by year, fig.show ='hold', out.width = '50%'}
+
+
+pwalk(variable_combinations, ~{ 
+ plt <- plot_combo(var1 = .x, var2 = .y, data = endowment_data_wide)
+ print(plt)
+ }
+)
+
+
+```
+
+
+## By Rank
+
+
+```{r, eval=TRUE}
+
+plotlist <- pmap(variable_combinations[1:4,], ~{ 
+ plt <- plot_ranks(var1 = .x, var2 = .y, data = endowment_data_wide)
+ 
+ }
+)
+
+
+htmltools::tagList(setNames(plotlist, NULL))
+
+
+```
+
+
+# Compensation
+
+```{r, eval = FALSE}
+
+source(here("GET_VARS.R"))
+
+files <- dir(here("ballet_990_released_20230208"),
+              full.names = TRUE)
+
+comp <- map_df(files, ~get_df(filename = .x, schedule = "j"))
+
+
+comp_clean <- comp %>%
+  rename_with(.cols= everything(),
+              ~gsub('/Return/ReturnData/IRS990ScheduleJ/', '', .)) %>% 
+  select(-contains("Ind")) %>%
+  select(fiscal_year, EIN,
+         contains("RltdOrgOfficerTrstKeyEmplGrp")) %>%
+  # only extract cols within the RltdOrgOfficerTrstKeyEmplGrp
+  select(EIN, fiscal_year,
+         matches("RltdOrgOfficerTrstKeyEmplGrp\\[.*.\\]/")) %>%
+  pivot_longer(-c(EIN,fiscal_year)) %>%
+  mutate(id = gsub("\\D", "", name),
+       #  name_old = name,
+          name = gsub(".*./", "", name),
+         id = gsub("990", "", id))
+
+  
+comp_clean <- comp_clean %>%
+  filter(!is.na(value)) %>%
+  distinct() %>% 
+  pivot_wider(names_from = name, values_from = value) 
+
+
+
+comp_clean <- comp_clean %>%
+  mutate(across(contains("Amt"), as.numeric))%>%
+  mutate(TitleTxt=tolower(TitleTxt))
+  
+saveRDS(comp_clean, here("data", "schedj.RDS"))
+
+
+```
+
+```{r}
+comp_clean <- read_rds(here("data", "schedj.RDS"))%>%
+  left_join(companies_to_ein)
+```
+
+ 
+```{r}
+
+
+# clean up title text field because it was free text in the form 990
+comp_clean <- comp_clean %>% 
+  mutate(TitleTxt = gsub("dancer/choreographer",
+                          "dancer / choreographer",
+                         TitleTxt),
+         TitleTxt = gsub("vp", "Vice President", TitleTxt),
+         TitleTxt = gsub("dorector", "director",TitleTxt),
+  title_clean = case_when(
+    grepl("ceo", TitleTxt, ignore.case = TRUE ) ~"CEO",
+    grepl("cfo", TitleTxt, ignore.case = TRUE)~ "Chief Financial Officer",
+    grepl("executive dir", TitleTxt, ignore.case = TRUE) ~"Executive Director",
+    grepl("artistic dir",TitleTxt,  ignore.case = TRUE) ~"Artistic Director",
+    grepl("emeritus|emerita", TitleTxt, ignore.case = TRUE) ~"Emirita/Emiritus Position",
+    grepl( "chief dev",TitleTxt, ignore.case=TRUE) &  
+    grepl("officer",TitleTxt,  ignore.case = TRUE) ~"Chief Development Officer",
+     grepl("director of market|marketing director",TitleTxt,  ignore.case = TRUE) ~ "Director of Marketing",
+    grepl("music director",TitleTxt,  ignore.case = TRUE) ~"Music Director",
+    grepl("mktg", TitleTxt, ignore.case = TRUE ) & 
+      grepl("officer|ofc", TitleTxt, ignore.case = TRUE ) ~ "Marketing Officer",
+    grepl("Director of Development",TitleTxt, ignore.case = TRUE) ~ "Director of Development",
+    grepl("chief",TitleTxt, ignore.case = TRUE) & 
+      grepl("officer",TitleTxt, ignore.case = TRUE) ~ "Other Chief Officer",
+    grepl("Dir of Legal",TitleTxt, ignore.case = TRUE) ~"Director of Legal Affairs",
+    grepl("Former Senior Dir", TitleTxt, ignore.case = TRUE) ~ "Former Senior Director",
+    grepl("Director|Dir", TitleTxt, ignore.case = TRUE) ~ "Other Director",
+    grepl("Director", TitleTxt, ignore.case = TRUE) ~ "Other Director",
+    TRUE ~ TitleTxt
+  )) 
+
+```
+
+## Number of EINs with Each Title
+
+
+```{r}
+# number of EINs with each type of title
+comp_clean %>%
+  group_by(title_clean) %>%
+  summarize(`Number of EINs` = n_distinct(EIN)) %>% 
+  arrange(desc(`Number of EINs`))
+
+```
+
+
+## Number of Individuals with Title
+
+
+```{r}
+# number of individuals with title
+comp_clean %>%
+  mutate(title_clean=tolower(title_clean)) %>%
+  filter(!is.na(title_clean)) %>%
+  group_by(title_clean) %>%
+  summarize(`Number of Individuals in Position` = n()) %>% 
+  arrange(desc(`Number of Individuals in Position`))
+
+# missingness by variable
+# comp_clean %>%
+#   select(-c(EIN,fiscal_year,id)) %>%
+#   is.na() %>% 
+#   colSums() %>%
+#   as_tibble(rownames="Variable") %>%
+#   mutate(`Not Missing` = nrow(comp_clean) - value) %>%
+#   select(-value)
+
+
+```
+
+```{r, fig.height = 12}
+
+comp_clean %>% 
+  group_by(title_clean) %>%
+  mutate(m = median(BaseCompensationFilingOrgAmt, na.rm= TRUE)) %>%
+  filter(!is.na(title_clean)) %>%
+  ungroup() %>%
+  ggplot(aes(x=fct_reorder(title_clean,m),
+             y = BaseCompensationFilingOrgAmt)) +
+  geom_jitter(alpha = .5, size = .5, height = 0, width = .05) +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Compensation by Title",
+       x = "Title")+
+  theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"),
+         axis.text.x= element_text(size = 8))
+
+
+
+
+```
+
+```{r}
+
+  
+plt <- comp_clean %>%
+  group_by(EIN, fiscal_year) %>%
+  summarize(total_compensation = sum(BaseCompensationFilingOrgAmt)) %>%
+  group_by(EIN) %>%
+  mutate(m = median(total_compensation, na.rm= TRUE)) %>%
+  ungroup() %>%
+#  group_by(EIN) %>%
+  mutate(tile = ntile(m,2),
+         tilename = ifelse(tile == 1,
+                           "EINs Below the Median",
+                           "EINs Above the Median"),
+         tilename = factor(tilename, levels = c( "EINs Below the Median",
+                                                  "EINs Above the Median"))) %>%
+  ggplot(aes(x=fiscal_year,
+             y = total_compensation,
+            color = EIN,
+            group = EIN)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Compensation to Highest Paid Employees",
+       subtitle = "Total Compensation to Highest Paid Employees By EIN",
+       y = "Total Compensation",
+       x = "Fiscal Year")+
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+    theme_bw()+
+    theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold")) +
+  facet_wrap(~tile, scales = "free_y") +
+  scale_y_continuous(labels = comma)
+
+
+ggplotly(plt,height = 500, width =850) %>%
+  layout(margin = m)
+
+```
+
+```{r}
+
+# plot compensation versus beginning year balance by fiscal year
+comp <- comp_clean %>% 
+  mutate(fiscal_year = as.numeric(paste(fiscal_year))) %>%
+  left_join(endowment_data_wide)  %>%
+  group_by(EIN, fiscal_year, BeginningYearBalanceAmt, organization_name) %>%
+  summarize(total_compensation = sum(BaseCompensationFilingOrgAmt)) 
+  
+  
+plt <- comp %>%
+  ggplot(aes(x=BeginningYearBalanceAmt,
+             y = total_compensation,
+            color = EIN)) +
+  geom_point() +
+  facet_wrap(~fiscal_year, nrow = 2)+
+    theme_bw()+
+    theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"))+
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "magma",
+                                 end = .9) +
+  labs(title = "Total Compensation to Highest Paid Employees\nby Beginning of Year Balance",
+      x = "Beginning of Year Balance",
+      y = "Total Compensation")
+
+ggplotly(plt, height = 500, width = 850) %>%
+  layout(margin = m)
+
+```
+
+```{r,eval=FALSE}
+
+# logged scales
+plt <- comp %>%
+  ggplot(aes(x=BeginningYearBalanceAmt,
+             y = total_compensation,
+            color = EIN)) +
+  geom_point() +
+  facet_wrap(~fiscal_year, nrow = 2)+
+    theme_bw()+
+    theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"))+
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "magma",
+                                 end = .9) +
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+
+
+```{r}
+
+plot_ranks("BeginningYearBalanceAmt",
+           "total_compensation", data = comp )
+
+```
+
+
