@@ -391,12 +391,12 @@ saveRDS(endowment_data_filtered, here("data", "endowment_filter_data_990.RDS"))
 
 ```{r}
 
-read_csv(here('data', 'companies.csv')) %>%
-  mutate(EIN = as.character(ein)) %>%
+names <- read_csv(here('data', 'companies.csv')) %>%
+  mutate(EIN = as.character(ein),
+         EIN = ifelse(nchar(EIN) == 8, paste("0", EIN, sep=""), EIN)) %>%
   select(organization_name, EIN, ein) %>%
   distinct() %>%
-  write_csv(here('data', 'companies.csv'))
-
+  write_rds(here('data', 'companies.RDS'))
 
 ```
 
