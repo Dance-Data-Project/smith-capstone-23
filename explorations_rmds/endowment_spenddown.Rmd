@@ -41,7 +41,12 @@ make_table <- function(..., title = "", col_names = c("")) {
 ## Loading in data
 endowment_data <- read_rds(here("data", "endowments_by_most_recent_filings.RDS"))
 names <- read_csv(here("data", "companies.csv")) %>% 
-  mutate(EIN = as.character(ein)) %>%
+  ## Dealing with EINs reading in without zero in front
+  mutate(EIN = as.character(ein),
+         EIN = case_when(
+           nchar(EIN) == 8 ~ paste("0", EIN, sep =""),
+           TRUE ~ EIN
+  )) %>% 
   select(-ein)
 ```
 
@@ -116,6 +121,14 @@ ggplot(pct_change_ds, aes(x = pct_change)) +
   theme_classic() + 
   geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
 
+## Histogram with cutoff of 200%
+ggplot(pct_change_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 5) + 
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  xlim(-100, 200) + 
+  ggtitle(label = "Percentage of Change in Endowment Balance") +
+  theme_classic()
+
 pct_change_ds %>%
   filter(pct_change != Inf) %>%
   select(organization_name, fiscal_year, pct_change) %>%
@@ -157,6 +170,14 @@ ggplot(pct_change_inv_ds, aes(x = pct_change)) +
   ggtitle(label = "Percentage of Change in Endowment Balance", subtitle = "Red Line indicates 100%") +
   theme_classic() + 
   geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
+
+## Histogram with cutoff of 200%
+ggplot(pct_change_inv_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 5) + 
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  xlim(-100, 200) + 
+  ggtitle(label = "Percentage of Change in Endowment Balance") +
+  theme_classic()
 
 pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
@@ -267,6 +288,15 @@ ggplotly(box_plot_inv_lim)  %>%
 
 # Percent Change over Time   
 ## WITH investments  
+
+```{r}
+## Retrieving median values  
+pct_change_med <- pct_change_ds %>%
+  group_by(fiscal_year) %>%
+  summarize(median = median(pct_change, na.rm = TRUE)) %>%
+  mutate(organization_name = "Median")
+```
+
 ```{r}  
 ## Spend Down over Time
 pct_change_plot <- pct_change_ds %>%
@@ -287,7 +317,8 @@ pct_change_plot <- pct_change_ds %>%
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20)) +
-  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray") +
+  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
 ggplotly(pct_change_plot) 
 ```
 
@@ -311,11 +342,22 @@ limited_scale <- pct_change_ds %>%
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
-                     limits = c(-100, 100))
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
 ggplotly(limited_scale)
 ```
 
 ## WITHOUT investments   
+
+```{r}
+## Retrieving median values  
+pct_change_inv_med <- pct_change_inv_ds %>%
+  group_by(fiscal_year) %>%
+  summarize(median = median(pct_change, na.rm = TRUE)) %>%
+  mutate(organization_name = "Median")
+```
+
+
 ```{r}  
 ## Spend Down over Time
 pct_change_inv_plot <- pct_change_inv_ds %>%
@@ -336,7 +378,8 @@ pct_change_inv_plot <- pct_change_inv_ds %>%
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20)) +
-  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
 ggplotly(pct_change_inv_plot) 
 ```
 
@@ -360,9 +403,20 @@ limited_scale_inv <- pct_change_inv_ds %>%
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
-                     limits = c(-100, 100))
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5)
 ggplotly(limited_scale_inv)
 ```
+
+
+
+
+
+
+
+
+
+
 
 # Percent Change Within the Pandemic   
 ## WITH investments 
