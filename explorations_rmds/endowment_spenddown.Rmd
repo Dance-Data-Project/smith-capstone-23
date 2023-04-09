@@ -530,16 +530,52 @@ inv_consist %>%
 There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change. 
 
 ### Size of Companies in Each Class   
-Based on most recent reported employee count   
 
 ```{r}
-
+##Getting employee data
+source(here("GET_VARS.R"))
+##Specifically reading in employee data
+files <- dir( here("ballet_990_released_20230208"),
+              full.names = TRUE)
+employ_data <- map_df(files, ~
+                    get_df(variables =  c("//Return//ReturnData//TotalEmployeeCnt"),
+                           filename = .x
+                           )) %>%
+    mutate(TotalEmployeeCnt = as.numeric(TotalEmployeeCnt)) %>%
+  left_join(names, by = "EIN")
 ```
 
+```{r}
+## Most recent years for each company
+employ_data$fiscal_year = as.numeric(as.character(employ_data$fiscal_year))
+most_recent_yrs <- employ_data %>%
+  group_by(organization_name) %>%
+  summarize(recent_year = max(fiscal_year, na.rm = TRUE)) %>%
+  left_join(employ_data, by = c("organization_name", "recent_year" = "fiscal_year"))
 
+## Limiting to ONLY most recent year 
+most_recent_ds <- inv_consist_ds %>%
+  left_join(most_recent_yrs, by = "organization_name") %>%
+  filter(fiscal_year == recent_year)
+```
 
+```{r}
+## Consistent  
+most_recent_ds %>%
+  filter(consistent == TRUE) %>%
+  filter(!is.na(TotalEmployeeCnt)) %>%
+  select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
+  make_table("Size of Consistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Year"))
+```
 
-Based on most recent reported endowment end of year balance  
+```{r}
+## Inconsistent  
+most_recent_ds %>%
+  filter(consistent == FALSE) %>%
+  filter(!is.na(TotalEmployeeCnt)) %>%
+  select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
+  make_table("Size of Inconsistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Year"))
+```
 
 # Percent Change Within the Pandemic   
 ## WITH investments 
