@@ -529,9 +529,17 @@ inv_consist %>%
 
 There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change. 
 
+### Size of Companies in Each Class   
+Based on most recent reported employee count   
 
-### Size of Companies in Each Class  
-Based on most recent reported employee count  
+```{r}
+
+```
+
+
+
+
+Based on most recent reported endowment end of year balance  
 
 # Percent Change Within the Pandemic   
 ## WITH investments 
