@@ -405,4 +405,52 @@ filed_schd_d %>%
 ```
 There are seven EINs which do not always fill out Schedule D when they fill out 990.  
 
+# Checking Endowment Reporting - Is the Math Right?  
+
+```{r}
+## Using Quinn's endowment data 
+endowment_data <- read_rds(here("data", "endowments_by_most_recent_filings.RDS"))
+names <- read_csv(here("data", "companies.csv")) %>% 
+  ## Dealing with EINs reading in without zero in front
+  mutate(EIN = as.character(ein),
+         EIN = case_when(
+           nchar(EIN) == 8 ~ paste("0", EIN, sep =""),
+           TRUE ~ EIN
+  )) %>% 
+  select(-ein)
+```
+
+```{r}
+## NOTE:  ASSUMING NA IS ZERO FOR THE SAKE OF THE CALCULATIONS
+# Finding differences in calculation and report
+test_diff <- endowment_data %>%
+  mutate(across(.cols = 3:9, ~ ifelse(is.na(.), 0, .))) %>%
+  mutate(end_bal_calc = (BeginningYearBalanceAmt + 
+           ContributionsAmt + InvestmentEarningsOrLossesAmt - 
+           OtherExpendituresAmt - AdministrativeExpensesAmt - GrantsOrScholarshipsAmt),
+         same_end = ifelse(end_bal_calc == EndYearBalanceAmt, TRUE, FALSE),
+         diff_end = EndYearBalanceAmt - end_bal_calc)
+
+# Looking at differences
+test_diff %>%
+  filter(same_end == FALSE) %>%
+  arrange(desc(abs(diff_end))) %>%
+  left_join(names, by = "EIN") %>%
+  select(organization_name, fiscal_year, EndYearBalanceAmt, end_bal_calc, diff_end) %>%
+  make_table("Differences in Reported End Year Balances", 
+             col_names = c("Organization Name", "Year", "Reported End Balance", 
+                           "Calculated End Balance", "Difference")) %>%
+  scroll_box(height = "450px")
+
+## Names of Companies 
+test_diff %>%
+  filter(same_end == FALSE) %>%
+  arrange(desc(abs(diff_end))) %>%
+  left_join(names, by = "EIN") %>%
+  group_by(organization_name) %>%
+  summarize(n = n()) %>%
+  make_table("List of Misreported Companies", 
+             col_names = c("Organization Name", "Total Miscalculations")) %>%
+  scroll_box(height = "450px")
+```
 
