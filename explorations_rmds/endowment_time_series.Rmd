@@ -189,6 +189,36 @@ source(here("GET_VARS.R"))
 files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
+
+
+##################################
+# EMPLOYEE INFORMATION
+##################################
+
+
+employee_comp_vars <- c(
+  "/Return/ReturnData/IRS990/TotalEmployeeCnt",
+  "/Return/ReturnData/IRS990/EmployeeCnt",
+  "/Return/ReturnData/IRS990/CYSalariesCompEmpBnftPaidAmt",
+  "/Return/ReturnData/IRS990/CompCurrentOfcrDirectorsGrp/TotalAmt")
+
+
+employees <- map_df(files, ~get_df(filename = .x, 
+                              variables=employee_comp_vars))
+
+employees %>%
+  select(-filename) %>%
+  mutate(across(-c(ReturnTs,EIN, fiscal_year), 
+                as.numeric)) %>%
+  rename(OffDirCompAmt =TotalAmt ) %>%
+  saveRDS(here("data", "employees.RDS"))
+
+
+
+
+#################
+# SCHEDULE J
+#################
 comp <- map_df(files, ~get_df(filename = .x, schedule = "j"))
 
 
@@ -225,8 +255,15 @@ saveRDS(comp_clean, here("data", "schedj.RDS"))
 ```
 
 ```{r}
+
 comp_clean <- read_rds(here("data", "schedj.RDS"))%>%
-  left_join(companies_to_ein)
+  left_join(companies_to_ein) %>%
+  mutate(fiscal_year = as.numeric(paste(fiscal_year)))
+
+employees <- readRDS(here("data", "employees.RDS")) %>%
+    mutate(fiscal_year = as.numeric(paste(fiscal_year)))
+
+
 ```
 
  
@@ -313,7 +350,30 @@ comp_clean %>%
   geom_jitter(alpha = .5, size = .5, height = 0, width = .05) +
   coord_flip() +
   theme_bw() +
-  labs(title = "Compensation by Title",
+  labs(title = "Base Compensation by Title",
+       x = "Title")+
+  theme(plot.title = element_text(size = 18, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 16),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"),
+         axis.text.x= element_text(size = 8))
+
+
+
+comp_clean %>% 
+  group_by(title_clean) %>%
+  mutate(m = median(TotalCompensationFilingOrgAmt, na.rm= TRUE)) %>%
+  filter(!is.na(title_clean)) %>%
+  ungroup() %>%
+  ggplot(aes(x=fct_reorder(title_clean,m),
+             y = TotalCompensationFilingOrgAmt)) +
+  geom_jitter(alpha = .5, size = .5, height = 0, width = .05) +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Total Compensation by Title",
        x = "Title")+
   theme(plot.title = element_text(size = 18, 
                                       hjust = .5, face="bold",),
@@ -352,7 +412,7 @@ plt <- comp_clean %>%
   geom_line() +
   geom_point() +
   labs(title = "Compensation to Highest Paid Employees",
-       subtitle = "Total Compensation to Highest Paid Employees By EIN",
+       subtitle = "Total Base Compensation to Highest Paid Employees By EIN",
        y = "Total Compensation",
        x = "Fiscal Year")+
     viridis::scale_color_viridis(discrete=TRUE,
@@ -365,9 +425,11 @@ plt <- comp_clean %>%
                                          face="italic",
                                          size = 16),
             axis.title = element_text(size = 13, 
-                                      face = "bold")) +
-  facet_wrap(~tile, scales = "free_y") +
-  scale_y_continuous(labels = comma)
+                                      face = "bold"),
+          axis.text.x = element_text(size =8, vjust = .6, angle = 60)) +
+  facet_wrap(~tilename, scales = "free_y") +
+  scale_y_continuous(labels = comma) +
+  scale_x_continuous(labels = comma)
 
 
 ggplotly(plt,height = 500, width =850) %>%
@@ -388,6 +450,7 @@ comp <- comp_clean %>%
 plt <- comp %>%
   ggplot(aes(x=BeginningYearBalanceAmt,
              y = total_compensation,
+             label = organization_name,
             color = EIN)) +
   geom_point() +
   facet_wrap(~fiscal_year, nrow = 2)+
@@ -402,7 +465,7 @@ plt <- comp %>%
     viridis::scale_color_viridis(discrete=TRUE,
                                  option = "magma",
                                  end = .9) +
-  labs(title = "Total Compensation to Highest Paid Employees\nby Beginning of Year Balance",
+  labs(title = "Total Base Compensation to Highest Paid Employees\nby Beginning of Year Balance",
       x = "Beginning of Year Balance",
       y = "Total Compensation")
 
@@ -441,6 +504,82 @@ plt <- comp %>%
 
 plot_ranks("BeginningYearBalanceAmt",
            "total_compensation", data = comp )
+
+```
+
+
+
+# Top Employees Compensation Compared to Total Compensation
+
+* For total employee compensation - `CYSalariesCompEmpBnftPaidAmt: Salaries, other compensation, employee benefits (Part IX, column (A), lines 5–10)`.
+* For top employee compensation - Schedule J, looking at all compensation except deferred
+
+```{r}
+
+top <- comp_clean %>% 
+  group_by(EIN,fiscal_year,organization_name) %>% 
+  mutate(not_deferred = TotalCompensationFilingOrgAmt -DeferredCompensationFlngOrgAmt) %>%
+  summarize(num_top_employees = n(),
+            compensation_top_total = sum(TotalCompensationFilingOrgAmt),
+            compensation_top_base = sum(BaseCompensationFilingOrgAmt),
+            compensation_top_not_def = sum(not_deferred)) %>%
+  ungroup()
+
+emp_comp <- employees %>% 
+  left_join(top)
+
+plt <- emp_comp %>%
+  ggplot(aes(x=fiscal_year, 
+             y = compensation_top_total/CYSalariesCompEmpBnftPaidAmt,
+             color = organization_name,
+             group= EIN)) +
+  geom_point() +
+  geom_line()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+  theme_bw() +
+  labs(y="Fraction of Total Compensation Paid",
+       title = "Fraction of Total Compensation Paid to C-Suite Employees",
+       x="Fiscal Year") +
+  scale_y_continuous(n.breaks = 6)+
+    theme(plot.title = element_text(size = 14, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 12),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"))
+
+
+ggplotly(plt, margin = m, height = 500, width =850)
+
+ plt <- emp_comp %>%
+  ggplot(aes(y=CYSalariesCompEmpBnftPaidAmt/TotalEmployeeCnt, 
+             x = compensation_top_base/num_top_employees,
+             label=fiscal_year,
+             color =organization_name,
+             group = EIN)) +
+  geom_point() +
+   theme_bw() + 
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+    theme(plot.title = element_text(size = 14, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 14),
+            axis.title = element_text(size = 13, 
+                                      face = "bold")) +
+   scale_y_continuous(labels =comma) +
+   labs(y = "Average Employee Pay",
+        x = "Average C-Suite Pay",
+        title = "Average C-Suite Pay versus Average Employee Pay") +
+   facet_wrap(~fiscal_year)
+ 
+ ggplotly(plt, margin = m,height = 500, width =850 )
+
 
 ```
 
