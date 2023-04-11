@@ -390,7 +390,7 @@ comp_clean %>%
 ## Compensation by Title {.tabset}
 
 ### Base Compensation 
-```{r, fig.height = 9,fig.width = 9}
+```{r, out.width ="80%"}
 
 comp_clean %>% 
   group_by(title_clean) %>%
@@ -419,7 +419,7 @@ comp_clean %>%
 
 ### Total Compensation
 
-```{r}
+```{r, out.width ="80%"}
 
 comp_clean %>% 
   group_by(title_clean) %>%
@@ -586,7 +586,7 @@ plot_ranks("BeginningYearBalanceAmt",
 * For total employee compensation - `CYSalariesCompEmpBnftPaidAmt: Salaries, other compensation, employee benefits (Part IX, column (A), lines 5–10)`.
 * For top employee compensation - Schedule J, looking at all compensation except deferred
 
-```{r}
+```{r, out.width = "80%"}
 
 top <- comp_clean %>% 
   group_by(EIN,fiscal_year,organization_name) %>% 
@@ -624,7 +624,7 @@ plt <- emp_comp %>%
                                       face = "bold"))
 
 
-ggplotly(plt, margin = m, height = 500, width =850)
+ggplotly(plt, margin = m, height = 500)
 
  plt <- emp_comp %>%
    filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
@@ -648,10 +648,10 @@ ggplotly(plt, margin = m, height = 500, width =850)
    scale_y_continuous(labels =comma) +
    labs(y = "Average Employee Compensation",
         x = "Average C-Suite Compensation",
-        title = "Average C-Suite Pay versus Overall Average Employee Compensation") +
+        title = "Average C-Suite Compensation vs. Overall Average Employee Compensation") +
    facet_wrap(~fiscal_year)
  
- ggplotly(plt, margin = m,height = 500, width =850 )
+ ggplotly(plt, margin = m,height = 500)
  
  
  
@@ -701,7 +701,7 @@ marg <- list(
     pad = 0.5
 )
  
- ggplotly(plt, margin = marg, height = 500,  width =850)
+ ggplotly(plt, margin = marg, height = 500)
 
 
 
