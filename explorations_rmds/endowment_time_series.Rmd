@@ -14,7 +14,7 @@ knit: (function(input, ...) {
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, dpi = 36, comment=NA)
 library(tidyverse)
 library(kableExtra)
 library(scales)
@@ -23,12 +23,12 @@ library(here)
 library(glue)
 
 
-
+all_plots <- FALSE
 
 m <- list(
     l = 50,
     r = 50,
-    b = 100,
+    b = 200,
     t = 150,
     pad = 0.5
 )
@@ -49,14 +49,44 @@ endowment_data <- read_rds(here("data",
   select(-c(EndowmentsHeldUnrelatedOrgInd, EndowmentsHeldRelatedOrgInd)) %>%
   pivot_longer(-c(EIN, fiscal_year),
                names_to = "variable_name") %>%
-  left_join(companies_to_ein)
+  left_join(companies_to_ein) %>%
+  mutate(fiscal_year=as.numeric(paste(fiscal_year)))
 
+```
+
+```{r,eval=FALSE}
+
+# extract return dates
+source(here("GET_VARS.R"))
+
+files <- dir(here("ballet_990_released_20230208"),
+              full.names = TRUE)
+
+
+dates <- map_df(files,
+                ~get_df(filename = .x, 
+                        variables = c("//Return//ReturnHeader//TaxPeriodEndDt"))) %>%
+  mutate(fiscal_year = as.numeric(paste(fiscal_year))) %>%
+   filter_ein()
+
+saveRDS(dates, here('data', 'dates.RDS')) 
 
 
 ```
 
+```{r}
 
-# Plots by Rank
+dates <- readRDS( here('data', 'dates.RDS')) %>%
+  select(EIN, TaxPeriodEndDt, fiscal_year) 
+ 
+
+endowment_data <- endowment_data %>%
+  mutate(fiscal_year=as.numeric(paste(fiscal_year))) %>%
+  left_join(dates)
+
+
+```
+
 
 ```{r}
 
@@ -79,21 +109,20 @@ plot_ranks <- function(var1, var2, data) {
     labs(x = paste0(var1, " Rank"),
          y =  paste0(var2, " Rank")) +
     theme_bw() +
-    labs(title = glue("Rank of {var2}\nvs. Rank of {var1}")) +
+    labs(title = glue("Rank of {var2} vs. Rank of {var1}")) +
     viridis::scale_color_viridis(discrete=TRUE,
                                  option = "rocket",
                                  end = .9) +
      facet_wrap(~fiscal_year)+
-      theme(plot.title = element_text(size = 18, 
+      theme(plot.title = element_text(size = 14, 
                                       hjust = .5, face="bold",),
             plot.subtitle = element_text(hjust = .5, 
                                          face="italic",
-                                         size = 16),
+                                         size = 14),
             axis.title = element_text(size = 13, 
                                       face = "bold")) 
   
-  ggplotly(plt) %>%
-    layout(margin = m, height = 500)
+  ggplotly(plt, margin = m, height = 550)
 
 }
 
@@ -131,30 +160,36 @@ endowment_data_wide <- endowment_data %>%
               values_from=value) 
 
 
+
 ```
 
 
 # Plotting Endowment Variables Against Each Other, By Year
 
-## Scale of Original Variables
 
 ```{r}
 
-vars <-  unique(endowment_data$variable_name)[!grepl("EOY|Admin", unique(endowment_data$variable_name))]
+vars <-  unique(endowment_data$variable_name)[!grepl("EOY|Admin|Grants", unique(endowment_data$variable_name))]
 
 # pairwise combinations of variables
 variable_combinations <- t(combn(vars, 2)) %>%
   as.data.frame()
 
+if (!all_plots) variable_combinations <- variable_combinations[1:4,]
+
 
 ```
 
-```{r endowment by year, fig.show ='hold', out.width = '50%'}
+```{r endowment by year, results='asis',out.width="60%"}
 
+
+cat('## Scale of Original Variables {.tabset}   \n\n')
 
 pwalk(variable_combinations, ~{ 
+ cat('### ',paste0(.x, ", ", .y),'\n\n')
  plt <- plot_combo(var1 = .x, var2 = .y, data = endowment_data_wide)
  print(plt)
+  cat('\n\n')
  }
 )
 
@@ -165,11 +200,12 @@ pwalk(variable_combinations, ~{
 ## By Rank
 
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, results='asis', fig.height = 8, fig.width = 10}
 
-plotlist <- pmap(variable_combinations[1:4,], ~{ 
+
+
+plotlist <- pmap(variable_combinations, ~{ 
  plt <- plot_ranks(var1 = .x, var2 = .y, data = endowment_data_wide)
- 
  }
 )
 
@@ -180,9 +216,22 @@ htmltools::tagList(setNames(plotlist, NULL))
 ```
 
 
-# Compensation
+# Compensation 
 
 ```{r, eval = FALSE}
+
+
+
+
+m <- list(
+    l = 50,
+    r = 50,
+    b = 50,
+    t = 150,
+    pad = 0.5
+)
+
+
 
 source(here("GET_VARS.R"))
 
@@ -314,7 +363,7 @@ comp_clean %>%
 ```
 
 
-## Number of Individuals with Title
+## Number of Individuals with Title 
 
 
 ```{r}
@@ -338,7 +387,10 @@ comp_clean %>%
 
 ```
 
-```{r, fig.height = 12}
+## Compensation by Title {.tabset}
+
+### Base Compensation 
+```{r, fig.height = 9,fig.width = 9}
 
 comp_clean %>% 
   group_by(title_clean) %>%
@@ -362,6 +414,12 @@ comp_clean %>%
          axis.text.x= element_text(size = 8))
 
 
+```
+
+
+### Total Compensation
+
+```{r}
 
 comp_clean %>% 
   group_by(title_clean) %>%
@@ -388,6 +446,9 @@ comp_clean %>%
 
 
 ```
+
+## Compensation by Year
+
 
 ```{r}
 
@@ -495,19 +556,30 @@ plt <- comp %>%
                                  option = "magma",
                                  end = .9) +
   scale_x_log10() +
-  scale_y_log10()
+  scale_y_log10() +
+  labs(title = "Total Base Compensation to Highest Paid Employees\nby Beginning of Year Balance",
+       subtitle  = "Both Axes on Log Scale"
+      x = "Beginning of Year Balance",
+      y = "Total Compensation")
+
+
+ggplotly(plt, height = 500, width = 850) %>%
+  layout(margin = m)
+
+
 ```
 
 
+## Ranking of Beginning of Year Balance Compared to Ranking of C-Suite Compensation
 
-```{r}
+```{r, out.width="80%"}
 
 plot_ranks("BeginningYearBalanceAmt",
            "total_compensation", data = comp )
 
 ```
 
-
+<br>
 
 # Top Employees Compensation Compared to Total Compensation
 
@@ -555,6 +627,7 @@ plt <- emp_comp %>%
 ggplotly(plt, margin = m, height = 500, width =850)
 
  plt <- emp_comp %>%
+   filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
   ggplot(aes(y=CYSalariesCompEmpBnftPaidAmt/TotalEmployeeCnt, 
              x = compensation_top_base/num_top_employees,
              label=fiscal_year,
@@ -573,14 +646,141 @@ ggplotly(plt, margin = m, height = 500, width =850)
             axis.title = element_text(size = 13, 
                                       face = "bold")) +
    scale_y_continuous(labels =comma) +
-   labs(y = "Average Employee Pay",
-        x = "Average C-Suite Pay",
-        title = "Average C-Suite Pay versus Average Employee Pay") +
+   labs(y = "Average Employee Compensation",
+        x = "Average C-Suite Compensation",
+        title = "Average C-Suite Pay versus Overall Average Employee Compensation") +
    facet_wrap(~fiscal_year)
  
  ggplotly(plt, margin = m,height = 500, width =850 )
+ 
+ 
+ 
+ 
+ 
+ 
+ plt <- emp_comp %>%
+   mutate(num_not_top = TotalEmployeeCnt - num_top_employees,
+          compensation_not_top = CYSalariesCompEmpBnftPaidAmt - compensation_top_total,
+          avg_not_top = compensation_not_top/num_not_top ,
+          avg_top = compensation_top_total / num_top_employees) %>%
+   filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
+   # something strange with Aspen Santa Fe 
+   filter(avg_not_top > 0) %>% 
+  ggplot(aes(y=avg_not_top, 
+             x =avg_top,
+             label=fiscal_year,
+             color =organization_name,
+             group = EIN)) +
+  geom_point() +
+   theme_bw() + 
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+    theme(plot.title = element_text(size = 12, 
+                                      hjust = .5, face="bold",
+                                      margin = margin(5,5,5,5)),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 14),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"),
+          axis.text.x = element_text(angle = 20, vjust = .6)) +
+   scale_y_continuous(labels =comma) +
+   labs(y = "Average Employee Compensation",
+        x = "Average C-Suite Compensation",
+        title = "Average C-Suite Pay versus Average Employee Compensation (Not Including C-Suite)") +
+   facet_wrap(~fiscal_year) +
+   scale_x_continuous(labels = comma)
+ 
+
+marg <- list(
+    l = 50,
+    r = 50,
+    b = 250,
+    t = 250,
+    pad = 0.5
+)
+ 
+ ggplotly(plt, margin = marg, height = 500,  width =850)
+
+
 
 
 ```
+
+
+
+## Comparison to Financial Data: S&P 500
+
+
+```{r}
+
+
+sp <- read_csv(here('data','SP500.csv')) %>%
+  rename_with(tolower) %>%
+  mutate(sp500 = as.numeric(sp500)) %>%
+  filter(!is.na(sp500)) %>%
+  mutate(month = month(date),
+         year = year(date)) %>%
+  group_by(month,year) %>%
+  arrange(month) %>%
+ slice_min(n=1,order_by = date) %>%
+  ungroup()
+
+
+sp <- read_csv(here('data','SP500.csv')) %>%
+  rename_with(tolower) %>%
+  mutate(sp500 = as.numeric(sp500)) %>%
+  filter(!is.na(sp500)) %>%
+  mutate(month = month(date),
+         year = year(date)) %>%
+  group_by(month,year) %>%
+  summarize(sp500 = mean(sp500, na.rm=TRUE))
+
+endowment_sp <- endowment_data %>%
+  mutate(month = month(TaxPeriodEndDt),
+         year= year(TaxPeriodEndDt)) %>%
+  left_join(sp) 
+
+plt <- endowment_sp %>%
+  filter(variable_name %in% c("BeginningYearBalanceAmt")) %>%
+  group_by(EIN) %>%
+  mutate(m = median(value, na.rm= TRUE)) %>%
+  ungroup() %>%
+#  group_by(EIN) %>%
+  mutate(tile = ntile(m,2),
+         tilename = ifelse(tile == 1,
+                           "EINs Below the Median",
+                           "EINs Above the Median"))%>%
+  # only EINS where all observations are NA will be dropped
+  filter(!is.na(tilename)) %>%
+  mutate(date = as_date(paste0(month, "-", year), format = "%m-%Y")) %>%
+  mutate(normalized = value/sp500,
+         not = value) %>%
+  select(date, normalized, not,variable_name, organization_name, tilename) %>%
+  pivot_longer(c(normalized,not)) %>%
+  ggplot(aes(x=date, y = value, color = organization_name)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~tilename+name, scales="free", ncol = 2)+
+  labs(title = "Normalizing by S&P 500") +
+   theme_bw() + 
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) +
+    theme(plot.title = element_text(size = 14, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 14),
+            axis.title = element_text(size = 13, 
+                                      face = "bold"),
+          strip.text = element_text(margin = margin(10,5,5,5,"pt")))
+
+ggplotly(plt, margin = m, height = 500, width = 850)
+
+```
+
+
 
 
