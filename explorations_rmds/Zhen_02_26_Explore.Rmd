@@ -14,6 +14,7 @@ knit: (function(input, ...) {
 ```{r library}
 library(dplyr)
 library(readr)
+library(wesanderson)
 library(purrr)
 library(xml2)
 library(tidyverse)
@@ -54,18 +55,25 @@ buildings <- map_df(files, ~get_df(filename = .x ,
                               schedule = 'd')) %>%
   filter_ein() %>% 
   select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp,fiscal_year)
+
+
+
 ```
 
 
 ```{r}
-companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/companies.csv")
+companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/companies.csv") %>%
+  mutate(EIN = as.character(ein))
 
 #load in regional information
 # add state information to buildings dataframe
 ein_to_state <- readRDS(here("./data/ein_to_state.RDS")) 
 
 test_state<-buildings %>% 
-  left_join(y = ein_to_state, by = "EIN")
+  left_join(y = ein_to_state, by = "EIN") %>% 
+  mutate(
+    TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt)
+  )
 
 test_state <- unique(test_state) %>% 
   mutate(name = tolower(name))
@@ -123,7 +131,7 @@ bookvalues<-bookvalues %>%
   mutate(quantile = ntile(BookValueSum, 10),
          EIN = as.character(EIN)) %>% 
   arrange(desc(EIN)) %>% 
-  left_join(y = companies %>% rename(EIN = ein) %>% mutate(EIN = as.character(EIN)) , by = "EIN") %>% 
+  left_join(y = companies, by = "EIN") %>% 
   left_join(y = ein_to_state, by = "EIN")
 
 bookvalues<- unique(bookvalues)
@@ -133,25 +141,26 @@ saveRDS(bookvalues,here('data','bookvalues.RDS'))
 
 ```{r divide bookvalues into high medium and low}
 #dataframe with higher Book Values
-high <- buildings %>% 
+high <- bookvalues %>% 
+  filter(year == 2020) %>% 
   filter(quantile >= 8) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+  select(EIN, BookValueSum, year, quantile, organization_name.x)
 
-medium <- buildings %>% 
+medium <- bookvalues %>% 
   filter(year == 2020) %>% 
   filter(quantile > 3 & quantile < 7) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+   select(EIN, BookValueSum, year, quantile, organization_name.x)
   
-low <- buildings %>% 
+low <- bookvalues %>% 
   filter(year == 2020) %>% 
   filter(quantile <= 3) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+   select(EIN, BookValueSum, year, quantile, organization_name.x)
 ```
  
 
@@ -177,7 +186,7 @@ ggplotly(total)
 ```{r}
 # separate EIN with medium and low building book value according to previous graph
 # high
-high_graph<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(name))) +
+  high<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line() +
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -190,14 +199,13 @@ high_graph<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(name)
        title = "Schedule D Sum of Buildings Book Value Change (High)",
        subtitle = "By Fiscal Year")
 
-ggplotly(high_graph)
+ggplotly(high)
 ```
 
 
 ```{r}
 # medium
-options(scipen = 999)
-medium <- ggplot(medium, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+medium <- ggplot(medium, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -216,7 +224,7 @@ ggplotly(medium)
 
 ```{r}
 # low
-  ggplot(low, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  ggplot(low, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -257,7 +265,7 @@ EIN_appearl_less_than_3
 changes <- bookvalues %>% 
   group_by(EIN) %>% 
   mutate(change = (BookValueSum - lag(BookValueSum)) / lag(BookValueSum) * 100) %>%
-  select(EIN, BusinessName, year, BookValueSum, change) %>% 
+  select(EIN, organization_name.x, year, BookValueSum, change) %>% 
   mutate(change_abs = abs(change)) 
 
 #Making an infinite value NA
@@ -267,7 +275,7 @@ changes[145, ]$change = NA
 
 ```{r}
 # line graph of all percentage change from 2015-2022
-all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color =  as.factor(BusinessName))) +
+all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color =  as.factor(organization_name.x))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
   theme_bw() +
@@ -291,7 +299,7 @@ ggplotly(all_changes_pct)
 # filter out EIN with normal depreciation change
 filtered_changes <- changes %>% 
   filter(change_abs > 10) %>% 
-  ggplot(aes(x = year, y = change, color = as.factor(BusinessName))) +
+  ggplot(aes(x = year, y = change, color = as.factor(organization_name.x))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
   theme_bw() +
@@ -334,7 +342,7 @@ summary(changes$change)
 #ranking of all change in book values
 ranking<-changes %>%
   arrange(desc(change_abs)) %>% 
-  select(EIN, BusinessName, year, change, BookValueSum) %>% 
+  select(EIN, organization_name.x, year, change, BookValueSum) %>% 
   kbl(caption = "Ranking of Change in Book Value Per Year  (%)") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
@@ -400,7 +408,7 @@ test_state <- test_state %>%
 
 ```{r}
 state_bookvalues <- ggplot(test_state, aes(x = factor(fiscal_year, level = c('2014','2015','2016','2017','2018','2019','2020','2021','2022')), y = as.numeric(test_state$TotalBookValueLandBuildingsAmt), color=as.factor(state)))+
-  geom_point()+
+  geom_line(aes(group=1))+
   theme_bw() +
   theme(legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7))+
@@ -421,39 +429,49 @@ ggplotly(state_bookvalues)
 ```{r}
 summary_state <- test_state %>% 
   group_by(state, fiscal_year, name) %>% 
-  summarize(
+  summarise(
     max = max(TotalBookValueLandBuildingsAmt),
     min = min(TotalBookValueLandBuildingsAmt),
     mean = mean(TotalBookValueLandBuildingsAmt),
     median = median(TotalBookValueLandBuildingsAmt),
     Number = n()
   )
+
 ggplotly(
   summary_state %>% 
-  ggplot(aes(x = fiscal_year, y = max, color = factor(name))) + geom_point()+ theme_bw()
+  ggplot(aes(x = fiscal_year, y = median, color = as.factor(state))) + 
+    geom_line(aes(group=1))+ 
+    theme_bw()
+)+
+  labs(
+  title = "Median of Total Book Value of Land and Building each state"
 )
+```
+```{r}
+test_state %>% 
+  group_by(state,fiscal_year) %>% 
+  summarise(
+    max = max(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    min = min(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    mean = mean(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    median = median(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+  )
 ```
 
 
 ```{r}
 ggplotly(
   test_state %>% group_by(state, fiscal_year) %>% 
-  summarize(
-    max = max(TotalBookValueLandBuildingsAmt),
-    min = min(TotalBookValueLandBuildingsAmt),
-    mean = mean(TotalBookValueLandBuildingsAmt),
-    median = median(TotalBookValueLandBuildingsAmt),
+  summarise(
+    max = max(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    min = min(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    mean = mean(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    median = median(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
     Number = n()
   ) %>% 
   ggplot(aes(x = fiscal_year, y = max, color = factor(state))) + geom_point() + theme_bw()
 )
 ```
 
-```{r}
-# companies whose business state is different from books state
-diff_state<-test_state %>% 
- filter(business_state_cd != books_state_cd)
-diff_state %>% 
-  select(EIN, fiscal_year, name, business_state_cd, books_state_cd, state)
-```
+
 
