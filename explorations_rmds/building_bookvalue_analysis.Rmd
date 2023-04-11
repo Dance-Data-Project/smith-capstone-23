@@ -324,6 +324,7 @@ ggplotly(p = filtered_changes)
 ```{r}
 big_change<-changes %>% 
   filter(change_abs > 10) %>% 
+  arrange(desc(change_abs)) %>% 
   kbl(caption = "Changes larger than 10%") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
@@ -436,17 +437,20 @@ summary_state <- test_state %>%
     median = median(TotalBookValueLandBuildingsAmt),
     Number = n()
   )
-
-ggplotly(
-  summary_state %>% 
-  ggplot(aes(x = fiscal_year, y = median, color = as.factor(state))) + 
-    geom_line(aes(group=1))+ 
-    theme_bw()
-)+
-  labs(
-  title = "Median of Total Book Value of Land and Building each state"
-)
 ```
+
+
+```{r}
+#ggplotly(
+#  summary_state %>% 
+#  ggplot(aes(x = as.factor(fiscal_year), y = as.numeric(median), color = as.factor(state))) + 
+#    geom_line(aes(group=1)) + 
+#    theme_bw()) +
+#  labs(
+#  title = "Median of Total Book Value of Land and Building each state"
+#)
+```
+
 ```{r}
 test_state %>% 
   group_by(state,fiscal_year) %>% 
