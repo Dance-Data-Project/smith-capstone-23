@@ -23,7 +23,7 @@ In order to use the `get_df` and `filter_ein` functions in `GET_VARS.R`, you nee
 
 ```{r}
 library(here)
-source(here("GET_VARS.R"))
+source(here::here("GET_VARS.R"))
 ```
 
 This will load the functions into your environment.  
@@ -48,7 +48,7 @@ The `get_df` parameter `filename` should always be `.x`.  It just means "For a g
 
 ```{r}
 ##Example with names
-files <- dir(here("ballet_990_released_20230208"),
+files <- dir(here::here("data","ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
@@ -67,8 +67,8 @@ Overall, you can copy and paste this chunk, specify the variables you want, and 
 ```{r}
 ##Example with names  
 library(here)
-source(here("GET_VARS.R"))
-files <- dir(here("ballet_990_released_20230208"),
+source(here::here("GET_VARS.R"))
+files <- dir(here::here("ballet_990_released_20230208"),
               full.names = TRUE)
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",

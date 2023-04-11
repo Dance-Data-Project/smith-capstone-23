@@ -140,7 +140,7 @@ get_df <- function(variables = c(),
 # dataset: the datafile of 990s, assumes has ReturnTs, EIN, and filename
 # Assumse you've ran code in load_wrangle_filter to have ein_ts_filter
 filter_ein <- function(dataset) {
-  filter_vars <- readRDS(here("data", "ein_ts_filter.RDS"))
+  filter_vars <- readRDS(here::here("data", "ein_ts_filter.RDS"))
   filter_vars %>% 
     left_join(dataset, by = c("ReturnTs", "EIN", "filename")) %>%
     return()
@@ -242,7 +242,7 @@ get_all_children <- function(xml_file, xpath, quiet = TRUE) {
 # TESTING get_df
 #########################
 
-files <- dir(here("ballet_990_released_20230208"),
+files <- dir(here::here("ballet_990_released_20230208"),
              full.names=TRUE)
 
 # test that warning is provided if user tries to extract endowment variables with get_df

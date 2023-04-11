@@ -38,8 +38,6 @@ make_graph <- function(df){
         strip.text = element_text(face="bold",size = 5))
   return(graph)
 }
-
-
 ```
 
 
@@ -47,17 +45,16 @@ make_graph <- function(df){
 
 ```{r}
 # use get_var
-files<- dir(here("ballet_990_released_20230208"),
+files<- dir("Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/ballet_990_released_20230208",
               full.names = TRUE)  
+
 source(here::here("GET_VARS.R"))
 
-buildings <- map_df(files, ~get_df(filename = .x , 
-                              schedule = 'd')) %>%
+buildings <- map_df(files,
+                    ~get_df(filename = .x , 
+                     schedule = 'd')) %>%
   filter_ein() %>% 
   select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp,fiscal_year)
-
-
-
 ```
 
 
@@ -67,7 +64,7 @@ companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone
 
 #load in regional information
 # add state information to buildings dataframe
-ein_to_state <- readRDS(here("./data/ein_to_state.RDS")) 
+ein_to_state <- readRDS(here::here("./data/ein_to_state.RDS")) 
 
 test_state<-buildings %>% 
   left_join(y = ein_to_state, by = "EIN") %>% 
@@ -135,7 +132,7 @@ bookvalues<-bookvalues %>%
   left_join(y = ein_to_state, by = "EIN")
 
 bookvalues<- unique(bookvalues)
-saveRDS(bookvalues,here('data','bookvalues.RDS'))
+saveRDS(bookvalues,here::here('data','bookvalues.RDS'))
 ```
 
 
