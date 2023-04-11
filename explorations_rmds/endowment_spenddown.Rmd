@@ -563,11 +563,11 @@ most_recent_ds <- inv_consist_ds %>%
 ## Consistent  
 most_recent_ds %>%
   filter(consistent == TRUE) %>%
-  filter(!is.na(TotalEmployeeCnt)) %>%
   select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
   make_table("Size of Consistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year")) %>%
   scroll_box(height = "450px")
 ```
+
 
 ```{r}
 ## Inconsistent  
@@ -577,6 +577,65 @@ most_recent_ds %>%
   select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
   make_table("Size of Inconsistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year")) %>%
   scroll_box(height = "450px")
+```
+
+```{r}
+
+## Labels for facet 
+consistent_labels <- c(
+  `TRUE` = "Consistent",
+  `FALSE` = "Inconsistent"
+)
+
+##Histograms
+most_recent_ds %>%
+  ggplot(aes(x = TotalEmployeeCnt)) +
+  geom_histogram(binwidth = 60, color = "black", fill = "gray") +
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by Employee Total")
+
+most_recent_ds %>%
+  ggplot(aes(x = EndYearBalanceAmt)) +
+  geom_histogram(color = "black", fill = "gray") + 
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by End Year Balance Amount")
+
+most_recent_ds %>%
+  filter(EndYearBalanceAmt < 20000000) %>%
+  ggplot(aes(x = EndYearBalanceAmt)) +
+  geom_histogram(color = "black", fill = "gray") + 
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by End Year Balance Amount, Limit $20,000,000")
 ```
 
 # Percent Change Within the Pandemic   
