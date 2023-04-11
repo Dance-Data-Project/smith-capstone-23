@@ -1,0 +1,729 @@
+---
+title: "Endowment Percent Change"
+author: "Rose Evard"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::html_clean:
+    df_print: paged
+    code_folding: hide
+    css: !expr here::here('css', 'template.css')
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "output_html")})
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(plotly)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(..., title = "", col_names = c("")) {
+  title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(...) %>%
+    kbl(caption = title,
+        col.names = col_names) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+```{r}
+## Loading in data
+endowment_data <- read_rds(here("data", "endowments_by_most_recent_filings.RDS"))
+names <- read_csv(here("data", "companies.csv")) %>% 
+  ## Dealing with EINs reading in without zero in front
+  mutate(EIN = as.character(ein),
+         EIN = case_when(
+           nchar(EIN) == 8 ~ paste("0", EIN, sep =""),
+           TRUE ~ EIN
+  )) %>% 
+  select(-ein)
+```
+
+# Calculating Percent Change
+
+## Including Investments
+
+**(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
+
+> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
+> If BYB is larger, negative result. Meaning a DECREASE in total funds.  
+> If result is above 100, the fund was at least DOUBLED.  
+ 
+```{r, eval = TRUE}
+#### USE THIS
+## (EYB - BYB)/BYB * 100
+## Rose has notes on her choice for this calculation
+pct_change_ds <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  mutate(change = EndYearBalanceAmt - BeginningYearBalanceAmt,
+         pct_change = change/BeginningYearBalanceAmt * 100) %>%
+  arrange(desc(pct_change)) %>%
+  left_join(names, by = "EIN")
+
+```
+
+## REMOVING Investments  
+
+**(End Year Balance - Investment Earnings or Losses Amount - Beginning Year Balance) / Beginning Year Balance * 100**
+
+> Positive result: INCREASE in total funds.  
+> Negative result: DECREASE in total funds.  
+> If result is above 100, the fund was at least DOUBLED.  
+
+```{r, eval = TRUE}
+#### USE THIS
+## (EYB - INV - BYB)/BYB * 100
+## Rose has notes on her choice for this calculation
+pct_change_inv_ds <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  mutate(InvestmentEarningsOrLossesAmt = ifelse(is.na(InvestmentEarningsOrLossesAmt), 0, InvestmentEarningsOrLossesAmt)) %>%
+  mutate(change = EndYearBalanceAmt - InvestmentEarningsOrLossesAmt - BeginningYearBalanceAmt,
+         pct_change = change/BeginningYearBalanceAmt * 100) %>%
+  arrange(desc(pct_change)) %>%
+  left_join(names, by = "EIN")
+```
+
+
+# Summarizing Information  
+
+## With investments  
+```{r}
+# Basic summary stats
+pct_change_ds %>%   
+  filter(!is.na(pct_change) & pct_change != Inf) %>%
+  summarize(avg_pct_change = mean(pct_change),
+            median_pct_change = median(pct_change),
+            sd_pct_change = sd(pct_change))
+
+pct_change_ds %>%   
+  filter(!is.na(pct_change) & pct_change != Inf) %>%
+  group_by(EIN) %>%
+  summarize(avg_pct_change = mean(pct_change),
+            median_pct_change = median(pct_change),
+            sd_pct_change = sd(pct_change))
+
+# Basic histogram summarizing it
+ggplot(pct_change_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 20) + 
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  ggtitle(label = "Percentage of Change in Endowment Balance", subtitle = "Red Line indicates 100%") +
+  theme_classic() + 
+  geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
+
+## Histogram with cutoff of 200%
+ggplot(pct_change_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 5) + 
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  xlim(-100, 200) + 
+  ggtitle(label = "Percentage of Change in Endowment Balance") +
+  theme_classic()
+
+pct_change_ds %>%
+  filter(pct_change != Inf) %>%
+  select(organization_name, fiscal_year, pct_change) %>%
+  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Change")) %>%
+  scroll_box(height = "450px")
+
+pct_change_ds %>%
+  filter(pct_change != Inf) %>%
+  select(organization_name, fiscal_year, pct_change) %>%
+  group_by(fiscal_year) %>%
+  summarize(total = n(),
+            avg = mean(pct_change),
+            med = median(pct_change),
+            sd = sd(pct_change)) %>%
+  make_table(title = "Percentage of Change in Endowment Balance By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Change", "Median % Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+
+## REMOVING investments   
+```{r}
+# Basic summary stats
+pct_change_inv_ds %>%   
+  filter(!is.na(pct_change) & pct_change != Inf) %>%
+  summarize(avg_pct_change = mean(pct_change),
+            median_pct_change = median(pct_change),
+            sd_pct_change = sd(pct_change))
+
+pct_change_inv_ds %>%   
+  filter(!is.na(pct_change) & pct_change != Inf) %>%
+  group_by(EIN) %>%
+  summarize(avg_pct_change = mean(pct_change),
+            median_pct_change = median(pct_change),
+            sd_pct_change = sd(pct_change))
+
+# Basic histogram summarizing it
+ggplot(pct_change_inv_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 20) + 
+  xlab("% Change\n(EYB - INV - BYB) / BYB * 100") + 
+  ggtitle(label = "Percentage of Change in Endowment Balance", subtitle = "Red Line indicates 100%") +
+  theme_classic() + 
+  geom_vline(xintercept = 100, color = "maroon", linetype = "dotted")
+
+## Histogram with cutoff of 200%
+ggplot(pct_change_inv_ds, aes(x = pct_change)) +
+  geom_histogram(binwidth = 5) + 
+  xlab("% Change\n(EYB - BYB) / BYB * 100") + 
+  xlim(-100, 200) + 
+  ggtitle(label = "Percentage of Change in Endowment Balance") +
+  theme_classic()
+
+pct_change_inv_ds %>%
+  filter(pct_change != Inf) %>%
+  select(organization_name, fiscal_year, pct_change) %>%
+  make_table(title = "Percentage of Change in Endowment Balance", col_names = c("Name", "Fiscal Year", "% Change")) %>%
+  scroll_box(height = "450px")
+
+pct_change_inv_ds %>%
+  filter(pct_change != Inf) %>%
+  select(organization_name, fiscal_year, pct_change) %>%
+  group_by(fiscal_year) %>%
+  summarize(total = n(),
+            avg = mean(pct_change),
+            med = median(pct_change),
+            sd = sd(pct_change)) %>%
+  make_table(title = "Percentage of Change in Endowment Balance By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Change", "Median % Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+
+# Range of Endowment Percent Change  
+
+## WITH investments  
+```{r}
+## Ranges of different percent change  
+# Reordering by standard deviation of pct_spend down
+pct_change_ds_box <- pct_change_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf) %>%
+  summarize(sd = sd(pct_change, na.rm = TRUE)) %>%
+  right_join(pct_change_ds, by = "organization_name") %>%
+  select(organization_name, EIN, pct_change, sd) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
+
+## Unlimited 
+box_plot <- ggplot(pct_change_ds_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Percent Change per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot) %>%
+  layout(showlegend = FALSE)
+
+##Limited to 100 for visibility 
+box_plot_lim <- ggplot(pct_change_ds_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment % Change (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+ggplotly(box_plot_lim)  %>%
+  layout(showlegend = FALSE)
+
+
+```
+
+## WITHOUT investments  
+```{r}
+## Ranges of different percent change  
+# reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_change)))), na.rm = TRUE)
+# Reordering by standard deviation of pct_spend down
+pct_change_inv_box <- pct_change_inv_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf) %>%
+  summarize(sd = sd(pct_change, na.rm = TRUE)) %>%
+  right_join(pct_change_ds, by = "organization_name") %>%
+  select(organization_name, EIN, pct_change, sd) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
+
+## Unlimited 
+box_plot_inv <- ggplot(pct_change_inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Percent Change per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot_inv) %>%
+  layout(showlegend = FALSE)
+
+##Limited to 100 for visibility 
+box_plot_inv_lim <- ggplot(pct_change_inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment % Change (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+ggplotly(box_plot_inv_lim)  %>%
+  layout(showlegend = FALSE)
+
+
+```
+
+
+# Percent Change over Time   
+## WITH investments  
+
+```{r}
+## Retrieving median values  
+pct_change_med <- pct_change_ds %>%
+  group_by(fiscal_year) %>%
+  summarize(median = median(pct_change, na.rm = TRUE)) %>%
+  mutate(organization_name = "Median")
+```
+
+```{r}  
+## Spend Down over Time
+pct_change_plot <- pct_change_ds %>%
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray") +
+  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+ggplotly(pct_change_plot) 
+```
+
+```{r}
+##Plot with Y scale between -100 and 100 
+limited_scale <- pct_change_ds %>%
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+ggplotly(limited_scale)
+```
+
+## WITHOUT investments   
+
+```{r}
+## Retrieving median values  
+pct_change_inv_med <- pct_change_inv_ds %>%
+  group_by(fiscal_year) %>%
+  summarize(median = median(pct_change, na.rm = TRUE)) %>%
+  mutate(organization_name = "Median")
+```
+
+
+```{r}  
+## Spend Down over Time
+pct_change_inv_plot <- pct_change_inv_ds %>%
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+ggplotly(pct_change_inv_plot) 
+```
+
+```{r}
+##Plot with Y scale between -100 and 100 
+limited_scale_inv <- pct_change_inv_ds %>%
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5)
+ggplotly(limited_scale_inv)
+```
+
+# Breaking Companies up by Behavior   
+Using only the dataset normalized for investments, as that has more consistency.  
+
+```{r}
+# Adding var for "Consistency"  
+
+## Between mean +/- SD
+#inv_consist <- pct_change_inv_ds %>%
+ # group_by(organization_name) %>%
+  #filter(pct_change != Inf & pct_change != -Inf) %>%
+#  summarize(mean = mean(pct_change), 
+ #           sd = sd(pct_change)) %>%
+ # mutate(consistent = ifelse(between(mean + sd, -7, 7) | between(mean - sd, -7, 7), TRUE, FALSE))
+
+## Checking if any value is outside of -7:7, can do with min/max
+inv_consist <- pct_change_inv_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf & pct_change != -Inf) %>%
+  summarize(min = min(pct_change), 
+            max = max(pct_change),
+            sd = sd(pct_change)) %>%
+  mutate(consistent = ifelse(between(min + sd, -7, 7) & between(max - sd, -7, 7), TRUE, FALSE),
+         #Manual inspection showed BQC should be marked as consistent but just didnt quite make it math-wise
+         consistent = ifelse(organization_name == "Ballet Quad Cities", TRUE, consistent))
+
+## Adding consistency 
+inv_consist_ds <- inv_consist %>% 
+  select(organization_name, consistent) %>% 
+  right_join(pct_change_inv_ds, by = "organization_name") %>%
+  filter(pct_change != Inf & pct_change != -Inf)
+
+```
+
+```{r}
+##plottinng
+test <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = consistent)) +
+  geom_line(show.legend = TRUE, alpha = 0.3) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))  +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5) + 
+  geom_hline(yintercept = 7, alpha = .5, linetype = "dotted") + 
+  geom_hline(yintercept = -7, alpha = .5, linetype = "dotted") 
+
+test
+ggplotly(test)
+
+inv_box <- inv_consist_ds %>%
+  group_by(organization_name) %>%
+  filter(pct_change != Inf) %>%
+  summarize(sd = sd(pct_change, na.rm = TRUE)) %>%
+  right_join(inv_consist_ds, by = "organization_name") %>%
+  select(organization_name, EIN, pct_change, sd, consistent) %>%
+  mutate(organization_name = reorder(organization_name, -sd, na.rm = TRUE))
+
+## Unlimited 
+box_plot <- ggplot(inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = consistent), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.5) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment Percent Change per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+ggplotly(box_plot) %>%
+  layout(showlegend = FALSE)
+
+##Limited to 100 for visibility 
+ggplot(inv_box, aes(x = organization_name, y = pct_change)) + 
+  geom_boxplot(aes(color = consistent), show.legend = FALSE) + 
+  geom_point(size = 1, alpha = 0.2) + 
+  theme_bw() + 
+  labs(title = "Range of Endowment % Change (Max of 100) per Company",
+       x = "Dance Company",
+       y = "Percentage of Change in Endowment Balance") + 
+  theme(axis.text.x = element_blank()) + 
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
+                     limit = c(-100,100))
+```
+
+## Examining the Two Classes
+
+### Lists of Companies within Each Class
+```{r}
+## Names in a table  
+# CONSISTENT ones  
+inv_consist %>% 
+  filter(consistent == TRUE) %>%
+  select(-consistent) %>%
+  make_table(title = "Companies with Consistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+ 
+There are `r inv_consist %>% filter(consistent == TRUE) %>% nrow()` companies which have 'consistent' endowment percent change. 
+
+
+```{r}
+## Names in a table  
+# INCONSISTENT ones  
+inv_consist %>% 
+  filter(consistent == FALSE) %>%
+  select(-consistent) %>%
+  make_table(title = "Companies with Inconsistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  scroll_box(height = "450px")
+```
+
+There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change. 
+
+### Size of Companies in Each Class   
+
+```{r}
+##Getting employee data
+source(here("GET_VARS.R"))
+##Specifically reading in employee data
+files <- dir( here("ballet_990_released_20230208"),
+              full.names = TRUE)
+employ_data <- map_df(files, ~
+                    get_df(variables =  c("//Return//ReturnData//TotalEmployeeCnt"),
+                           filename = .x
+                           )) %>%
+    mutate(TotalEmployeeCnt = as.numeric(TotalEmployeeCnt)) %>%
+  left_join(names, by = "EIN")
+```
+
+```{r}
+## Most recent years for each company
+employ_data$fiscal_year = as.numeric(as.character(employ_data$fiscal_year))
+most_recent_yrs <- employ_data %>%
+  group_by(organization_name) %>%
+  summarize(recent_year = max(fiscal_year, na.rm = TRUE)) %>%
+  left_join(employ_data, by = c("organization_name", "recent_year" = "fiscal_year"))
+
+## Limiting to ONLY most recent year 
+most_recent_ds <- inv_consist_ds %>%
+  left_join(most_recent_yrs, by = "organization_name") %>%
+  filter(fiscal_year == recent_year)
+```
+
+```{r}
+## Consistent  
+most_recent_ds %>%
+  filter(consistent == TRUE) %>%
+  select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
+  make_table("Size of Consistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year")) %>%
+  scroll_box(height = "450px")
+```
+
+
+```{r}
+## Inconsistent  
+most_recent_ds %>%
+  filter(consistent == FALSE) %>%
+  filter(!is.na(TotalEmployeeCnt)) %>%
+  select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
+  make_table("Size of Inconsistent Companies, by Employees and Endowment", col_names = c("Organization Name", "Total Employee Count", "End Year Balance Amount", "Fiscal Year")) %>%
+  scroll_box(height = "450px")
+```
+
+```{r}
+
+## Labels for facet 
+consistent_labels <- c(
+  `TRUE` = "Consistent",
+  `FALSE` = "Inconsistent"
+)
+
+##Histograms
+most_recent_ds %>%
+  ggplot(aes(x = TotalEmployeeCnt)) +
+  geom_histogram(binwidth = 60, color = "black", fill = "gray") +
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by Employee Total")
+
+most_recent_ds %>%
+  ggplot(aes(x = EndYearBalanceAmt)) +
+  geom_histogram(color = "black", fill = "gray") + 
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by End Year Balance Amount")
+
+most_recent_ds %>%
+  filter(EndYearBalanceAmt < 20000000) %>%
+  ggplot(aes(x = EndYearBalanceAmt)) +
+  geom_histogram(color = "black", fill = "gray") + 
+  facet_wrap(~consistent, labeller = as_labeller(consistent_labels)) + 
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 90),
+        strip.text = element_text(face="bold",size = 10),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  labs( title = "Size of Companies by End Year Balance Amount, Limit $20,000,000")
+```
+
+# Percent Change Within the Pandemic   
+## WITH investments 
+```{r}  
+## Pandemic Years
+pct_change_plot <- pct_change_ds %>%
+  filter(fiscal_year %in% c("2018", "2019", "2020", "2021", "2022")) %>% 
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "Within Pandemic Years") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+ggplotly(pct_change_plot) 
+```
+
+```{r}
+## Table of available in-pandemic data 
+pct_change_ds %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_change, fiscal_year) %>%
+  arrange(desc(fiscal_year)) %>%
+  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Change", "Year")) %>%
+  scroll_box(height = "450px")
+```
+
+```{r}
+pct_change_ds %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_change, fiscal_year) %>%
+  group_by(fiscal_year) %>%
+  summarize(total_in_year = n())
+```
+
+## WITHOUT investments 
+```{r}  
+## Pandemic Years
+pct_change_plot_inv <- pct_change_inv_ds %>%
+  filter(fiscal_year %in% c("2018", "2019", "2020", "2021", "2022")) %>% 
+  ggplot(aes(x = fiscal_year, y = pct_change, 
+             group = organization_name, color = organization_name)) +
+  geom_line(show.legend = FALSE, alpha = 0.5) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "Within Pandemic Years") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20)) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray")
+ggplotly(pct_change_plot_inv) 
+```
+
+```{r}
+## Table of available in-pandemic data 
+pct_change_inv_ds %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_change, fiscal_year) %>%
+  arrange(desc(fiscal_year)) %>%
+  make_table(title = "Percentage of Change in Endowment Balance within Pandemic Years", col_names = c("Name", "% Change", "Year")) %>%
+  scroll_box(height = "450px")
+```
+
+```{r}
+pct_change_inv_ds %>%
+  filter(fiscal_year %in% c("2019", "2020", "2021", "2022")) %>%
+  select(organization_name, pct_change, fiscal_year) %>%
+  group_by(fiscal_year) %>%
+  summarize(total_in_year = n())
+```
+
