@@ -13,14 +13,6 @@ knit: (function(input, ...) {
       output_dir = "./output_html")})
 ---
 
-```{css, echo = FALSE}
-/* expand content to screenwidth rather than cutting it off */
-#content{
-max-width:2300px;
-}
-
-```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
 library(tidyverse)
@@ -28,14 +20,18 @@ library(kableExtra)
 library(scales)
 library(plotly)
 library(here)
+library(glue)
+
+all_plots <- FALSE
+
 ```
 
 
-```{r read data}
+```{r read data, eval=FALSE}
 
 # starting by only exploring the CY* variables
-endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS")) %>%
-  select(EIN, fiscal_year, contains("CY"))
+endowment_data <- read_rds(here("data", 
+                                "endowments_by_most_recent_filings.RDS")) 
 
 companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
   mutate(EIN = as.character(ein)) %>%
@@ -44,7 +40,12 @@ companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
 ```
 
 
-```{r}
+```{r, eval=FALSE}
+
+endowment_data <- read_rds(here("data", 
+                                "endowment_filter_data_990.RDS")) %>%
+  select(EIN, fiscal_year, contains("CY"))
+
 
 # only include EINs that have at least one observation of 
 # one of the endowment variables
@@ -91,6 +92,24 @@ endowment_data <- endowment_data %>%
   
 
 ```
+
+```{r}
+
+companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
+  mutate(EIN = as.character(ein)) %>%
+  select(EIN, organization_name)
+
+
+endowment_data <- read_rds(here("data", 
+                                "endowments_by_most_recent_filings.RDS")) %>%
+  select(-c(EndowmentsHeldUnrelatedOrgInd, EndowmentsHeldRelatedOrgInd)) %>%
+  pivot_longer(-c(EIN, fiscal_year),
+               names_to = "variable_name") %>%
+  left_join(companies_to_ein)
+
+```
+
+
 
 ```{r, include= FALSE, eval =FALSE}
   
@@ -257,7 +276,7 @@ htmltools::tagList(setNames(plotlist, NULL))
 
 # Plot Variables Against Each Other
 
-```{r, eval= FALSE, include = FALSE}
+```{r, eval= FALSE, include = TRUE}
 
 
 # function development 
@@ -265,6 +284,13 @@ htmltools::tagList(setNames(plotlist, NULL))
 endowment_data_wide <- endowment_data %>% 
   pivot_wider(names_from=variable_name,
               values_from=value) 
+
+```
+
+```{r, eval=FALSE,include=FALSE}
+
+
+# function development 
 
 endowment_data %>% 
   pivot_wider(names_from=variable_name,
@@ -308,6 +334,10 @@ endowment_data %>%
 ```
 
 ```{r}
+
+endowment_data_wide <- endowment_data %>% 
+  pivot_wider(names_from=variable_name,
+              values_from=value) 
 
 # function to plot variables of interest against each other
 plot_combo <- function(var1, var2, data) {
@@ -359,14 +389,10 @@ plot_combo <- function(var1, var2, data) {
 
 ```
 
-```{r, fig.width = 10, fig.height = 6}
+```{r, fig.show='hold', out.width = '50%'}
 
 
-endowment_data_wide <- endowment_data %>% 
-  pivot_wider(names_from=variable_name,
-              values_from=value) 
-
-
+# all pairwise combinations of variables
 variable_combinations <- t(combn(unique(endowment_data$variable_name), 2)) %>%
   as.data.frame()
 
@@ -377,4 +403,3 @@ pwalk(variable_combinations, ~{
 )
 
 ```
-
