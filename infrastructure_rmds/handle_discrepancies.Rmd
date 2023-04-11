@@ -69,7 +69,8 @@ endowment <- all_sched_d %>%
 
 # endowment variables that do not have data across multiple years
 add_vars <- all_sched_d %>%
-  select(fiscal_year, EIN, contains("end")) %>%
+  # end is for endowment
+  select(fiscal_year, EIN, matches("end|EOY")) %>%
   select(fiscal_year, EIN, !matches("CY|Minus", ignore.case= FALSE))  %>%
   rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))  %>%
   mutate(across(contains("Pct"), as.numeric))
