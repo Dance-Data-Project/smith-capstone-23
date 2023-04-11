@@ -27,7 +27,7 @@ get_df <- function(variables = c(),
   # add a warning/message when user tries to extract endowment variables
   
   if(length(variables) != 0 & !quiet) {
-    if (grepl("Endwmt", variables)) {
+    if (any(grepl("Endwmt", variables))) {
       warning(paste0("If you are using endowment variables, make sure you",
                      "retrieve these from endowments_by_most_recent_filings.RDS.",
                      "Retrieving them just with this function will not account for discrepancies in filings."))
@@ -60,12 +60,14 @@ get_df <- function(variables = c(),
                    "//Return//ReturnHeader//Filer//EIN",
                    "//Return//ReturnHeader//TaxPeriodEndDt")
   
+  
   # option for extracting all variables for given schedule
   if (!is.null(schedule)) {
     variables <- get_vars_by_schedule(xml_file, schedule)
   }
   
-  variables_full <- c(standard_vars, variables)
+  # unique is just in case a standard variable is asked to be extracted 
+  variables_full <- c(standard_vars, variables) %>% unique()
   
   variables_no_path <- gsub("*.*\\/", "", variables_full)
   
@@ -96,9 +98,14 @@ get_df <- function(variables = c(),
     as_tibble() %>%
     mutate(TaxPeriodEndDt = as.Date(TaxPeriodEndDt, format = "%Y-%m-%d"),
            fiscal_year = year(TaxPeriodEndDt),
-           fiscal_year = factor(fiscal_year)) %>%
-    select(-TaxPeriodEndDt)
+           fiscal_year = factor(fiscal_year)) 
   
+  if(any(!grepl("TaxPeriodEndDt", variables))) {
+    extracted <- extracted %>%
+      select(-c(TaxPeriodEndDt))
+  } 
+    
+
   # check how many of the entries are NA
   # if all NA, prefix 'irs:' may be needed
   columns_not_na <- map_dbl(as.data.frame(extracted), ~!is.na(.x)) %>% sum()

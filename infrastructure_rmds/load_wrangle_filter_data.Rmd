@@ -23,7 +23,6 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r}
-
 library(tidyverse)
 library(xml2)
 library(kableExtra)
@@ -138,7 +137,7 @@ get_df <- function(variables,
 # path assumes zip-file is unzipped in smith-capstone-23 directory
 # generates vector of the full paths to all files in the ballet_990_released_20230208 directory
 
-files <- dir(here("ballet_990_released_20230208"),
+files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
               full.names = TRUE)
 
 # variables to extract from each xml file
@@ -182,6 +181,7 @@ saveRDS(all_data, here("data", "data_990.RDS"))
 
 
 # Filtering the metadata table 
+
 
 ```{r, filtering}
 ## Filtering for most recent version, 
@@ -353,7 +353,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir(here("ballet_990_released_20230208"),
+files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
               full.names = TRUE)
 
 endowment_data <- map_df(files, ~
@@ -392,11 +392,11 @@ saveRDS(endowment_data_filtered, here("data", "endowment_filter_data_990.RDS"))
 ```{r}
 
 read_csv(here('data', 'companies.csv')) %>%
-  mutate(EIN = as.character(ein)) %>%
-  select(organization_name, EIN, ein) %>%
+  mutate(EIN = as.character(ein),
+         EIN = ifelse(nchar(EIN) == 8, paste("0", EIN, sep=""), EIN)) %>%
+  select(organization_name, EIN) %>%
   distinct() %>%
-  write_csv(here('data', 'companies.csv'))
-
+  saveRDS(here('data', 'companies.RDS'))
 
 ```
 
