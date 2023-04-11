@@ -62,7 +62,7 @@ buildings <- map_df(files, ~get_df(filename = .x ,
 
 
 ```{r}
-companies <- read_csv("/Users/niezhen/Desktop/Spring 2023/SDS 410/smith-capstone-23/data/companies.csv") %>%
+companies <- read_csv(here("data/companies.csv")) %>%
   mutate(EIN = as.character(ein))
 
 #load in regional information
