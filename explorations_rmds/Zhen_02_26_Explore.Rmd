@@ -1,7 +1,7 @@
 ---
 title: "Building Endowment Preliminary Analysis"
-author: "Zhen"
-date: "2023-02-26"
+author: "Zhen Nie"
+date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
     df_print: paged
@@ -11,10 +11,9 @@ knit: (function(input, ...) {
       input,
       output_dir = "./output_html")})
 ---
-
-
 ```{r library}
 library(dplyr)
+library(readr)
 library(wesanderson)
 library(purrr)
 library(xml2)
@@ -26,266 +25,60 @@ library(shiny)
 library(here)
 ```
 
-```{r copied from "data_dictionary" to get the variables needed for the next chunk, eval = FALSE}
-################################################################################
-# extract variables in the IRS990ScheduleD node from the given file
-################################################################################
-# output is a dataframe with the filename and name of each variable extracted
-
-collect_sched_d_vars <- function(input_file) {
-  example_file <- xml2::read_xml(input_file)%>% xml_ns_strip()
-
-  # look at all variable names in schedule D
-  IRS990ScheduleD_vars <- example_file %>% 
-    xml_find_all("//ReturnData//IRS990ScheduleD")  %>%
-    xml_contents() %>% 
-    xml_path() 
-  
-  # look at variable names of children nodes of the schedule D nodes
-  IRS990ScheduleD_var_children <- IRS990ScheduleD_vars %>% 
-    map(~xml_find_all(example_file,
-                      xpath = gsub("/", 
-                                   "//" ,
-                                   .x, 
-                                   fixed = TRUE) ) %>%
-          xml_children() %>% 
-          xml_path()) %>%
-    unlist()
-  
-    # include both first level schedule D nodes and children nodes
-    vars <- c(IRS990ScheduleD_vars, IRS990ScheduleD_var_children)
-    
-    tibble(variables = vars,
-           filename = input_file)
+```{r}
+#functions of making graphs and tables
+make_graph <- function(df){
+  graph <- ggplot(df, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  geom_line() +
+  theme_bw() +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5))
+  return(graph)
 }
-
-# file paths in the directory
-files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
-
-# iterate over all files and extract variables present
-# output is a data frame with a file name column and variable name column
-all_vars <- map_df(files, collect_sched_d_vars)
-
-all_vars
-```
-
-## Adding Building related variables to endowment data
-
-```{r all the variables to add to the meta dataframe, eval = FALSE}
-# after seeing the final table in the data_dictionary counting each variables's occurence, I think it can be nice to add more variables to the endowment data. Liza also mentioned that we can try to trace building endowment change over time, so I think I can try to add BuidingGrp variable into the endowment_data
-
-# Find all variable names that include building information
-
-
-all_vars <- map_df(files, collect_sched_d_vars)
-
-to_add <- c()
-
-for(row in 1:nrow(all_vars)){
-  if(grepl("OtherLandBuildingsGrp", all_vars[row, ]$variables) | grepl("BuildingsGrp", all_vars[row, ]$variables)){
-    to_add <- append(to_add, all_vars[row, ]$variables)
-  }
-}
-
-to_add<-unique(to_add)
-to_add
 
 
 ```
+
+
+## Importing variables related to the endowment of building 
 
 ```{r}
-all_data_filtered<-readRDS(here("data", "endowment_filter_data_990.RDS"))
-ein_to_name <- all_data_filtered %>%
-  select(EIN, BusinessName) %>%
-  group_by(EIN) %>%
-  mutate(n_names = n_distinct(BusinessName)) %>%
-  slice_head(n=1) %>%
-  select(EIN, BusinessName)
+# use get_var
+files<- dir(here("ballet_990_released_20230208"),
+              full.names = TRUE)  
+source(here::here("GET_VARS.R"))
+
+buildings <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'd')) %>%
+  filter_ein() %>% 
+  select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp,fiscal_year)
+
+
 
 ```
 
-## Buildings Grouop Explanation
-Copied from https://www.irs.gov/pub/irs-pdf/i990sd.pdf
-
-Part VI. Land, Buildings, and Equipment
-Complete Part VI if the organization answered “Yes” on Form 990, Part IV, line 11a, and reported an amount on Form 990, Part X, line 10a. Reporting is required if any amount other than zero is reported on those lines.
-
-Column (a). Enter the cost or other basis of all land, buildings, leasehold improvements, equipment, and other fixed assets held for investment purposes, such as rental properties.
-
-Column (b). Enter the cost or other basis of all other land, buildings, leasehold improvements, equipment, and other fixed assets held for other than investment purposes, including any land, buildings, and equipment owned and
-used by the organization in conducting its exempt activities. The total amounts reported in columns (a) and (b) must equal the amount reported on Form 990, Part X, line 10a.
-
-Column (c). Enter the accumulated depreciation recorded for the assets listed in columns (a) and (b). Don't enter an
-amount in column (c) for line 1a, Land. The total of column (c) must equal the amount reported on Form 990, Part X,
-line 10b.
-
-Column (d). Enter the sum of column (a) and column (b) minus column (c). 
 
 ```{r}
-##From Rose's get_endowment function
-get_endowment <- function(filename) {
-  
-  # Retrieving the same endowment information for all 
-  variables <- c("//Return//ReturnHeader//ReturnTs", 
-                 "//Return//ReturnHeader//Filer//EIN", 
-                 "//Return//ReturnData//IRS990//DonorRstrOrQuasiEndowmentsInd",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus1YrEndwmtFundGrp//EndYearBalanceAmt",
-                
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus2YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus3YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//BeginningYearBalanceAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//ContributionsAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//InvestmentEarningsOrLossesAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//OtherExpendituresAmt",
-                 "//Return//ReturnData//IRS990ScheduleD//CYMinus4YrEndwmtFundGrp//EndYearBalanceAmt",
-                 
-                 "//Return//ReturnData//IRS990ScheduleD//BoardDesignatedBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//PrmnntEndowmentBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//TermEndowmentBalanceEOYPct",
-                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldUnrelatedOrgInd",
-                 "//Return//ReturnData//IRS990ScheduleD//EndowmentsHeldRelatedOrgInd",
-                 
-                 # adding BuildingGrp and OtherLandBuildingsGrp
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/OtherCostOrOtherBasisAmt",     
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/DepreciationAmt",             
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/BookValueAmt",                 
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/OtherCostOrOtherBasisAmt",              
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/DepreciationAmt",                       
-                 "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/BookValueAmt",                          
-                 "/Return/ReturnData/IRS990ScheduleD/OtherLandBuildingsGrp/InvestmentCostOrOtherBasisAmt",
-                  "/Return/ReturnData/IRS990ScheduleD/BuildingsGrp/InvestmentCostOrOtherBasisAmt",         
-                 
-                 "//AmendedReturnInd",
-                 "//Return//ReturnHeader//ReturnTypeCd"
-                 )
-  
-  # Column name; order matters, needs to align with retrieval order
-  variables_no_path <- c("ReturnTs", 
-                         "EIN",
-                         "DonorRstrOrQuasiEndowmentsInd",
-                        "CYBeginningYearBalanceAmt", 
-                        "CYContributionsAmt", 
-                        "CYInvestmentEarningsOrLossesAmt",
-                        "CYOtherExpendituresAmt",
-                        "CYEndYearBalanceAmt",
-                        
-                        "CYM1BeginningYearBalanceAmt", 
-                        "CYM1ContributionsAmt", 
-                        "CYM1InvestmentEarningsOrLossesAmt",
-                        "CYM1OtherExpendituresAmt",
-                        "CYM1EndYearBalanceAmt",
-                        
-                        "CYM2BeginningYearBalanceAmt", 
-                        "CYM2ContributionsAmt", 
-                        "CYM2InvestmentEarningsOrLossesAmt",
-                        "CYM2OtherExpendituresAmt",
-                        "CYM2EndYearBalanceAmt",
-                        
-                        "CYM3BeginningYearBalanceAmt", 
-                        "CYM3ContributionsAmt", 
-                        "CYM3InvestmentEarningsOrLossesAmt",
-                        "CYM3OtherExpendituresAmt",
-                        "CYM3EndYearBalanceAmt",
-                        
-                        "CYM4BeginningYearBalanceAmt", 
-                        "CYM4ContributionsAmt", 
-                        "CYM4InvestmentEarningsOrLossesAmt",
-                        "CYM4OtherExpendituresAmt",
-                        "CYM4EndYearBalanceAmt",
-                        
-                        "BoardDesignatedBalanceEOYPct",
-                        "PrmnntEndowmentBalanceEOYPct",
-                        "TermEndowmentBalanceEOYPct",
-                        "EndowmentsHeldUnrelatedOrgInd",
-                        "EndowmentsHeldRelatedOrgInd",
-                        
-                         "OtherLandBuildingsGrp_OtherCostOrOtherBasisAmt",     
-                         "OtherLandBuildingsGrp_DepreciationAmt",             
-                         "OtherLandBuildingsGrp_BookValueAmt",                 
-                         "BuildingsGrp_OtherCostOrOtherBasisAmt",              
-                         "BuildingsGrp_DepreciationAmt",                       
-                         "BuildingsGrp_BookValueAmt",                          
-                         "OtherLandBuildingsGrp_InvestmentCostOrOtherBasisAmt",
-                        "BuildingsGrp_InvestmentCostOrOtherBasisAmt",         
-                        
-                        "AmendedReturnInd",
-                        "ReturnTypeCd"
-                        )
-  
-  xml_file <- read_xml(filename)
-  xml_file <- xml_ns_strip(xml_file)
-  
-  # extract each variable; if it isn't present, put NA 
-  extracted <- map(variables, ~{
-    value <- xml_find_all(
-      xml_file, 
-      xpath =.x)
-    value <- ifelse(length(value) ==0, 
-                    NA, 
-                    xml_text(value)) })
-  
-   names(extracted) <- variables_no_path
-   
-   extracted <- extracted %>%
-     as_tibble()
-}
+companies <- read_csv(here("data/companies.csv")) %>%
+  mutate(EIN = as.character(ein))
+
+#load in regional information
+# add state information to buildings dataframe
+ein_to_state <- readRDS(here("./data/ein_to_state.RDS")) 
+
+test_state<-buildings %>% 
+  left_join(y = ein_to_state, by = "EIN") %>% 
+  mutate(
+    TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt)
+  )
+
+test_state <- unique(test_state) %>% 
+  mutate(name = tolower(name))
+test_state <- unique(test_state)
 ```
-
-```{r retrieving endowment info}
-##Applying get_endowment to entire output 
-files <- dir(here("ballet_990_released_20230208"), full.names = TRUE)
-
-endowment_data_building <- map_df(files, ~
-                     get_endowment(.x)) 
-
-all_data<-readRDS("./data/data_990.RDS")
-filter_data <- all_data %>%
-  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
-  mutate(amended_return_filled = ifelse(!is.na(AmendedReturnInd),1, 0)) %>%
-  group_by(EIN, fiscal_year) %>%
-  slice_max(order_by =amended_return_filled, n = 1) %>%
-  ungroup()
-##Retriving Ts and EINs for filtered data 
-filter_ids <- filter_data %>%
-  select(ReturnTs, EIN)
-## Adjusting data type, filtering to proper 990s
-endowment_data_building <- endowment_data_building %>%
-  mutate(ReturnDate = as.Date(ReturnTs,
-                              format = "%Y-%m-%d")) %>%
-  mutate(across(CYBeginningYearBalanceAmt:TermEndowmentBalanceEOYPct,
-                as.numeric)) %>%
-  mutate(across(c(EndowmentsHeldRelatedOrgInd, EndowmentsHeldUnrelatedOrgInd, DonorRstrOrQuasiEndowmentsInd),
-                ~ifelse(.x == "true" | .x == "1", TRUE, FALSE))) %>%
-  
-  filter(ReturnTypeCd == "990" | ReturnTypeCd == "990EZ") %>%
-  right_join(filter_ids, by = c("ReturnTs", "EIN")) %>%
-  select(-c(ReturnTypeCd,AmendedReturnInd)) #Removing columns needed for filtering
-
-saveRDS(endowment_data_building, "./data/endowment_filtered_buildings.RDS")
-
-saveRDS(all_data_filtered, "./data/all_data_filtered.RDS")
-```
-
 
 ## Preliminary Analysis of PartIV Data
 
@@ -294,16 +87,15 @@ Term explained:
 ```{r}
 # filter out all data each year
 data_each_year<-list(
-  data_2015 <- filter(endowment_data_building, grepl("2015", ReturnTs)),
-  data_2016 <- filter(endowment_data_building, grepl("2016", ReturnTs)),
-  data_2017 <- filter(endowment_data_building, grepl("2017", ReturnTs)),
-  data_2018 <- filter(endowment_data_building, grepl("2018", ReturnTs)),
-  data_2019 <- filter(endowment_data_building, grepl("2019", ReturnTs)),
-  data_2020 <- filter(endowment_data_building, grepl("2020", ReturnTs)),
-  data_2021 <- filter(endowment_data_building, grepl("2021", ReturnTs)),
-  data_2022 <- filter(endowment_data_building, grepl("2022", ReturnTs))
+  data_2015 <- filter(buildings, grepl("2015", ReturnTs)),
+  data_2016 <- filter(buildings, grepl("2016", ReturnTs)),
+  data_2017 <- filter(buildings, grepl("2017", ReturnTs)),
+  data_2018 <- filter(buildings, grepl("2018", ReturnTs)),
+  data_2019 <- filter(buildings, grepl("2019", ReturnTs)),
+  data_2020 <- filter(buildings, grepl("2020", ReturnTs)),
+  data_2021 <- filter(buildings, grepl("2021", ReturnTs)),
+  data_2022 <- filter(buildings, grepl("2022", ReturnTs))
 )
-
 
 ```
 
@@ -316,11 +108,11 @@ BookValueSum <- list()
 for(i in c(1:8)){
   data = data_each_year[[i]]
   df <- data.frame(data %>% 
-    filter(!is.na(BuildingsGrp_BookValueAmt)) %>% 
-    mutate_at(c("BuildingsGrp_BookValueAmt", "BuildingsGrp_DepreciationAmt"), as.numeric) %>% 
+    filter(!is.na(TotalBookValueLandBuildingsAmt)) %>% 
+    mutate_at(c("TotalBookValueLandBuildingsAmt"), as.numeric) %>% 
     group_by(EIN) %>% 
     summarise(
-      BookValueSum = sum(BuildingsGrp_BookValueAmt)
+      BookValueSum = sum(TotalBookValueLandBuildingsAmt)
     ) %>% 
     mutate(year = 2014+i,
            EIN = as.numeric(EIN)))
@@ -339,7 +131,11 @@ bookvalues<-bookvalues %>%
   mutate(quantile = ntile(BookValueSum, 10),
          EIN = as.character(EIN)) %>% 
   arrange(desc(EIN)) %>% 
-  inner_join(y = ein_to_name, by = "EIN") 
+  left_join(y = companies, by = "EIN") %>% 
+  left_join(y = ein_to_state, by = "EIN")
+
+bookvalues<- unique(bookvalues)
+saveRDS(bookvalues,here('data','bookvalues.RDS'))
 ```
 
 
@@ -350,29 +146,29 @@ high <- bookvalues %>%
   filter(quantile >= 8) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+  select(EIN, BookValueSum, year, quantile, organization_name.x)
 
 medium <- bookvalues %>% 
   filter(year == 2020) %>% 
   filter(quantile > 3 & quantile < 7) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+   select(EIN, BookValueSum, year, quantile, organization_name.x)
   
 low <- bookvalues %>% 
   filter(year == 2020) %>% 
   filter(quantile <= 3) %>% 
   select(EIN) %>% 
   inner_join(bookvalues, by = "EIN") %>% 
-  select(c(1,2,3,4,5))
+   select(EIN, BookValueSum, year, quantile, organization_name.x)
 ```
  
 
 ```{r visualizatoins of the change in buildings book value}
 # visualization of overall book value
-total <- ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+total <- ggplot(bookvalues, aes(x = year, y = BookValueSum, color = as.factor(name))) +
   geom_line()+
-  #\scale_color_brewer(palette="BrBG")+
+  #scale_color_brewer(palette="BrBG")+
   theme_bw()+
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
@@ -390,8 +186,7 @@ ggplotly(total)
 ```{r}
 # separate EIN with medium and low building book value according to previous graph
 # high
-options(scipen = 999)
-  high<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  high<-ggplot(high, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line() +
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -410,8 +205,7 @@ ggplotly(high)
 
 ```{r}
 # medium
-options(scipen = 999)
-medium <- ggplot(medium, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+medium <- ggplot(medium, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -430,7 +224,7 @@ ggplotly(medium)
 
 ```{r}
 # low
-  ggplot(low, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
+  ggplot(low, aes(x = year, y = BookValueSum, color = as.factor(organization_name.x))) +
   geom_line()+
   theme_bw() +
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -448,11 +242,6 @@ The book value will decrease because of depreciation, so the normal trend of an 
   1) Abruptly going down
   2) going up at any point
   3) appear less than 3 years
-  
-
-Caveat: ways of splitting up
-split up by quantile
-add geom_point
 
 ## Unusual EIN's
 ```{r}
@@ -463,7 +252,7 @@ EIN_appearl_less_than_3<-bookvalues %>%
   group_by(EIN) %>% 
   summarise(appear_times = n()) %>% 
   filter(appear_times < 3) %>% 
-  inner_join(y=ein_to_name, by = c("EIN")) %>% 
+  inner_join(y=companies, by = c("EIN")) %>% 
   kbl(caption = "Unusual EIN (appear less than 3 times)") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
@@ -471,12 +260,12 @@ EIN_appearl_less_than_3
 ```
 
 
-## Percentage change
+## Percentage change of building's book value
 ```{r}
 changes <- bookvalues %>% 
   group_by(EIN) %>% 
   mutate(change = (BookValueSum - lag(BookValueSum)) / lag(BookValueSum) * 100) %>%
-  select(EIN, BusinessName, year, BookValueSum, change) %>% 
+  select(EIN, organization_name.x, year, BookValueSum, change) %>% 
   mutate(change_abs = abs(change)) 
 
 #Making an infinite value NA
@@ -485,7 +274,8 @@ changes[145, ]$change = NA
 ```
 
 ```{r}
-all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color =  as.factor(BusinessName))) +
+# line graph of all percentage change from 2015-2022
+all_changes_pct <- ggplot(changes, aes(x = year, y = changes$change, color =  as.factor(organization_name.x))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
   theme_bw() +
@@ -509,7 +299,7 @@ ggplotly(all_changes_pct)
 # filter out EIN with normal depreciation change
 filtered_changes <- changes %>% 
   filter(change_abs > 10) %>% 
-  ggplot(aes(x = year, y = change, color = as.factor(BusinessName))) +
+  ggplot(aes(x = year, y = change, color = as.factor(organization_name.x))) +
   geom_line(na.rm = FALSE, size = 0.2) +
   ylim(-200, 800)+
   theme_bw() +
@@ -541,11 +331,18 @@ big_change
 ```
 
 
-Book Value Change Ranking (%)
+## Book Value Changes %
+
 ```{r}
+# summarize all companies changes
+summary(changes$change) 
+```
+
+```{r}
+#ranking of all change in book values
 ranking<-changes %>%
   arrange(desc(change_abs)) %>% 
-  select(EIN, BusinessName, year, change, BookValueSum) %>% 
+  select(EIN, organization_name.x, year, change, BookValueSum) %>% 
   kbl(caption = "Ranking of Change in Book Value Per Year  (%)") %>%
   kable_material() %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
@@ -553,9 +350,11 @@ ranking
 ```
 
 ```{r}
+#filter out small changes 
 change_less_than_10<-changes %>% 
   filter(change_abs <=10)
 
+#istogram of all large changes 
 ggplotly(
   ggplot(change_less_than_10, aes(x = change_abs)) + 
   geom_histogram()+
@@ -565,9 +364,11 @@ ggplotly(
 
 
 ```{r}
+# filter out all % change larger than 10
 change_larger_than_10 <- changes %>% 
   filter(change_abs > 10)
 
+# generate histogram of all absolute changes 
 ggplotly(
   ggplot(change_larger_than_10, aes(x = change_abs)) + 
   geom_histogram()+
@@ -578,6 +379,7 @@ ggplotly(
 
 
 ```{r}
+# All summary statistics 
 changes %>% 
   drop_na() %>% 
   group_by(year) %>% 
@@ -590,5 +392,94 @@ changes %>%
   row_spec(row = 0, background = "red", color = "white", bold = TRUE)
 ```
 
+## Regional Analysis
+
+```{r}
+bookvalues %>% 
+  left_join(y = ein_to_state, by = "EIN")
+```
+```{r}
+test_state <- test_state %>% 
+  mutate(
+    Time = substring(ReturnTs, 1, 10),
+    TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt)
+  )
+```
+
+```{r}
+state_bookvalues <- ggplot(test_state, aes(x = factor(fiscal_year, level = c('2014','2015','2016','2017','2018','2019','2020','2021','2022')), y = as.numeric(test_state$TotalBookValueLandBuildingsAmt), color=as.factor(state)))+
+  geom_line(aes(group=1))+
+  theme_bw() +
+  theme(legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 6),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Bookvalues of buildings and other lands",
+       x = "Fiscal year")
+
+  
+ggplotly(state_bookvalues)
+  
+```
+
+```{r}
+summary_state <- test_state %>% 
+  group_by(state, fiscal_year, name) %>% 
+  summarise(
+    max = max(TotalBookValueLandBuildingsAmt),
+    min = min(TotalBookValueLandBuildingsAmt),
+    mean = mean(TotalBookValueLandBuildingsAmt),
+    median = median(TotalBookValueLandBuildingsAmt),
+    Number = n()
+  )
+
+ggplotly(
+  summary_state %>% 
+  ggplot(aes(x = fiscal_year, y = median, color = as.factor(state))) + 
+    geom_line(aes(group=1))+ 
+    theme_bw()
+)+
+  labs(
+  title = "Median of Total Book Value of Land and Building each state"
+)
+```
+```{r}
+test_state %>% 
+  group_by(state,fiscal_year) %>% 
+  summarise(
+    max = max(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    min = min(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    mean = mean(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+    median = median(TotalBookValueLandBuildingsAmt, na.rm=TRUE),
+  )
+```
+
+
+```{r}
+ggplotly(
+  test_state %>% filter(fiscal_year!=2014) %>% group_by(state, fiscal_year) %>% 
+  summarise(
+    max = max(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    min = min(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    mean = mean(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    median = median(TotalBookValueLandBuildingsAmt,na.rm = TRUE),
+    Number = n()
+  ) %>% 
+  ggplot(aes(x = fiscal_year, y = max, color = factor(state))) + geom_point() + theme_bw()
+)
+```
+
+```{r}
+test_state %>% 
+  group_by(state, fiscal_year) %>% 
+  summarise(
+    sum = sum(TotalBookValueLandBuildingsAmt)
+  ) %>% 
+  arrange(desc(sum))
+```
 
 
