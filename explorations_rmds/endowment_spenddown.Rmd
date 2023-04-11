@@ -638,6 +638,51 @@ most_recent_ds %>%
   labs( title = "Size of Companies by End Year Balance Amount, Limit $20,000,000")
 ```
 
+# Total Revenue  
+
+```{r}
+##Getting Total Revenue data
+source(here("GET_VARS.R"))
+##Specifically reading in employee data
+files <- dir( here("ballet_990_released_20230208"),
+              full.names = TRUE)
+revenue_data <- map_df(files, ~
+                    get_df(variables =  c("//Return//ReturnData//CYTotalRevenueAmt"),
+                           filename = .x
+                           )) %>%
+    mutate(CYTotalRevenueAmt = as.numeric(CYTotalRevenueAmt)) %>%
+  left_join(names, by = "EIN")
+
+revenue_data$fiscal_year = as.numeric(as.character(revenue_data$fiscal_year))
+```
+
+## Total Revenue vs Pct Change- any pattern?  
+
+```{r}
+ggplot(revenue_data, aes(x = CYTotalRevenueAmt)) + 
+  geom_histogram()
+```
+
+```{r}
+pct_change_inv_ds %>%
+  select(-dance_styles) %>%
+  left_join(revenue_data, by = c("EIN", "fiscal_year", "organization_name")) %>%
+  ggplot(aes(x = CYTotalRevenueAmt, y = pct_change)) + 
+  geom_point() + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-200, 800))
+```
+
+
 # Percent Change Within the Pandemic   
 ## WITH investments 
 ```{r}  
