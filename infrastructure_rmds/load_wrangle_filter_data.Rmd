@@ -29,11 +29,15 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 library(here)
+
+
+source(here('GET_VARS.R'))
+
 ```
 
 
 # Generate Metadata Table for All Files  
-```{r get_df function for extracting data from xml files,eval=TRUE, class.source = "fold-show" }
+```{r get_df function for extracting data from xml files,eval=FALSE, class.source = "fold-show" }
 
 
 ##########################################################
@@ -137,7 +141,7 @@ get_df <- function(variables,
 # path assumes zip-file is unzipped in smith-capstone-23 directory
 # generates vector of the full paths to all files in the ballet_990_released_20230208 directory
 
-files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
 # variables to extract from each xml file
@@ -353,7 +357,7 @@ get_endowment <- function(filename) {
 
 ```{r retrieving endowment info}
 ##Applying get_endowment to entire output 
-files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
 endowment_data <- map_df(files, ~
