@@ -6,7 +6,7 @@
 
 library(rmarkdown)
 library(here)
-
+library(tibble)
 
 # Infrastructure folder 
 files <- tibble(full = dir(here("infrastructure_rmds"),
@@ -30,16 +30,17 @@ files <- files_ordered$full
   
 for (i in files) {
   print(i)
-  if(grepl(".Rmd", i)){render(i, output_dir = output)}
+  if(grepl(".Rmd", i)){render(i, output_dir = output, knit_root_dir=here())}
 }
 
 
 # exploration folder
 files <- dir(here("explorations_rmds"),
              full.names = TRUE)
+files <- files[files != "410uplabor.Rmd"]
 output <- here("explorations_rmds", "output_html")
 
 for (i in files) {
-  if(grepl(".Rmd", i)) { render(i, output_dir = output)}
+  if(grepl(".Rmd", i)) { render(i, output_dir = output,  knit_root_dir=here())}
 }
 
