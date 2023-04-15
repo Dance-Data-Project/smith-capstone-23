@@ -100,7 +100,7 @@ get_df <- function(variables = c(),
            fiscal_year = year(TaxPeriodEndDt),
            fiscal_year = factor(fiscal_year)) 
   
-  if(any(!grepl("TaxPeriodEndDt", variables))) {
+  if(!any(grepl("TaxPeriodEndDt", variables))) {
     extracted <- extracted %>%
       select(-c(TaxPeriodEndDt))
   } 
