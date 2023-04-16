@@ -3,27 +3,44 @@ title: "Endowment Time Series"
 author: "Quinn White"
 date: "`r Sys.Date()`"
 output:
-  rmdformats::readthedown:
-    df_print: paged
+  html_document:
     code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 4
+    toc_float: true 
     css: !expr here::here('css', 'template.css')
+#  rmdformats::readthedown:
+#    df_print: paged
+#    code_folding: hide
+#    css: !expr here::here('css', 'template.css')
 knit: (function(input, ...) {
     rmarkdown::render(
       input,
       output_dir = "./output_html")})
 ---
 
+<style type="text/css">
+.main-container {
+  max-width: 2200px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, dpi = 36, comment=NA)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, comment=NA, eval=FALSE)
 library(tidyverse)
 library(kableExtra)
 library(scales)
 library(plotly)
-library(here)
 library(glue)
+library(here)
+library(viridis)
 
 
-all_plots <- FALSE
+all_plots <- TRUE
 
 m <- list(
     l = 50,
@@ -33,15 +50,54 @@ m <- list(
     pad = 0.5
 )
 
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   size = 14,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   size = 12,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   size =14),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   size = 12),
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 11, face="bold"),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "right",
+      strip.text.x = element_text(size = 14, face = "bold", color="white"),
+      strip.background = element_rect(fill = "#3E3D3D")
+      ) %+replace%
+      theme(...)
+   
+}
+
+
+
+
 ```
 
-```{r load data}
+```{r load data, eval=TRUE}
 
 # load companies file of EIN to name and endowment data
 
-companies_to_ein <- read_csv(here("data", "companies.csv")) %>%
-  mutate(EIN = as.character(ein)) %>%
-  select(EIN, organization_name)
+companies_to_ein <- read_rds(here('data',   'companies.RDS'))
 
 
 endowment_data <- read_rds(here("data", 
@@ -74,7 +130,7 @@ saveRDS(dates, here('data', 'dates.RDS'))
 
 ```
 
-```{r}
+```{r, eval=TRUE}
 
 dates <- readRDS( here('data', 'dates.RDS')) %>%
   select(EIN, TaxPeriodEndDt, fiscal_year) 
@@ -88,7 +144,7 @@ endowment_data <- endowment_data %>%
 ```
 
 
-```{r}
+```{r, eval=TRUE}
 
 # function to plot variables of interest against each other
 plot_ranks <- function(var1, var2, data) {
@@ -97,9 +153,9 @@ plot_ranks <- function(var1, var2, data) {
    plt <- data %>%
     group_by(fiscal_year) %>%
    # arrange(var1) %>%
-    mutate("{var1}_rank" := rank(!!sym(var1))) %>%
+    mutate("{var1}_rank" := rank(-!!sym(var1)), na.last = "keep") %>%
 #    arrange(var2) %>%
-    mutate("{var2}_rank"  := rank(!!sym(var2))) %>%
+    mutate("{var2}_rank"  := rank(-!!sym(var2)),  na.last = "keep") %>%
     ggplot(aes(x = !!sym(glue("{var1}_rank" )), y =!!sym(glue("{var2}_rank" )),
                color  = organization_name,
                label =EIN
@@ -125,6 +181,115 @@ plot_ranks <- function(var1, var2, data) {
   ggplotly(plt, margin = m, height = 550)
 
 }
+
+plot_ranks_by_consistency <- function(var1, var2, data) {
+
+  
+   plt <- data %>%
+     filter(fiscal_year > 2010 & fiscal_year < 2021) %>%
+    group_by(fiscal_year) %>%
+   # arrange(var1) %>%
+    mutate("{var1}_rank" := rank(-!!sym(var1)), na.last = "keep") %>%
+#    arrange(var2) %>%
+    mutate("{var2}_rank"  := rank(-!!sym(var2)),  na.last = "keep")  %>%
+     mutate(rank_diff = !!sym(glue("{var2}_rank")) - !!sym(glue("{var1}_rank" ))) %>%
+   group_by(EIN) %>%
+   mutate(sum_pos = sum(rank_diff >0, na.rm=TRUE),
+          sum_neg = sum(rank_diff < 0,  na.rm=TRUE),
+          sum_zero = sum(rank_diff ==0, na.rm=TRUE))%>%
+     ungroup() %>% 
+   mutate(category = case_when(sum_pos != 0 & sum_neg != 0 ~ "Had Some Change",
+                               sum_zero ==  sum_pos + sum_neg + sum_zero ~ "Always Ranked the Same",
+                            sum_pos == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Higher in", var1),
+                            sum_neg == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Higher in", var2 ))) %>%
+
+    ggplot(aes(x = !!sym(glue("{var1}_rank" )), y =!!sym(glue("{var2}_rank" )),
+               color  = category,
+               text =organization_name
+               )) +
+    geom_point() +
+    geom_function(fun=function(x)x,color="darkred", alpha = .8) +
+    labs(x = paste0(var1, " Rank"),
+         y =  paste0(var2, " Rank"),
+         color = "Consistency of Rankings") +
+    theme_c() +
+    labs(title = glue("Rank of {var2} vs. Rank of {var1}")) +
+      scale_color_brewer(palette ="Set2") +
+     facet_wrap(~fiscal_year)+
+      theme(plot.title = element_text(size = 14, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 14),
+            axis.title = element_text(size = 13, 
+                                      face = "bold")) 
+  
+  ggplotly(plt, margin = m, height = 550)
+
+}
+
+plot_ranks_by_consistency <- function(var1, var2, data) {
+
+  
+   plt <- data %>%
+     filter(fiscal_year > 2010 & fiscal_year < 2021) %>%
+    group_by(fiscal_year) %>%
+   # arrange(var1) %>%
+    mutate("{var1}_rank" := rank(-!!sym(var1)), na.last = "keep") %>%
+#    arrange(var2) %>%
+    mutate("{var2}_rank"  := rank(-!!sym(var2)),  na.last = "keep")  %>%
+     mutate(rank_diff = !!sym(glue("{var2}_rank")) - !!sym(glue("{var1}_rank" ))) %>%
+   group_by(EIN) %>%
+   mutate(sum_pos = sum(rank_diff >0, na.rm=TRUE),
+          sum_neg = sum(rank_diff < 0,  na.rm=TRUE),
+          sum_zero = sum(rank_diff ==0, na.rm=TRUE))%>%
+     ungroup() %>% 
+   mutate(prop_positive = sum_pos / (sum_pos + sum_neg + sum_zero)) %>%
+    ggplot(aes(x = !!sym(glue("{var1}_rank" )), y =!!sym(glue("{var2}_rank" )),
+               color  = prop_positive,
+               text =organization_name
+               )) +
+    geom_function(fun=function(x)x,color="darkred", alpha = .8, n =201) +
+    geom_point() +
+    labs(x = paste0(var1, " Rank"),
+         y =  paste0(var2, " Rank"),
+         title = glue("Rank of {var2} vs. Rank of {var1}"),
+         color = glue("Proportion Where {var1}\nRanked Higher than\n{var2}")) +
+    theme_c(legend.text=element_text(size =8)) +
+    scale_color_distiller(palette = "PuOr")   +
+     facet_wrap(~fiscal_year)+
+      theme(plot.title = element_text(size = 12, 
+                                      hjust = .5, face="bold",),
+            plot.subtitle = element_text(hjust = .5, 
+                                         face="italic",
+                                         size = 14),
+            axis.title = element_text(size = 13, 
+                                      face = "bold")) 
+  
+  ggplotly(plt, margin = m, height = 550)
+
+}
+
+# 
+# print_df_category <- function(data, var1, var2) {
+#   data %>%
+#      filter(fiscal_year > 2010 & fiscal_year < 2021) %>%
+#     group_by(fiscal_year) %>%
+#    # arrange(var1) %>%
+#     mutate("{var1}_rank" := rank(-!!sym(var1)), na.last = "keep") %>%
+# #    arrange(var2) %>%
+#     mutate("{var2}_rank"  := rank(-!!sym(var2)),  na.last = "keep")  %>%
+#      mutate(rank_diff = !!sym(glue("{var2}_rank")) - !!sym(glue("{var1}_rank" ))) %>%
+#    group_by(EIN) %>%
+#    mutate(sum_pos = sum(rank_diff >0, na.rm=TRUE),
+#           sum_neg = sum(rank_diff < 0,  na.rm=TRUE),
+#           sum_zero = sum(rank_diff ==0, na.rm=TRUE))%>%
+#      ungroup() %>% 
+#    mutate(prop_positive = sum_pos / (sum_pos + sum_neg + sum_zero)) %>%
+#     group_by()
+# }
+# 
+
 
 # function to plot variables of interest against each other
 plot_combo <- function(var1, var2, data) {
@@ -167,7 +332,7 @@ endowment_data_wide <- endowment_data %>%
 # Plotting Endowment Variables Against Each Other, By Year
 
 
-```{r}
+```{r, eval=TRUE}
 
 vars <-  unique(endowment_data$variable_name)[!grepl("EOY|Admin|Grants", unique(endowment_data$variable_name))]
 
@@ -180,7 +345,7 @@ if (!all_plots) variable_combinations <- variable_combinations[1:4,]
 
 ```
 
-```{r endowment by year, results='asis',out.width="60%"}
+```{r endowment by year, results='asis',out.width="60%", eval=FALSE}
 
 
 cat('## Scale of Original Variables {.tabset}   \n\n')
@@ -197,15 +362,49 @@ pwalk(variable_combinations, ~{
 ```
 
 
-## By Rank
+```{r, eval=TRUE, results='asis', out.width="100%"}
+
+plt <- endowment_data_wide %>%
+  select(contains("EOY"),fiscal_year, 
+         EIN, organization_name) %>%
+  pivot_longer(cols = contains("EOY"))  %>%
+  mutate(name = case_when(
+    name == "TermEndowmentBalanceEOYPct" ~ "Temporarily restricted endowment\nEnd of Year Pct",
+    name == "PrmnntEndowmentBalanceEOYPct" ~ "Permanent endowment\nEnd of Year Pct",
+    name == "BoardDesignatedBalanceEOYPct" ~ "Board designated or quasi-endowment\nEnd of Year Pct"
+  )) %>%
+  mutate(value = 100*value) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(x=fiscal_year,
+             y  = value, 
+             color = organization_name)) +
+  geom_line() +
+  facet_wrap(~name) +
+  theme_c(strip.text = element_text(margin =margin(3,0,20,0),
+                                    size = 12)) +
+  scale_color_viridis(option="rocket", discrete= TRUE) +
+  labs(y="Percentage of Endowment in Category",
+       x = "Fiscal Year") 
+
+ggplotly(plt, margin = m, height = 550)
+
+```
 
 
-```{r, eval=TRUE, results='asis', fig.height = 8, fig.width = 10}
+
+
+# Rankings
+
+## Relationships between how companies rank in different variables
+
+```{r, eval=TRUE, results='asis', fig.height = 8, out.width="90%"}
 
 
 
 plotlist <- pmap(variable_combinations, ~{ 
- plt <- plot_ranks(var1 = .x, var2 = .y, data = endowment_data_wide)
+ #plt <- plot_ranks(var1 = .x, var2 = .y, data = endowment_data_wide)
+   plt <- plot_ranks_by_consistency(var1 = .x, var2 = .y, data = endowment_data_wide)
+
  }
 )
 
@@ -214,6 +413,58 @@ htmltools::tagList(setNames(plotlist, NULL))
 
 
 ```
+
+## How ranks change over time 
+
+```{r,  results='asis', fig.height = 8, out.width="90%", eval=TRUE}
+# 
+# 
+# rankings_over_time <- endowment_data_wide %>%
+#   filter(fiscal_year >=2011 & fiscal_year <=2020) %>%
+#   group_by(fiscal_year) %>%
+#   mutate(rank = rank(-BeginningYearBalanceAmt, na.last = "keep")) %>%
+#   filter(!is.na(rank)) %>%
+#   ggplot(aes(x=fiscal_year, y = rank, color =organization_name)) +
+#   geom_line() +
+#   scale_color_viridis(option = "rocket", discrete=TRUE) +
+#   theme_c()
+# 
+# ggplotly(rankings_over_time, margin = m, height = 550) 
+
+
+plot_ranks_over_time <- function(dat,var) {
+  plt <- dat %>%
+    filter(fiscal_year >=2011 & fiscal_year <=2020) %>%
+    group_by(fiscal_year) %>%
+    mutate(rank = rank(-!!sym(var), na.last = "keep")) %>%
+    filter(!is.na(rank)) %>%
+    ggplot(aes(x=fiscal_year, y = rank, color =organization_name)) +
+    geom_line() +
+    geom_point(alpha = .3, size =.5) +
+    scale_color_viridis(option = "rocket", discrete=TRUE) +
+    theme_c() +
+    scale_y_continuous(n.breaks = 10) +
+    scale_x_continuous(breaks=2011:2020) +
+    labs(y = paste("Rank of ", var),
+         x = "Fiscal Year",
+         title = paste0("Rank over time for ", var))
+  ggplotly(plt, margin = m, height = 550)
+}
+
+plotlist <- map(vars,~ {
+  plt<- plot_ranks_over_time(endowment_data_wide,.x)
+})
+
+
+htmltools::tagList(setNames(plotlist, NULL))
+
+
+
+
+
+```
+
+
 
 
 # Compensation 
@@ -238,7 +489,7 @@ source(here("GET_VARS.R"))
 files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)
 
-
+get_all_children_by_file(files[5], "/Return/ReturnData/IRS990" )
 
 ##################################
 # EMPLOYEE INFORMATION
@@ -303,7 +554,7 @@ saveRDS(comp_clean, here("data", "schedj.RDS"))
 
 ```
 
-```{r}
+```{r,eval=TRUE}
 
 comp_clean <- read_rds(here("data", "schedj.RDS"))%>%
   left_join(companies_to_ein) %>%
@@ -316,7 +567,7 @@ employees <- readRDS(here("data", "employees.RDS")) %>%
 ```
 
  
-```{r}
+```{r,eval=TRUE}
 
 
 # clean up title text field because it was free text in the form 990
@@ -581,12 +832,12 @@ plot_ranks("BeginningYearBalanceAmt",
 
 <br>
 
-# Top Employees Compensation Compared to Total Compensation
+# Top Employees Compensation Compared to Other Employee Compensation 
 
 * For total employee compensation - `CYSalariesCompEmpBnftPaidAmt: Salaries, other compensation, employee benefits (Part IX, column (A), lines 5–10)`.
-* For top employee compensation - Schedule J, looking at all compensation except deferred
+* For top employee compensation - Schedule J, looking at total compensation
 
-```{r, out.width = "80%"}
+```{r, eval=TRUE, results='asis', fig.height = 8, fig.width = 12}
 
 top <- comp_clean %>% 
   group_by(EIN,fiscal_year,organization_name) %>% 
@@ -598,10 +849,11 @@ top <- comp_clean %>%
   ungroup()
 
 emp_comp <- employees %>% 
-  left_join(top)
+  left_join(companies_to_ein) %>%
+  left_join(top) 
 
 plt <- emp_comp %>%
-  ggplot(aes(x=fiscal_year, 
+  ggplot(aes(x=fiscal_year,
              y = compensation_top_total/CYSalariesCompEmpBnftPaidAmt,
              color = organization_name,
              group= EIN)) +
@@ -615,46 +867,46 @@ plt <- emp_comp %>%
        title = "Fraction of Total Compensation Paid to C-Suite Employees",
        x="Fiscal Year") +
   scale_y_continuous(n.breaks = 6)+
-    theme(plot.title = element_text(size = 14, 
+    theme(plot.title = element_text(size = 14,
                                       hjust = .5, face="bold",),
-            plot.subtitle = element_text(hjust = .5, 
+            plot.subtitle = element_text(hjust = .5,
                                          face="italic",
                                          size = 12),
-            axis.title = element_text(size = 13, 
+            axis.title = element_text(size = 13,
                                       face = "bold"))
 
 
 ggplotly(plt, margin = m, height = 500)
 
- plt <- emp_comp %>%
-   filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
-  ggplot(aes(y=CYSalariesCompEmpBnftPaidAmt/TotalEmployeeCnt, 
-             x = compensation_top_base/num_top_employees,
-             label=fiscal_year,
-             color =organization_name,
-             group = EIN)) +
-  geom_point() +
-   theme_bw() + 
-  viridis::scale_color_viridis(discrete=TRUE,
-                                 option = "rocket",
-                                 end = .9) +
-    theme(plot.title = element_text(size = 14, 
-                                      hjust = .5, face="bold",),
-            plot.subtitle = element_text(hjust = .5, 
-                                         face="italic",
-                                         size = 14),
-            axis.title = element_text(size = 13, 
-                                      face = "bold")) +
-   scale_y_continuous(labels =comma) +
-   labs(y = "Average Employee Compensation",
-        x = "Average C-Suite Compensation",
-        title = "Average C-Suite Compensation vs. Overall Average Employee Compensation") +
-   facet_wrap(~fiscal_year)
- 
- ggplotly(plt, margin = m,height = 500)
- 
- 
- 
+ # plt <- emp_comp %>%
+ #   filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
+ #  ggplot(aes(y=CYSalariesCompEmpBnftPaidAmt/TotalEmployeeCnt, 
+ #             x = compensation_top_base/num_top_employees,
+ #             label=fiscal_year,
+ #             color =organization_name,
+ #             group = EIN)) +
+ #  geom_point() +
+ #   theme_bw() + 
+ #  viridis::scale_color_viridis(discrete=TRUE,
+ #                                 option = "rocket",
+ #                                 end = .9) +
+ #    theme(plot.title = element_text(size = 14, 
+ #                                      hjust = .5, face="bold",),
+ #            plot.subtitle = element_text(hjust = .5, 
+ #                                         face="italic",
+ #                                         size = 14),
+ #            axis.title = element_text(size = 13, 
+ #                                      face = "bold")) +
+ #   scale_y_continuous(labels =comma) +
+ #   labs(y = "Average Employee Compensation",
+ #        x = "Average C-Suite Compensation",
+ #        title = "Average C-Suite Compensation vs. Overall Average Employee Compensation") +
+ #   facet_wrap(~fiscal_year)
+ # 
+ # ggplotly(plt, margin = m,height = 500)
+ # 
+ # 
+ # 
  
  
  
@@ -672,7 +924,7 @@ ggplotly(plt, margin = m, height = 500)
              color =organization_name,
              group = EIN)) +
   geom_point() +
-   theme_bw() + 
+   theme_c() + 
   viridis::scale_color_viridis(discrete=TRUE,
                                  option = "rocket",
                                  end = .9) +
@@ -688,7 +940,7 @@ ggplotly(plt, margin = m, height = 500)
    scale_y_continuous(labels =comma) +
    labs(y = "Average Employee Compensation",
         x = "Average C-Suite Compensation",
-        title = "Average C-Suite Pay versus Average Employee Compensation (Not Including C-Suite)") +
+        title = "Average C-Suite Pay versus Average Employee Compensation") +
    facet_wrap(~fiscal_year) +
    scale_x_continuous(labels = comma)
  
@@ -705,15 +957,153 @@ marg <- list(
 
 
 
+plt <-  emp_comp %>%
+   mutate(num_not_top = TotalEmployeeCnt - num_top_employees,
+          compensation_not_top = CYSalariesCompEmpBnftPaidAmt - compensation_top_total,
+          avg_not_top = compensation_not_top/num_not_top ,
+          avg_top = compensation_top_total / num_top_employees) %>%
+   group_by(fiscal_year) %>%
+   mutate(rank_avg_not_top = rank(-avg_not_top,  na.last ="keep"),
+          rank_avg_top = rank(-avg_top, na.last="keep")) %>%
+   filter(fiscal_year !=2014 & fiscal_year !=2021) %>%
+   ggplot(aes(x =rank_avg_top, y = rank_avg_not_top, color = organization_name)) +
+   geom_point() +
+   theme_c()+
+   labs(y = "Ranking of Average Employee Compensation",
+        x = "Ranking of Average C-Suite Compensation",
+        title = "Average C-Suite Pay versus Average Employee Compensation") +
+   facet_wrap(~fiscal_year)  +
+  geom_function(fun=function(x)x,color="darkred", alpha = .8) +
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9) 
+ 
+ ggplotly(plt, margin = marg, height = 500)
+
+ 
+ 
+ 
+ ranks <- emp_comp %>%
+   mutate(num_not_top = TotalEmployeeCnt - num_top_employees,
+          compensation_not_top = CYSalariesCompEmpBnftPaidAmt - compensation_top_total,
+          avg_not_top = compensation_not_top/num_not_top ,
+          avg_top = compensation_top_total / num_top_employees,
+          organization_name = ifelse(is.na(organization_name), EIN, organization_name)) %>%
+   group_by(fiscal_year) %>%
+   mutate(rank_avg_not_top = rank(-avg_not_top,  na.last ="keep"),
+          rank_avg_top = rank(-avg_top, na.last="keep")) %>%
+   filter(fiscal_year !=2014 & fiscal_year !=2021) %>%
+   mutate(rank_diff = rank_avg_top - rank_avg_not_top ) %>%
+   group_by(organization_name) %>%
+   mutate(sum_pos = sum(rank_diff >0, na.rm=TRUE),
+          sum_neg = sum(rank_diff < 0,  na.rm=TRUE),
+          sum_zero = sum(rank_diff ==0, na.rm=TRUE)) %>%
+   select(fiscal_year, rank_avg_not_top, rank_avg_top, contains("sum"), organization_name) %>%
+   ungroup() %>%
+   mutate(category = case_when(sum_pos != 0 & sum_neg != 0 ~ "Had Some Change",
+                               sum_zero ==  sum_pos + sum_neg + sum_zero ~ "Always Ranked the Same",
+                            sum_pos == sum_pos + sum_neg + sum_zero ~  "Always Ranked Higher in Average Employee Compensation" ,
+                            sum_neg == sum_pos + sum_neg + sum_zero ~ "Always Ranked Higher in C-Suite Compensation"),
+          prop_positive = sum_pos/(sum_pos+sum_zero+sum_neg)) %>%
+   filter(!is.na(category))
+ 
+ 
+plt <- ranks %>%
+   ggplot(aes(x =rank_avg_top, y = rank_avg_not_top, 
+              label = organization_name,
+              color = prop_positive)) +
+   geom_point() +
+   theme_c()+
+   labs(y = "Ranking of Average Employee Compensation",
+        x = "Ranking of Average C-Suite Compensation",
+        title = "Rankings of Average C-Suite Pay versus Average Employee Compensation",
+        color = "Proportion Where Average Employee Compensation\nWas Ranked Higher Than C-Suite") +
+   facet_wrap(~fiscal_year)  +
+  geom_function(fun=function(x)x,color="darkred", alpha = .8) +
+  scale_color_distiller(palette ="PuOr")
+ 
+ ggplotly(plt, margin = marg, height = 500)
+ 
+ 
+
+```
+
+
+```{r}
+
+ emp_comp %>%
+   mutate(num_not_top = TotalEmployeeCnt - num_top_employees,
+          compensation_not_top = CYSalariesCompEmpBnftPaidAmt - compensation_top_total,
+          avg_not_top = compensation_not_top/num_not_top ,
+          avg_top = compensation_top_total / num_top_employees) %>%
+  filter(!is.na(avg_not_top) & !is.na(avg_top)) %>%
+  group_by(EIN) %>%
+  mutate(min_year = min(fiscal_year)) %>%
+  filter(fiscal_year == min_year | fiscal_year == 2020) %>%
+    arrange(fiscal_year) %>%
+  mutate(pct_change_comp_top = ifelse(
+      lag(avg_top, n =1) != 0,
+      (avg_top - lag(avg_top, n =1))/
+             lag(avg_top, n =1),
+      NA),
+          pct_change_comp_not_top  = ifelse(
+      lag(avg_not_top, n =1) != 0,
+      (avg_not_top - lag(avg_not_top, n =1))/
+             lag(avg_not_top, n =1),
+      NA)) %>%
+  filter(fiscal_year == 2020) %>%
+   mutate(diff =pct_change_comp_top - pct_change_comp_not_top) %>%
+  left_join(companies_to_ein) %>%
+  filter(!is.na(diff)) %>%
+  ggplot(aes(x =fct_reorder(organization_name, diff), y = diff)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  theme_c() +
+  labs(title = "Percent Change in Average Executive Compensation Minus Percent Change in Average Employee Compensation",
+       y = "",
+       x = "Difference in Percent Changes")
+
+
+
+ emp_comp %>%
+   mutate(num_not_top = TotalEmployeeCnt - num_top_employees,
+          compensation_not_top = CYSalariesCompEmpBnftPaidAmt - compensation_top_total,
+          avg_not_top = compensation_not_top/num_not_top ,
+          avg_top = compensation_top_total / num_top_employees) %>%
+  filter(!is.na(avg_not_top) & !is.na(avg_top)) %>%
+  group_by(EIN) %>%
+  # mutate(min_year = min(fiscal_year)) %>%
+  # filter(fiscal_year == min_year | fiscal_year == 2020) %>%
+  #   arrange(fiscal_year) %>%
+  mutate(pct_change_comp_top = ifelse(
+      lag(avg_top, n =1) != 0,
+      (avg_top - lag(avg_top, n =1))/
+             lag(avg_top, n =1),
+      NA),
+          pct_change_comp_not_top  = ifelse(
+      lag(avg_not_top, n =1) != 0,
+      (avg_not_top - lag(avg_not_top, n =1))/
+             lag(avg_not_top, n =1),
+      NA)) %>%
+   ungroup() %>%
+   filter(organization_name != "Aspen Santa Fe Ballet") %>%
+   select(pct_change_comp_not_top, pct_change_comp_top, 
+          organization_name, EIN, organization_name, fiscal_year) %>%
+   #pivot_longer(c(pct_change_comp_not_top, pct_change_comp_top)) %>%
+   ggplot(aes(x= pct_change_comp_not_top, y = pct_change_comp_top))+
+   geom_point() +
+   facet_wrap(~name)
+
+
 
 ```
 
 
 
-## Comparison to Financial Data: S&P 500
+# Comparison to Financial Data: S&P 500
 
 
-```{r}
+```{r, eval=TRUE}
 
 
 sp <- read_csv(here('data','SP500.csv')) %>%
@@ -740,7 +1130,316 @@ sp <- read_csv(here('data','SP500.csv')) %>%
 endowment_sp <- endowment_data %>%
   mutate(month = month(TaxPeriodEndDt),
          year= year(TaxPeriodEndDt)) %>%
+  # since we don't have TaxPeriodEndDt for previous years,
+  # assume month of fiscal year stayed the same
+  group_by(EIN) %>%
+  fill(month, .direction="up") %>%
+  ungroup() %>%
+  mutate(year = ifelse(is.na(year), fiscal_year, year)) %>%
   left_join(sp) 
+
+
+
+```
+
+## Percentage Change
+
+## Notes on Interpretation 
+
+We compute the percentage change from one year to the next as
+
+$$100 \times \dfrac{\text{Value in Current Year} - \text{Value in Previous Year}}{ \text{Value in Previous Year}}.$$ 
+
+
+For a percent change of value $P$, we can interpret this as saying the value in the current year is 
+
+$$\text{Value Current Year} = (P+1) \times \text{Value in the Previous Year}.$$
+
+For example, a percentage change of 0 means the value in the current year is identical to the previous year, since we have $\text{Value Current Year} = (1) \times \text{Value in the Previous Year}$.
+
+A percentage change of 1 means the value in the current year is double that of hte previous, since we have $\text{Value Current Year} = (1+1) \times \text{Value in the Previous Year}$.
+
+This interpretation still holds with the enormous percentage changes we have here, for example, Joffrey Ballet's endowment (beginning of year balance) saw approximately a $131\%$ increase in 2020 from its value in 2015, and we can interpret this as meaning the value in 2020 was 132 times the value in 2015.
+
+
+### Percentage Change in Beginning of Year Balance Over Time
+
+```{r, eval=TRUE,  results='asis', fig.height =14, out.width="90%"}
+
+
+#############################################################
+# plot for percent change in beginning of year balance 
+#############################################################
+
+endowment_sp_pct <- endowment_sp %>%
+  pivot_wider(names_from = variable_name, values_from = value) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change = ifelse(
+    lag(BeginningYearBalanceAmt, n =1) != 0,
+    (BeginningYearBalanceAmt - lag(BeginningYearBalanceAmt, n =1))/
+           lag(BeginningYearBalanceAmt, n =1),
+    NA),
+         sp500_change = (sp500 - lag(sp500, n =1))/
+           lag(sp500, n =1) ) %>%
+  ungroup()
+
+
+top_50 <- endowment_sp_pct%>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  group_by(EIN, organization_name) %>%
+  summarize(m = max(BeginningYearBalanceAmt, na.rm=TRUE), .groups="drop") %>%
+  mutate(r = rank(-m)) %>% 
+  arrange(r) %>%
+  head(50)
+
+endowment_sp_pct %>%
+  inner_join(top_50) %>%
+  filter(year >=2013) %>%
+  mutate(date = make_date(month=month,year=year)) %>%
+  select(organization_name, EIN, sp500_change,pct_change, date,r) %>%
+  pivot_longer(c(sp500_change, pct_change)) %>%
+  mutate(name =case_when( 
+    name == "pct_change" ~ "Percent Change in\nBeginning of Year Balance",
+    name == "sp500_change" ~ "Percent Change in\nS&P 500")) %>%
+  ggplot(aes(x =date, y = value, color = name)) +
+  geom_line() +
+  facet_wrap(~fct_reorder(organization_name,r), scales="free_y") +
+  theme_c(legend.position ="top",
+          plot.title = element_text(size = 18, face="bold", margin = margin(5,0,12,0))) +
+  scale_color_manual(values = c("#3D9DD8", "#D8AD3D")) + 
+  labs(y = "Percent Change",
+       color = "",
+       title = "Percent Change in Beginning of Year Balance\nCompared to Percent Change in the S&P 500",
+       subtitle = "Top 50 Companies, by Size of Maximum Beginning Year Balance") +
+  guides(color = guide_legend(override.aes = list(linewidth = 3)))
+
+
+
+
+
+
+
+
+
+
+```
+
+```{r, eval=FALSE}
+
+#############################################################
+# plot for percent change in investment earnings/losses
+#############################################################
+
+endowment_sp_pct <- endowment_sp %>%
+  pivot_wider(names_from = variable_name, values_from = value) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change = ifelse(
+    lag(InvestmentEarningsOrLossesAmt, n =1) != 0,
+    (InvestmentEarningsOrLossesAmt - lag(InvestmentEarningsOrLossesAmt, n =1))/
+           lag(InvestmentEarningsOrLossesAmt, n =1),
+    NA),
+         sp500_change = (sp500 - lag(sp500, n =1))/
+           lag(sp500, n =1) ) %>%
+  ungroup()
+
+# using same top 50 as before
+endowment_sp_pct %>%
+  inner_join(top_50) %>%
+  filter(year >=2013) %>%
+  mutate(date = make_date(month=month,year=year)) %>%
+  select(organization_name, EIN, sp500_change,pct_change, date,r) %>%
+  pivot_longer(c(sp500_change, pct_change)) %>%
+  mutate(name =case_when( 
+    name == "pct_change" ~ "Percent Change in\nInvestment Earnings or Losses",
+    name == "sp500_change" ~ "Percent Change in\nS&P 500")) %>%
+  ggplot(aes(x =date, y = value, color = name)) +
+  geom_hline(yintercept = 0, alpha = .4, color="darkred") +
+  geom_line() +
+  facet_wrap(~fct_reorder(organization_name,r), scales="free_y") +
+  theme_c(legend.position ="top",
+          plot.title = element_text(size = 18, face="bold", margin = margin(5,0,12,0))) +
+  scale_color_manual(values = c("#3D9DD8", "#D8AD3D")) + 
+  labs(y = "Percent Change",
+       color = "",
+       title = "Percent Change in Investment Earnings or Losses\nCompared to Percent Change in the S&P 500",
+       subtitle = "Top 50 Companies, by Size of Maximum Beginning Year Balance") +
+  guides(color = guide_legend(override.aes = list(linewidth = 3))) 
+
+
+
+
+```
+
+### Percent Change in Beginning of Year Balance Compared to S&P 500 From Earliest Date to 2020
+
+Below, we compute the percentage change in endowment beginning of year balance for the earliest year the company had a value on record to the value in 2020. Then we compare this value to the percent change in S&P 500 from this same time interval.
+
+```{r, eval=TRUE, fig.height = 13, fig.width = 18}
+
+
+ # endowment_sp %>%
+ #  pivot_wider(names_from = variable_name, values_from = value) %>% 
+ #   group_by(fiscal_year) %>%
+ #   summarize(count_na = length(na.omit(BeginningYearBalanceAmt)))
+ 
+ 
+pct_from_early <- endowment_sp %>%
+  # only have S&P 500 back to 2013
+  filter(fiscal_year >= 2013) %>%
+  pivot_wider(names_from = variable_name, values_from = value) %>%
+  # want to find minimum year where they have beginning of year balance data
+  filter(!is.na(BeginningYearBalanceAmt) & BeginningYearBalanceAmt != 0) %>%
+  group_by(EIN) %>%
+  mutate(min_year = min(fiscal_year)) %>%
+   filter(fiscal_year == min_year | fiscal_year == 2020)%>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change = ifelse(
+    lag(BeginningYearBalanceAmt, n =1) != 0,
+    (BeginningYearBalanceAmt - lag(BeginningYearBalanceAmt, n =1))/
+           lag(BeginningYearBalanceAmt, n =1),
+    NA),
+         sp500_change = (sp500 - lag(sp500, n =1))/
+           lag(sp500, n =1) ) %>%
+  ungroup() %>%
+  select(EIN, fiscal_year, organization_name, pct_change, sp500_change, BeginningYearBalanceAmt, sp500)
+
+
+pct_from_early %>%
+  mutate(difference = pct_change - sp500_change ) %>%
+  filter(fiscal_year == 2020) %>%
+ # filter(fiscal_year ==2020 & !is.na(difference)) %>%
+  mutate(organization_name = fct_reorder(organization_name, difference)) %>%
+  ggplot(aes(y = fct_reorder(organization_name, difference),
+             x = difference)) +
+  geom_bar(stat="identity") +
+  labs(title = "Percent Change in Beginning of Year Balance Minus Percent Change in S&P 500",
+       subtitle = paste0("Positive Values Indicate Endowment Did Better Relative to S&P 500\n",
+                         "Negative Values Indicate Endowment Did Worse Relative to S&P 500"),
+       y = "") +
+  theme_c(plot.title = element_text(margin = margin(5,0,12,0),
+                                    face="bold",
+                                    size = 16))
+
+
+```
+
+
+```{r, eval=FALSE}
+
+
+pct_from_early <- endowment_sp %>%
+  # only have S&P 500 back to 2013
+  filter(fiscal_year >= 2013) %>%
+  pivot_wider(names_from = variable_name, values_from = value) %>%
+  # want to find minimum year where they have beginning of year balance data
+  filter(!is.na(BeginningYearBalanceAmt) & BeginningYearBalanceAmt != 0) %>%
+  group_by(EIN) %>%
+  mutate(min_year = min(fiscal_year)) %>%
+   filter(fiscal_year == min_year | fiscal_year == 2020)%>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change = ifelse(
+    lag(BeginningYearBalanceAmt, n =1) != 0,
+    (BeginningYearBalanceAmt - lag(BeginningYearBalanceAmt, n =1))/
+           lag(BeginningYearBalanceAmt, n =1),
+    NA),
+         sp500_change = (sp500 - lag(sp500, n =1))/
+           lag(sp500, n =1) ) %>%
+  ungroup() %>%
+  select(EIN, fiscal_year, organization_name, pct_change, sp500_change, BeginningYearBalanceAmt, sp500)
+
+
+employees %>%
+  mutate(comp_not_dir = CYSalariesCompEmpBnftPaidAmt - OffDirCompAmt) %>%
+  filter(!is.na(CYSalariesCompEmpBnftPaidAmt) & !is.na(OffDirCompAmt) & OffDirCompAmt != 0) %>%
+  group_by(EIN) %>%
+  mutate(min_year = min(fiscal_year)) %>%
+   filter(fiscal_year == min_year | fiscal_year == 2020)%>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change_comp_dir = ifelse(
+    lag(OffDirCompAmt, n =1) != 0,
+    (OffDirCompAmt - lag(OffDirCompAmt, n =1))/
+           lag(OffDirCompAmt, n =1),
+    NA),
+        pct_change_comp_not_dir = ifelse(
+    lag(comp_not_dir, n =1) != 0,
+    (comp_not_dir - lag(comp_not_dir, n =1))/
+           lag(comp_not_dir, n =1),
+    NA),
+    employee_ct_diff = EmployeeCnt - lag(EmployeeCnt, n =1)) %>%
+  filter(fiscal_year == 2020) %>%
+  ungroup() %>% 
+  mutate(diff =pct_change_comp_dir - pct_change_comp_not_dir) %>%
+  left_join(companies_to_ein) %>%
+  filter(!is.na(diff)) %>%
+  ggplot(aes(x =fct_reorder(organization_name, diff), y = diff, fill = employee_ct_diff)) +
+  geom_bar(stat="identity") +
+  coord_flip()
+
+
+employees %>%
+  mutate(comp_not_dir = CYSalariesCompEmpBnftPaidAmt - OffDirCompAmt) %>%
+  select(fiscal_year,comp_not_dir, OffDirCompAmt, EIN ) %>%
+  pivot_longer(c( comp_not_dir, OffDirCompAmt)) %>%
+  ggplot(aes(x = fiscal_year, y = value, group=EIN)) +
+  geom_line() +
+  facet_wrap(~name)
+
+```
+
+
+
+```{r, eval=FALSE}
+## Percent Change in Investments Compared to S&P 500
+
+ 
+pct_from_early <- endowment_sp %>%
+  # only have S&P 500 back to 2013
+  filter(fiscal_year >= 2013 & fiscal_year <= 2020) %>%
+  pivot_wider(names_from = variable_name, values_from = value) %>%
+  # want to find minimum year where they have beginning of year balance data
+  filter(!is.na(BeginningYearBalanceAmt) & BeginningYearBalanceAmt != 0 & !is.na(InvestmentEarningsOrLossesAmt)) %>%
+  group_by(EIN, organization_name) %>%
+  mutate(net_earnings = sum(InvestmentEarningsOrLossesAmt, na.rm= TRUE),
+            initial_endowment = BeginningYearBalanceAmt[which.min(fiscal_year)],
+            min_fiscal_year = min(fiscal_year) )  %>%
+  mutate(investments_endowment_ratio = net_earnings / initial_endowment)
+  mutate(pct_change = ifelse(
+    lag(InvestmentEarningsOrLossesAmt, n =1) != 0,
+    (InvestmentEarningsOrLossesAmt - lag(InvestmentEarningsOrLossesAmt, n =1))/
+           lag(InvestmentEarningsOrLossesAmt, n =1),
+    NA),
+         sp500_change = (sp500 - lag(sp500, n =1))/
+           lag(sp500, n =1) ) %>%
+  ungroup() %>%
+  select(EIN, fiscal_year, organization_name, pct_change, sp500_change, InvestmentEarningsOrLossesAmt, sp500)
+
+
+pct_from_early %>%
+  mutate(difference = pct_change - sp500_change ) %>%
+  filter(fiscal_year == 2020) %>%
+ # filter(fiscal_year ==2020 & !is.na(difference)) %>%
+  mutate(organization_name = fct_reorder(organization_name, difference)) %>%
+  ggplot(aes(y = fct_reorder(organization_name, difference),
+             x = difference)) +
+  geom_bar(stat="identity") +
+  labs(title = "Percent Change in Beginning of Year Balance Minus Percent Change in S&P 500",
+       subtitle = paste0("Positive Values Indicate Endowment Did Better Relative to S&P 500\n",
+                         "Negative Values Indicate Endowment Did Worse Relative to S&P 500"),
+       y = "") +
+  theme_c(plot.title = element_text(margin = margin(5,0,12,0),
+                                    face="bold",
+                                    size = 16))
+```
+
+
+
+```{r, eval = FALSE}
+
 
 plt <- endowment_sp %>%
   filter(variable_name %in% c("BeginningYearBalanceAmt")) %>%
@@ -776,6 +1475,10 @@ plt <- endowment_sp %>%
             axis.title = element_text(size = 13, 
                                       face = "bold"),
           strip.text = element_text(margin = margin(10,5,5,5,"pt")))
+
+
+
+
 
 ggplotly(plt, margin = m, height = 500, width = 850)
 
