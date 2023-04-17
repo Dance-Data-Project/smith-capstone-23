@@ -631,7 +631,25 @@ pct_change_inv_rtd %>%
   scroll_box(height = "450px")
 ```
 
-# Investments and S&P 500 specifically
+# Investments and S&P 500 specifically  
+
+Asking the question:  How much of the change in endowment balance is specifically due to investments.  
+
+Calculation:  
+
+$$\frac{\sum(Investments)}{(Newest EYB - Oldest BYB)} \times 100$$
+
+```{r, eval = TRUE}
+## (INV - BYB)/BYB * 100
+## Rose has notes on her choice for this calculation
+pct_change_inv_ds <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  mutate(InvestmentEarningsOrLossesAmt = ifelse(is.na(InvestmentEarningsOrLossesAmt), 0, InvestmentEarningsOrLossesAmt)) %>%
+  mutate(change = EndYearBalanceAmt - InvestmentEarningsOrLossesAmt - BeginningYearBalanceAmt,
+         pct_change = change/BeginningYearBalanceAmt * 100) %>%
+  arrange(desc(pct_change)) %>%
+  left_join(names, by = "EIN")
+```
 
 
 # Breaking Companies up by Behavior   
