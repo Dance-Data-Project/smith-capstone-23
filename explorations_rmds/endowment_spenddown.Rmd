@@ -642,15 +642,43 @@ $$\frac{\sum(Investments)}{(Newest EYB - Oldest BYB)} \times 100$$
 ```{r, eval = TRUE}
 ## (INV - BYB)/BYB * 100
 ## Rose has notes on her choice for this calculation
-pct_change_inv_ds <- endowment_data %>%
+endowment_data %>%
   filter(!is.na(BeginningYearBalanceAmt)) %>%
   mutate(InvestmentEarningsOrLossesAmt = ifelse(is.na(InvestmentEarningsOrLossesAmt), 0, InvestmentEarningsOrLossesAmt)) %>%
-  mutate(change = EndYearBalanceAmt - InvestmentEarningsOrLossesAmt - BeginningYearBalanceAmt,
-         pct_change = change/BeginningYearBalanceAmt * 100) %>%
-  arrange(desc(pct_change)) %>%
-  left_join(names, by = "EIN")
+  group_by(EIN) %>%
+  summarize(inv_sum = sum(InvestmentEarningsOrLossesAmt))
+
+inv_sum <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  mutate(InvestmentEarningsOrLossesAmt = ifelse(is.na(InvestmentEarningsOrLossesAmt), 0, InvestmentEarningsOrLossesAmt)) %>%
+  group_by(EIN) %>%
+  summarize(inv_sum = sum(InvestmentEarningsOrLossesAmt))
+
+## Earliest beginning year balance 
+begin <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  group_by(EIN) %>%
+  arrange(EIN, desc(fiscal_year)) %>%
+  slice_min(n=1,order_by = fiscal_year) %>%
+  ungroup() %>% 
+  select(EIN, BeginningYearBalanceAmt, begin_bal_year = fiscal_year) 
+
+## Latest EYB
+end <- endowment_data %>%
+  filter(!is.na(BeginningYearBalanceAmt)) %>%
+  group_by(EIN) %>%
+  arrange(EIN, desc(fiscal_year)) %>%
+  slice_max(n=1,order_by = fiscal_year) %>%
+  ungroup() %>%
+  select(EIN, EndYearBalanceAmt, end_bal_year = fiscal_year)
+
+inv_change <- inv_sum %>%
+  left_join(begin, by = "EIN") %>%
+  left_join(end, by = "EIN") %>%
+  mutate(inv_ch_pct = inv_sum/(EndYearBalanceAmt - BeginningYearBalanceAmt))
 ```
 
+> Where do I go next with this?  How do I compare it to the market?  
 
 # Breaking Companies up by Behavior   
 Using only the dataset normalized for investments, as that has more consistency.  
@@ -883,6 +911,16 @@ most_recent_ds %>%
   labs( title = "Size of Companies by End Year Balance Amount, Limit $20,000,000")
 ```
 
+
+## Looking at Companies who Drop at Any Point 
+
+### Below 40%  
+
+### Below 50%  
+
+### Below 60%  
+
+### Below 70%  
 # Total Revenue  
 
 ```{r}
