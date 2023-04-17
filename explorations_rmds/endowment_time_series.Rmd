@@ -501,6 +501,7 @@ get_all_children_by_file(files[5], "/Return/ReturnData/IRS990" )
 
 
 employee_comp_vars <- c(
+  "/Return/ReturnData/IRS990/CYTotalRevenueAmt",
   "/Return/ReturnData/IRS990/TotalEmployeeCnt",
   "/Return/ReturnData/IRS990/EmployeeCnt",
   "/Return/ReturnData/IRS990/CYSalariesCompEmpBnftPaidAmt",
@@ -822,6 +823,30 @@ ggplotly(plt, height = 500, width = 850) %>%
   layout(margin = m) %>%
   partial_bundle()
 
+
+```
+
+
+```{r}
+## Revenue 
+
+
+emp <- employees %>%
+  filter(EIN %in% sample(employees$EIN, 5)) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(pct_change_comp = (CYSalariesCompEmpBnftPaidAmt - lag(CYSalariesCompEmpBnftPaidAmt, n =1))/  lag(CYSalariesCompEmpBnftPaidAmt, n =1),
+         pct_change_revenue = (CYTotalRevenueAmt - lag(CYTotalRevenueAmt, n =1))/  lag(CYTotalRevenueAmt, n =1)) 
+
+adj <- median(emp$pct_change_comp,na.rm=TRUE)/ median(emp$pct_change_revenue,na.rm=TRUE)
+
+emp %>%
+  ggplot(aes(x= fiscal_year , group=EIN)) +
+  geom_line(aes(y= pct_change_revenue *adj)) +
+  geom_line(aes(y= pct_change_comp),color='darkred') +
+  facet_wrap(~EIN, scales="free_y") +
+  scale_y_continuous(sec.axis = ~./adj) +
+  theme_c()
 
 ```
 
@@ -1329,7 +1354,7 @@ pct_from_early %>%
   ggplot(aes(y = fct_reorder(organization_name, difference),
              x = difference)) +
   geom_bar(stat="identity") +
-  labs(title = "Percent Change in Beginning of Year Balance Minus Percent Change in S&P 500",
+  labs(title = "Percent Change in Beginning of Year Balance\nMinus Percent Change in S&P 500",
        subtitle = paste0("Positive Values Indicate Endowment Did Better Relative to S&P 500\n",
                          "Negative Values Indicate Endowment Did Worse Relative to S&P 500"),
        y = "") +
@@ -1338,7 +1363,9 @@ pct_from_early %>%
                                     face="bold",
                                     size = 12,
                                   hjust = .5),
-          plot.subtitle = element_text(size = 11, face="italic", hjust = .5))
+          plot.subtitle = element_text(size = 11, 
+                                       face="italic", 
+                                       hjust = .5))
 
 
 ```
