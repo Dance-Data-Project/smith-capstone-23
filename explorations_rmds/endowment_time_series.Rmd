@@ -202,8 +202,8 @@ plot_ranks_by_consistency <- function(var1, var2, data) {
      ungroup() %>% 
    mutate(category = case_when(sum_pos != 0 & sum_neg != 0 ~ "Had Some Change",
                                sum_zero ==  sum_pos + sum_neg + sum_zero ~ "Always Ranked the Same",
-                            sum_pos == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Higher in", var1),
-                            sum_neg == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Higher in", var2 ))) %>%
+                            sum_pos == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Better in", var1),
+                            sum_neg == sum_pos + sum_neg + sum_zero ~ paste("Always Ranked Better in", var2 ))) %>%
 
     ggplot(aes(x = !!sym(glue("{var1}_rank" )), y =!!sym(glue("{var2}_rank" )),
                color  = category,
@@ -256,7 +256,7 @@ plot_ranks_by_consistency <- function(var1, var2, data) {
     labs(x = paste0(var1, " Rank"),
          y =  paste0(var2, " Rank"),
          title = glue("Rank of {var2} vs. Rank of {var1}"),
-         color = glue("Proportion Where {var1}\nRanked Higher than\n{var2}")) +
+         color = glue("Proportion Where {var1}\nRanked Better than\n{var2}")) +
     theme_c(legend.text=element_text(size =8)) +
     scale_color_gradient2(high="#5935CF", low="#D18E01", mid="#E2E2E2", limits=c(0,1), midpoint=.5) +
      facet_wrap(~fiscal_year)+
@@ -373,9 +373,9 @@ plt <- endowment_data_wide %>%
          EIN, organization_name) %>%
   pivot_longer(cols = contains("EOY"))  %>%
   mutate(name = case_when(
-    name == "TermEndowmentBalanceEOYPct" ~ "Temporarily restricted endowment\nEnd of Year Pct",
-    name == "PrmnntEndowmentBalanceEOYPct" ~ "Permanent endowment\nEnd of Year Pct",
-    name == "BoardDesignatedBalanceEOYPct" ~ "Board designated or quasi-endowment\nEnd of Year Pct"
+    name == "TermEndowmentBalanceEOYPct" ~ "Temporarily restricted endowment",
+    name == "PrmnntEndowmentBalanceEOYPct" ~ "Permanent endowment",
+    name == "BoardDesignatedBalanceEOYPct" ~ "Board designated or quasi-endowment"
   )) %>%
   mutate(value = 100*value) %>%
   filter(!is.na(value)) %>%
@@ -1041,8 +1041,8 @@ plt <-  emp_comp %>%
    ungroup() %>%
    mutate(category = case_when(sum_pos != 0 & sum_neg != 0 ~ "Had Some Change",
                                sum_zero ==  sum_pos + sum_neg + sum_zero ~ "Always Ranked the Same",
-                            sum_pos == sum_pos + sum_neg + sum_zero ~  "Always Ranked Higher in Average Employee Compensation" ,
-                            sum_neg == sum_pos + sum_neg + sum_zero ~ "Always Ranked Higher in C-Suite Compensation"),
+                            sum_pos == sum_pos + sum_neg + sum_zero ~  "Always Ranked Better in Average Employee Compensation" ,
+                            sum_neg == sum_pos + sum_neg + sum_zero ~ "Always Ranked Better in C-Suite Compensation"),
           prop_positive = sum_pos/(sum_pos+sum_zero+sum_neg)) 
  
  
@@ -1055,7 +1055,7 @@ plt <- ranks %>%
    labs(y = "Ranking of Average Employee Compensation",
         x = "Ranking of Average C-Suite Compensation",
         title = "Rankings of Average C-Suite Pay versus Average Employee Compensation",
-        color = "Proportion Where Average Employee Compensation\nWas Ranked Higher Than C-Suite") +
+        color = "Proportion Where C-Suite Compensation\nWas Ranked Better Than Average Employee Compensation") +
    facet_wrap(~fiscal_year)  +
   geom_function(fun=function(x)x,color="darkred", alpha = .8) +
  # scale_fill_distiller(palette ="PuOr", low="#EFC950", mid="#E2E2E2") +
@@ -1197,14 +1197,14 @@ $$\text{Value Current Year} = (P+1) \times \text{Value in the Previous Year}.$$
 
 For example, a percentage change of 0 means the value in the current year is identical to the previous year, since we have $\text{Value Current Year} = (1) \times \text{Value in the Previous Year}$.
 
-A percentage change of 1 means the value in the current year is double that of hte previous, since we have $\text{Value Current Year} = (1+1) \times \text{Value in the Previous Year}$.
+A percentage change of 1 means the value in the current year is double that of the previous, since we have $\text{Value Current Year} = (1+1) \times \text{Value in the Previous Year}$.
 
 This interpretation still holds with the enormous percentage changes we have here, for example, Joffrey Ballet's endowment (beginning of year balance) saw approximately a $131\%$ increase in 2020 from its value in 2015, and we can interpret this as meaning the value in 2020 was 132 times the value in 2015.
 
 
 ### Percentage Change in Beginning of Year Balance Over Time
 
-```{r, eval=TRUE,  fig.height =12, out.width="80%"}
+```{r, eval=TRUE,  fig.height =12, fig.width = 22}
 
 
 #############################################################
