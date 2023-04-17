@@ -409,10 +409,6 @@ ggplotly(limited_scale_inv)
 
 # Comparing within-year percent change to S&P 500  
 
-Adding S&P index  
-
-Altering plots to be plotting date-wise so the X-axes can be the same 
-
 ```{r}
 ## Adding end date 
 source(here("GET_VARS.R"))
@@ -539,8 +535,6 @@ pct_change_rtd %>%
   geom_line(data = sp_pct_chg, aes(x = date_END, y = pct_change), color = "black", show.legend = FALSE)
 ```
 
-Issue with this table: PCT change in S&P 500 is calculated month-by-month, while PCT change in endowment is calculated across a fiscal year.  
-
 ```{r}
 ## GETTING PERCENT CHANGE OF FISCAL YEARS THAT EXIST IN THE DATASET
 ## All 'end' dates of fiscal years
@@ -625,7 +619,20 @@ pct_change_inv_rtd %>%
 ```
 
 
-> NTS: Add table 
+```{r}
+pct_change_inv_rtd %>%
+  mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
+  filter(pct_change != Inf) %>%
+  left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
+  select(organization_name, TaxPeriodEndDt, pct_change.x, pct_change.y) %>%
+  arrange(desc(abs(pct_change.x))) %>%
+  make_table(title = "Percentage Change of Endowment and S&P 500", 
+             col_names = c("Organization Name", "Fiscal Year End Date", "Endowment Percent Change", "S&P 500 Percent Change")) %>%
+  scroll_box(height = "450px")
+```
+
+# Investments and S&P 500 specifically
+
 
 # Breaking Companies up by Behavior   
 Using only the dataset normalized for investments, as that has more consistency.  
