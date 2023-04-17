@@ -37,6 +37,7 @@ for (i in files) {
 # exploration folder
 files <- dir(here("explorations_rmds"),
              full.names = TRUE)
+# will need to update 410uplabor once we have all prerequisite files 
 files <- files[files != "410uplabor.Rmd"]
 output <- here("explorations_rmds", "output_html")
 
