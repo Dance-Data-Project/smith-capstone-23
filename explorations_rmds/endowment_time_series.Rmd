@@ -3,12 +3,13 @@ title: "Endowment Time Series"
 author: "Quinn White"
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    code_folding: hide
+  html_vignette:
+#    code_folding: hide
     df_print: paged
-    toc: true
-    toc_depth: 4
-    toc_float: true 
+#    toc: true
+#    toc_depth: 4
+#    toc_float: true 
+#    theme: null 
     css: !expr here::here('css', 'template.css')
 #  rmdformats::readthedown:
 #    df_print: paged
@@ -30,7 +31,7 @@ knit: (function(input, ...) {
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, comment=NA, eval=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, comment=NA, eval=FALSE, dpi=36)
 library(tidyverse)
 library(kableExtra)
 library(scales)
@@ -40,7 +41,7 @@ library(here)
 library(viridis)
 
 
-all_plots <- TRUE
+all_plots <- FALSE
 
 m <- list(
     l = 50,
@@ -178,7 +179,8 @@ plot_ranks <- function(var1, var2, data) {
             axis.title = element_text(size = 13, 
                                       face = "bold")) 
   
-  ggplotly(plt, margin = m, height = 550)
+  ggplotly(plt, margin = m, height = 550) %>%
+    partial_bundle()
 
 }
 
@@ -224,7 +226,7 @@ plot_ranks_by_consistency <- function(var1, var2, data) {
             axis.title = element_text(size = 13, 
                                       face = "bold")) 
   
-  ggplotly(plt, margin = m, height = 550)
+  ggplotly(plt, margin = m, height = 550) %>% partial_bundle() 
 
 }
 
@@ -266,7 +268,7 @@ plot_ranks_by_consistency <- function(var1, var2, data) {
             axis.title = element_text(size = 13, 
                                       face = "bold")) 
   
-  ggplotly(plt, margin = m, height = 550)
+  ggplotly(plt, margin = m, height = 550) %>% partial_bundle()
 
 }
 
@@ -386,7 +388,7 @@ plt <- endowment_data_wide %>%
   labs(y="Percentage of Endowment in Category",
        x = "Fiscal Year") 
 
-ggplotly(plt, margin = m, height = 550)
+ggplotly(plt, margin = m, height = 550) %>% partial_bundle()
 
 ```
 
@@ -403,7 +405,7 @@ ggplotly(plt, margin = m, height = 550)
 
 plotlist <- pmap(variable_combinations, ~{ 
  #plt <- plot_ranks(var1 = .x, var2 = .y, data = endowment_data_wide)
-   plt <- plot_ranks_by_consistency(var1 = .x, var2 = .y, data = endowment_data_wide)
+   plt <- plot_ranks_by_consistency(var1 = .x, var2 = .y, data = endowment_data_wide) %>% partial_bundle()
 
  }
 )
@@ -452,7 +454,7 @@ plot_ranks_over_time <- function(dat,var) {
 }
 
 plotlist <- map(vars,~ {
-  plt<- plot_ranks_over_time(endowment_data_wide,.x)
+  plt<- plot_ranks_over_time(endowment_data_wide,.x) %>% partial_bundle()
 })
 
 
@@ -745,7 +747,7 @@ plt <- comp_clean %>%
 
 
 ggplotly(plt,height = 500, width =850) %>%
-  layout(margin = m)
+  layout(margin = m) %>%partial_bundle()
 
 ```
 
@@ -782,7 +784,7 @@ plt <- comp %>%
       y = "Total Compensation")
 
 ggplotly(plt, height = 500, width = 850) %>%
-  layout(margin = m)
+  layout(margin = m) %>% partial_bundle()
 
 ```
 
@@ -815,7 +817,8 @@ plt <- comp %>%
 
 
 ggplotly(plt, height = 500, width = 850) %>%
-  layout(margin = m)
+  layout(margin = m) %>%
+  partial_bundle()
 
 
 ```
@@ -837,7 +840,8 @@ plot_ranks("BeginningYearBalanceAmt",
 * For total employee compensation - `CYSalariesCompEmpBnftPaidAmt: Salaries, other compensation, employee benefits (Part IX, column (A), lines 5–10)`.
 * For top employee compensation - Schedule J, looking at total compensation
 
-```{r, eval=TRUE, results='asis', fig.height = 8, fig.width = 12}
+
+```{r, eval=TRUE}
 
 top <- comp_clean %>% 
   group_by(EIN,fiscal_year,organization_name) %>% 
@@ -851,6 +855,10 @@ top <- comp_clean %>%
 emp_comp <- employees %>% 
   left_join(companies_to_ein) %>%
   left_join(top) 
+
+```
+
+```{r, eval=TRUE, results='asis', fig.height = 8, fig.width = 12}
 
 plt <- emp_comp %>%
   ggplot(aes(x=fiscal_year,
@@ -876,7 +884,8 @@ plt <- emp_comp %>%
                                       face = "bold"))
 
 
-ggplotly(plt, margin = m, height = 500)
+ggplotly(plt, margin = m, height = 500) %>%
+  partial_bundle()
 
  # plt <- emp_comp %>%
  #   filter(fiscal_year !=2014 & fiscal_year !=2021) %>% 
@@ -953,7 +962,8 @@ marg <- list(
     pad = 0.5
 )
  
- ggplotly(plt, margin = marg, height = 500)
+ ggplotly(plt, margin = marg, height = 500) %>%
+   partial_bundle()
 
 
 
@@ -978,7 +988,8 @@ plt <-  emp_comp %>%
                                  option = "rocket",
                                  end = .9) 
  
- ggplotly(plt, margin = marg, height = 500)
+ ggplotly(plt, margin = marg, height = 500) %>%
+   partial_bundle()
 
  
  
@@ -1022,7 +1033,8 @@ plt <- ranks %>%
   geom_function(fun=function(x)x,color="darkred", alpha = .8) +
   scale_color_distiller(palette ="PuOr")
  
- ggplotly(plt, margin = marg, height = 500)
+ ggplotly(plt, margin = marg, height = 500) %>%
+   partial_bundle()
  
  
 
@@ -1480,7 +1492,8 @@ plt <- endowment_sp %>%
 
 
 
-ggplotly(plt, margin = m, height = 500, width = 850)
+ggplotly(plt, margin = m, height = 500, width = 850) %>%
+  partial_bundle()
 
 ```
 
