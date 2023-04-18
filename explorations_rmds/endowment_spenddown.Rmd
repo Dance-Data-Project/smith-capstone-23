@@ -496,7 +496,7 @@ sp_end <- read_csv(here('data','SP500.csv')) %>%
 sp_pct_chg <- sp_begin %>%
   bind_rows(sp_end) %>%
   pivot_wider(names_from = type, values_from = c(date, sp500)) %>%
-  mutate(pct_change = (sp500_END - sp500_START)/sp500_START * 100)
+  mutate(pct_change_mon = (sp500_END - sp500_START)/sp500_START * 100)
 ```
 
 ## WITH investments  
@@ -532,7 +532,7 @@ pct_change_rtd %>%
                      limits = c(-100, 100)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
   geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1) + 
-  geom_line(data = sp_pct_chg, aes(x = date_END, y = pct_change), color = "black", show.legend = FALSE)
+  geom_line(data = sp_pct_chg, aes(x = date_END, y = pct_change_mon), color = "black", show.legend = FALSE)
 ```
 
 ```{r}
@@ -542,7 +542,7 @@ date_ends <- pct_change_rtd %>%
   pull(TaxPeriodEndDt) %>%
   unique()
 
-sp_end_month <- read_csv(here('data','SP500.csv')) %>%
+sp_end <- read_csv(here('data','SP500.csv')) %>%
   rename_with(tolower) %>%
   mutate(sp500 = as.numeric(sp500)) %>%
   filter(!is.na(sp500)) %>%
@@ -552,7 +552,7 @@ sp_end_month <- read_csv(here('data','SP500.csv')) %>%
          year = year(date_end),
          year_last = year(date_end) - 1)
 
-sp_start_month <- read_csv(here('data','SP500.csv')) %>%
+sp_start <- read_csv(here('data','SP500.csv')) %>%
   rename_with(tolower) %>%
   mutate(sp500 = as.numeric(sp500)) %>%
   filter(!is.na(sp500)) %>%
@@ -568,6 +568,56 @@ sp_change_years <- sp_end_month %>%
   left_join(sp_start_month, by = c("month", "year_last" = "year")) %>%
   mutate(pct_change = (sp500_end - sp500_start)/sp500_start * 100)
 ```
+
+```{r}
+sp_end <- read_csv(here('data','SP500.csv')) %>%
+  rename_with(tolower) %>%
+  mutate(sp500 = as.numeric(sp500)) %>%
+  filter(!is.na(sp500)) %>%
+  select(date_end = date, sp500_end = sp500) %>%
+  mutate(month = month(date_end),
+         year = year(date_end),
+         year_last = year(date_end) - 1)
+
+sp_start <- read_csv(here('data','SP500.csv')) %>%
+  rename_with(tolower) %>%
+  mutate(sp500 = as.numeric(sp500)) %>%
+  filter(!is.na(sp500)) %>%
+  select(date_start = date, sp500_start = sp500) %>%
+  mutate(month = month(date_start),
+         year = year(date_start))
+
+sp_change_years <- sp_end %>%
+  left_join(sp_start, by = c("month", "year_last" = "year")) %>%
+  mutate(pct_change_yr = (sp500_end - sp500_start)/sp500_start * 100)
+```
+
+```{r}
+## Spend Down over Time
+pct_change_rtd %>%
+  filter(pct_change != Inf) %>%
+  ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
+  geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "Black Dot: Median. Black line: S&P500 % change in a month") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10),
+                     limits = c(-100, 100)) +
+  scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
+  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1) + 
+  geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE, alpha = 0.5)
+```
+
 
 ```{r}
 pct_change_rtd %>%
