@@ -51,17 +51,69 @@ make_table <- function(df, title = "", ...) {
 ruthdata <- read.csv(here('data/ruthdata.csv'))
 ```
 
+
 ```{r}
+# generate each company's volunteer percentage of total labors count
 ruthdata<-ruthdata %>% 
   mutate(
     volunteer_pct = TotalVolunteersCnt/(TotalEmployeeCnt+TotalVolunteersCnt)
-  ) 
+  )
+```
+
+
+```{r}
+#filtering years 
+ruthdata2021 <- ruthdata%>%
+  filter(year=="2021") %>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2020 <- ruthdata%>%
+  filter(year=="2020")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2019 <- ruthdata%>%
+  filter(year=="2019")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2018 <- ruthdata%>%
+  filter(year=="2018")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2017 <- ruthdata%>%
+  filter(year=="2017")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2016 <- ruthdata%>%
+  filter(year=="2016")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2015 <- ruthdata%>%
+  filter(year=="2015")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+ruthdata2014 <- ruthdata%>%
+  filter(year=="2014")%>% 
+  mutate(rank_pct = rank(volunteer_pct))
+
+df20202021 <- ruthdata%>%
+  filter(year == c("2020", "2021"))
+
+df20172019 <- ruthdata%>%
+  filter(year == c("2017", "2018", "2019"))
+
+data_trend <- rbind(ruthdata2015, ruthdata2016, ruthdata2017, ruthdata2018, ruthdata2019, ruthdata2020)
+```
+
+
+```{r}
+# give each company a rank of volunteer percent by year
 ruthdata %>% 
   group_by(EIN, year) %>% 
   mutate(
     rank_vol_pct = rank(desc(volunteer_pct))
   )
 ```
+
 ```{r}
 # Load required packages
 library(dplyr)
@@ -87,6 +139,7 @@ df_ranked
 
 1. Create a pretty visualization on a US map colored by region. Each region should have the total percent share of volunteer labor for that region. This should be calculated as the total number of volunteers FOR THAT REGION divided by the total number of employees plus volunteers FOR THAT REGION. 
 ```{r}
+options(digits = 4)
 state_percent_share<-ruthdata %>% 
   group_by(state) %>% 
   summarise(
@@ -105,16 +158,45 @@ state_percent_share
 ```{r}
 # Load required packages
 library("usmap")
-plot_usmap(regions = "states") + 
-  labs(title = "U.S. States",
-       subtitle = "This is a blank map of the United States.") + 
-  theme(panel.background=element_blank())
+
+# join volunteer percentage of each state to us map
+map_data_pct<-map_with_data(ruthdata %>% select(state, volunteer_pct) %>% mutate(values = volunteer_pct))
+
+state_coords <- map_data_pct %>%
+  group_by(state) %>%
+  summarise(lat = mean(x), long = mean(y))
+
+ggplot(data = map_data_pct) +
+  geom_polygon(aes(x = x, y = y, group = group, fill = values)) +
+  scale_fill_gradient(low = "white", high = "darkblue") +
+  geom_text(data = state_coords, aes(x = lat, y = long, label = state), 
+            size = 3, color = "white") +
+  labs(fill = "Volunteer Percent",)+xlab("lat")+ylab("long")+
+  theme_bw()
 ```
 
 
 2. Show descriptive statistics for the top 50% of volunteer labor, 25%, 10%, and 5% by region, and by state. Visualize these quantiles. 
+```{r}
+
+```
+
+
 
 3. Figure out trends of employees and volunteers through the pandemic and identify shifts in these variables over the pandemic
+
+```{r}
+ggplotly(
+  ggplot(data = data_trend, aes(x = year, y = rank_pct, color = as.factor(BusinessName)))+
+    geom_line()+
+    theme_bw()+
+    viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
+)
+```
+
+
 
 
 ```{r}
@@ -292,31 +374,7 @@ summarize(min=min(uplaborrankdif),
 ```
 
 ```{r}
-#filtering years 
-ruthdata2021 <- ruthdata%>%
-  filter(year=="2021")
 
-ruthdata2020 <- ruthdata%>%
-  filter(year=="2020")
-
-ruthdata2019 <- ruthdata%>%
-  filter(year=="2019")
-
-ruthdata2018 <- ruthdata%>%
-  filter(year=="2018")
-
-ruthdata2017 <- ruthdata%>%
-  filter(year=="2017")
-
-ruthdata2016 <- ruthdata%>%
-  filter(year=="2016")
-
-df20202021 <- ruthdata%>%
-  filter(year == c("2020", "2021"))
-
-df20172019 <- ruthdata%>%
-  filter(year == c("2017", "2018", "2019"))
-```
 
 ```{r}
 #summaries for uplabor over years
