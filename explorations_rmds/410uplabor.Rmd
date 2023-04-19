@@ -104,6 +104,19 @@ df20172019 <- ruthdata%>%
 data_trend <- rbind(ruthdata2015, ruthdata2016, ruthdata2017, ruthdata2018, ruthdata2019, ruthdata2020)
 ```
 
+```{r}
+##creating region variable based on DDP-advised regions
+ruthdata <- ruthdata %>%
+  mutate(region= as.character(case_when(state %in% c("IA", "IL", "IN", "MI", "MN", "OH", "WI") ~ "MidWest",
+                state %in% c("AR", "MO", "NE", "OK", "TX") ~ "Mid-America",
+                state %in% c("DC", "DE", "MD", "NJ", "NY", "PA", "VA", "WV") ~ "Mid-Atlantic",
+                state %in% c("CT", "MA", "ME", "NH", "RI") ~  "New England",
+                state%in% c("AZ", "CA", "CO", "ID", "MT", "NM", "NV", "OR", "UT", "WA") ~ "West",
+                state %in% c("AL", "FL", "GA", "KY", "LA", "MS", "NC", "SC", "TN") ~ "South")) )
+
+
+```
+
 
 ```{r}
 # give each company a rank of volunteer percent by year
@@ -112,28 +125,6 @@ ruthdata %>%
   mutate(
     rank_vol_pct = rank(desc(volunteer_pct))
   )
-```
-
-```{r}
-# Load required packages
-library(dplyr)
-
-# Create a sample dataframe
-df <- data.frame(
-  Company = c("A", "A", "B", "B", "C", "C"),
-  Year = c(2018, 2019, 2018, 2019, 2018, 2019),
-  TotalRevenue = c(100, 150, 200, 175, 50, 75)
-)
-
-# Group the dataframe by Company and Year, and rank the TotalRevenue column within each group
-df_ranked <- df %>%
-  group_by(Company, Year) %>%
-  mutate(Rank = dense_rank(desc(TotalRevenue)))
-
-# Print the updated dataframe
-df_ranked
-
-
 ```
 
 
@@ -168,9 +159,9 @@ state_coords <- map_data_pct %>%
 
 ggplot(data = map_data_pct) +
   geom_polygon(aes(x = x, y = y, group = group, fill = values)) +
-  scale_fill_gradient(low = "white", high = "darkblue") +
+  scale_fill_gradient(low = "white", high = "royalblue") +
   geom_text(data = state_coords, aes(x = lat, y = long, label = state), 
-            size = 3, color = "white") +
+            size = 3, color = "black") +
   labs(fill = "Volunteer Percent",)+xlab("lat")+ylab("long")+
   theme_bw()
 ```
@@ -178,9 +169,52 @@ ggplot(data = map_data_pct) +
 
 2. Show descriptive statistics for the top 50% of volunteer labor, 25%, 10%, and 5% by region, and by state. Visualize these quantiles. 
 ```{r}
+# under construction
+ruthdata$vol_pct_quantile <- cut(ruthdata$volunteer_pct, breaks = quantile(ruthdata$volunteer_pct, na.rm = TRUE), labels = FALSE)
+  
+options(digits = 4)
+regions_num <- ruthdata %>% 
+  group_by(region) %>% 
+  summarise(number = n())
+
+quantile_num <- ruthdata %>% 
+  group_by(vol_pct_quantile) %>% 
+  summarise(quant_num = n())
+
+stack_region<-ruthdata %>% 
+  group_by(region, vol_pct_quantile) %>% 
+  summarise(number = n()) %>% 
+  left_join(regions_num, by = "region") %>% 
+  mutate(Percent = number.x/number.y * 100)
+
+stack_quantile <- ruthdata %>% 
+  group_by(vol_pct_quantile, region) %>% 
+  summarise(number = n()) %>% 
+  left_join(quantile_num, by = "vol_pct_quantile") %>% 
+  mutate(Percent = number/quant_num * 100)
+```
+
+```{r}
+ggplot(stack_region, aes(x = region, y = Percent, fill = vol_pct_quantile)) +
+  geom_bar(stat = "identity", position = "stack")+
+  viridis::scale_fill_viridis(discrete=FALSE,
+                                 option = "rocket",
+                                 end = .9)+
+  theme_bw()
 
 ```
 
+```{r}
+ggplot(stack_quantile, aes(x = vol_pct_quantile, y = Percent, fill = region)) +
+  geom_bar(stat = "identity", position = "stack")+
+  viridis::scale_fill_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)+
+  theme_bw()+
+  xlab("Quantile of Percentage of Volunteer in Total Labor Count")
+  
+
+```
 
 
 3. Figure out trends of employees and volunteers through the pandemic and identify shifts in these variables over the pandemic
@@ -196,20 +230,6 @@ ggplotly(
 )
 ```
 
-
-
-
-```{r}
-##creating region variable based on DDP-advised regions
-ruthdata <- ruthdata %>%
-  mutate(region= as.character(case_when(state %in% c("IA", "IL", "IN", "MI", "MN", "OH", "WI") ~ "MidWest",
-                state %in% c("AR", "MO", "NE", "OK", "TX") ~ "Mid-America",
-                state %in% c("DC", "DE", "MD", "NJ", "NY", "PA", "VA", "WV") ~ "Mid-Atlantic",
-                state %in% c("CT", "MA", "ME", "NH", "RI") ~  "New England",
-                state%in% c("AZ", "CA", "CO", "ID", "MT", "NM", "NV", "OR", "UT", "WA") ~ "West",
-                state %in% c("AL", "FL", "GA", "KY", "LA", "MS", "NC", "SC", "TN") ~ "South")) )
-    
-```
 
 
 ```{r}
@@ -245,6 +265,7 @@ Volunteer <- ggplot(ruthdata, aes(x = year, y = TotalVolunteersCnt, color = as.f
        title = "Ballet Company Reported Volunteers",
        subtitle = "By Fiscal Year")+
   theme_bw()
+
 ggplotly(Volunteer)
 ```
 
