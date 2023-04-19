@@ -30,10 +30,60 @@ library(here)
 library(plotly)
 ```
 
+```{r}
+
+# make kable table with consistent formatting
+make_table <- function(df, title = "", ...) {
+  title <- paste0("<center><span style = 'font-size:160%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(df) %>%
+    kbl(caption = title, ... ) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+
+```
+
+
 ```{r, include=FALSE}
 ##this is Ruth's dataset. It includes EIN, Business Name, Year, Total Employee Count, Total Volunteer count from the get_vars function. It also includes a state column, which was merged in SQL from Zhen's state file. Because my dataset deals with unpaid labor, all filings with NA values for employees and volunteers were omitted. Additionally, four variables were calculated: empminusvol is the number of employees minus the number of volunteers, EmpoverVol is the number of employees divided by the number of volunteers, emprank is the numerical ranking based on the number of repeorted employees, and volrank is the numerical ranking based on the number of reported volunteers.  
 ruthdata <- read.csv(here('data/ruthdata.csv'))
 ```
+
+```{r}
+ruthdata<-ruthdata %>% 
+  mutate(
+    volunteer_pct = TotalVolunteersCnt/(TotalEmployeeCnt+TotalVolunteersCnt)
+  ) 
+ruthdata %>% 
+  group_by(EIN, year) %>% 
+  mutate(
+    rank_vol_pct = rank(desc(volunteer_pct))
+  )
+```
+```{r}
+# Load required packages
+library(dplyr)
+
+# Create a sample dataframe
+df <- data.frame(
+  Company = c("A", "A", "B", "B", "C", "C"),
+  Year = c(2018, 2019, 2018, 2019, 2018, 2019),
+  TotalRevenue = c(100, 150, 200, 175, 50, 75)
+)
+
+# Group the dataframe by Company and Year, and rank the TotalRevenue column within each group
+df_ranked <- df %>%
+  group_by(Company, Year) %>%
+  mutate(Rank = dense_rank(desc(TotalRevenue)))
+
+# Print the updated dataframe
+df_ranked
+
+
+```
+
 
 1. Create a pretty visualization on a US map colored by region. Each region should have the total percent share of volunteer labor for that region. This should be calculated as the total number of volunteers FOR THAT REGION divided by the total number of employees plus volunteers FOR THAT REGION. 
 ```{r}
@@ -47,7 +97,8 @@ state_percent_share<-ruthdata %>%
   mutate(
     percent_share = (sum_volunteers / (sum_employees + sum_volunteers)) * 100
   ) %>% 
-  arrange(desc(percent_share))
+  arrange(desc(percent_share)) %>% 
+  make_table()
 state_percent_share
 ```
 
