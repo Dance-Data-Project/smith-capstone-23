@@ -35,6 +35,35 @@ library(plotly)
 ruthdata <- read.csv(here('data/ruthdata.csv'))
 ```
 
+1. Create a pretty visualization on a US map colored by region. Each region should have the total percent share of volunteer labor for that region. This should be calculated as the total number of volunteers FOR THAT REGION divided by the total number of employees plus volunteers FOR THAT REGION. 
+```{r}
+state_percent_share<-ruthdata %>% 
+  group_by(state) %>% 
+  summarise(
+    sum_volunteers = sum(TotalVolunteersCnt),
+    sum_employees = sum(TotalEmployeeCnt),
+    company_num = n()
+  ) %>% 
+  mutate(
+    percent_share = (sum_volunteers / (sum_employees + sum_volunteers)) * 100
+  ) %>% 
+  arrange(desc(percent_share))
+state_percent_share
+```
+
+```{r}
+# Load required packages
+library("usmap")
+plot_usmap(regions = "states") + 
+  labs(title = "U.S. States",
+       subtitle = "This is a blank map of the United States.") + 
+  theme(panel.background=element_blank())
+```
+
+
+2. Show descriptive statistics for the top 50% of volunteer labor, 25%, 10%, and 5% by region, and by state. Visualize these quantiles. 
+
+3. Figure out trends of employees and volunteers through the pandemic and identify shifts in these variables over the pandemic
 
 
 ```{r}
