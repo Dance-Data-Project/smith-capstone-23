@@ -75,11 +75,13 @@ theme_c <- function(...){
       # t, r, b, l
       plot.margin = unit(c(1,.5,.5,.5), "cm"),
       legend.position = "right",
-      strip.text.x = element_text(size = 18, face = "bold", color="white",
+      strip.text.x = element_text(size = 18, 
+                                  # face = "bold",
+                                  color="white",
                                   margin=margin(4,0,4,0),
                                   lineheight=1),
        strip.text.y = element_text(size = 18, 
-                                   face = "bold",
+                                  # face = "bold",
                                    color="white", 
                                    angle=-90, 
                                    lineheight = 1,
@@ -752,10 +754,21 @@ prop_balanced_ranked_higher %>%
 
 ## How ranks change over time 
 
+## Ranking of Endowment Beginning of Year Balance 
 
-```{r, fig.height = 10, fig.cap="\\label{fig:rank-endowments}Rank of the endowment beginning of year balance over time. The 15 companies with the most variability in ranking, defined as the mean difference in rankings between fiscal years, are shown in color. Names of all companies are on the right."}
 
-pal1 <- viridis_pal(option="mako", end = .8, begin=.2)(8)
+```{r, fig.height = 8, fig.cap="\\label{fig:rank-endowments}Rank of the endowment beginning of year balance over time. The 15 companies with the most variability in ranking, defined as the mean difference in rankings between fiscal years, are shown in color. Names of all companies are on the right.", results='hide'}
+
+
+
+######################################################
+# RANK OVER TIME FOR BEGINNING OF YEAR BALANCE
+######################################################
+
+
+
+
+pal1 <- viridis_pal(option="mako", end = .8, begin=.2)(4)
 pal2 <- viridis_pal(option="rocket", end = .8, begin=.2)(4)
 pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(4)
 pal4 <- viridis_pal(option="inferno", end = .8, begin=.2)(4)
@@ -777,13 +790,248 @@ balance_ranks <- endowment_data_wide %>%
     group_by(fiscal_year) %>%
     mutate(rank = rank(-!!sym(var), na.last = "keep")) %>%
     filter(!is.na(rank)) %>%
-     select(organization_name,rank,fiscal_year) %>%
+     select(organization_name,rank,fiscal_year, ContributionsAmt) %>%
     group_by(organization_name) %>%
     arrange(fiscal_year) %>%
     mutate(rankdiff = rank-lag(rank, n=1, order_by=fiscal_year),
            n_years_on_file = n()) %>%
     mutate(mean_diff = mean(abs(rankdiff),na.rm=TRUE)) %>%
-  ungroup()
+  ungroup() 
+ # group_by(organization_name) %>%
+  
+
+cont_ranks <-endowment_data_wide %>%
+  select(organization_name, ContributionsAmt) %>%
+  group_by(organization_name) %>%
+  summarize(cont = mean(ContributionsAmt,na.rm=TRUE)) %>%
+  ungroup() %>%
+  mutate(cont_rank = rank(-cont, na.last="keep"))
+ 
+
+balance_ranks <- balance_ranks %>% 
+  left_join(cont_ranks)
+
+
+ top_ranks <- balance_ranks %>% 
+   filter(n_years_on_file>=5) %>%
+   select(organization_name,mean_diff) %>%
+   distinct() %>%
+   arrange(desc(abs(mean_diff))) %>%
+   slice_head(n=15)
+ 
+ 
+ labels <- balance_ranks %>%
+   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+          alph =is.na(color_org)) %>%
+   group_by(organization_name) %>%
+   mutate(minyear = min(fiscal_year,na.rm=TRUE),
+          maxyear = max(fiscal_year, na.rm=TRUE)) %>%
+   filter(!is.na(color_org)) %>%
+   filter(fiscal_year == minyear) %>%
+   select(organization_name, minyear, rank) %>%
+   distinct()
+ 
+ 
+ 
+ labels_all <- balance_ranks %>%
+   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+          alph =is.na(color_org)) %>%
+   group_by(organization_name) %>%
+   mutate(minyear = min(fiscal_year,na.rm=TRUE),
+          maxyear = max(fiscal_year, na.rm=TRUE)) %>%
+   mutate(organization_name = ifelse(maxyear == 2020, organization_name, NA)) %>%
+ #  filter(!is.na(color_org)) %>%
+   filter(fiscal_year == maxyear) %>%
+   select(organization_name, minyear, rank,cont_rank) %>%
+   distinct()
+ 
+ balance_ranks %>%
+   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+          alph =is.na(color_org)) %>%
+   group_by(organization_name) %>%
+   mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
+    ggplot(aes(x=fiscal_year, y = rank)) +
+       geom_line(aes(group=organization_name)) +
+    geom_line(aes(group=organization_name, alpha = alph), linewidth=.5, color="gray") +
+    geom_line(aes(group=organization_name,color =color_org), linewidth=1.3) +
+    scale_alpha_manual(values =c('TRUE' = 1, 'FALSE'=.01), guide="none") +
+    geom_point(alpha = .3, size =.5) +
+    scale_color_manual(values=pal, na.value=NA, breaks =top_ranks$organization_name) +
+    theme_c() +
+    scale_y_reverse(n.breaks = 10) +
+    scale_x_continuous(breaks=2010:2020,limits=c(2010,2022)) +
+    labs(y = paste("Rank of ", var),
+         x = "Fiscal Year",
+         title = paste0("Rank over time for ", var)) +
+   geom_label(aes(x=minyear, y =rank,
+                  label=organization_name,
+                  color=organization_name), 
+              nudge_x = -.3,
+              alpha = 1,
+              size = 3,
+              label.padding=unit(.1,'lines'),
+              label.size=1.2,
+              data=labels) +
+   geom_label(aes(x = minyear,
+                  label = organization_name,
+              #  color=organization_name,
+                 y =rank),
+              nudge_x = -.3,
+              color = "black",
+              size=3,
+             label.size = NA,
+             label.padding= unit(.1,'lines'),
+             data=labels) +
+   theme(axis.title = element_text(size =26),
+         plot.title = element_text(size = 26, margin = margin(0,0,4,0)),
+         axis.text.x = element_text(size=14),
+         legend.position = "none") +
+   labs(title = "Rank of Beginning of Year Balance over Time",
+        x = "Fiscal Year",
+        y = "Rank of Beginning of Year Balance") +
+   geom_text(aes(x=2020, label = organization_name, y  = rank), 
+             data=labels_all, nudge_x=.1, size = 2.85, hjust=0)
+ 
+ 
+balance_ranks %>%
+   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+          alph =is.na(color_org)) %>%
+   group_by(organization_name) %>%
+   mutate(minyear = min(fiscal_year,na.rm=TRUE),
+          maxyear = max(fiscal_year, na.rm=TRUE)) %>%
+  filter(fiscal_year == minyear | fiscal_year == maxyear) %>% 
+  mutate(year = ifelse(fiscal_year == minyear, "min", "max")) %>%
+  select(organization_name, rank, year) %>%
+  pivot_wider(names_from=year, values_from= rank) %>%
+  mutate(difference = max - min) %>%
+  arrange(desc(abs(difference)))
+
+
+```
+
+
+
+```{r, fig.height =7, fig.cap="\\label{fig:rank-endowments-color-contribution}Rank of the endowment beginning of year balance over time, where the color indicates the ranking of the mean contributions received over all years on file for the company."}
+
+
+
+
+##############################
+# COLOR BY CONTRIBUTIONS
+##############################
+
+
+ balance_ranks %>%
+   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+          alph =is.na(color_org)
+        #  cont_rank = factor(cont_rank)
+          ) %>%
+   # mutate(minyear = min(fiscal_year,na.rm=TRUE)
+   #        contsum = sum(ContributionsAmt, )) %>%
+    ggplot(aes(x=fiscal_year,
+               y = rank, 
+               color = cont_rank, 
+               group=organization_name, 
+               fill=cont_rank)) +
+   geom_line(aes(linewidth=1/cont_rank, group=organization_name)) +
+   scale_linewidth_continuous(range = c(.1,1.6), guide="none") +
+#   scale_color_steps2(high="#091F74", low="#CB1C1C", mid="lightgray", n.breaks=13, midpoint=5) +
+    # geom_point(alpha = .3, size =.5) +
+   scale_color_viridis(option="mako",
+                       direction = -1,
+                       trans="reverse",
+                       breaks = c(5,40),
+                       labels = c("Ranked Higher", "Ranked Lower"),
+                     #  trans="exp",
+                      # discrete=TRUE,
+                     #  trans="sqrt",
+                     #  direction=-1,
+                     #  breaks = c(2.5,5), 
+                    #   labels=list("Higher Ranked", "Lower Ranked"),
+                       end=.9,
+                    begin=.2) +
+ #   scale_color_manual(values=pal, na.value=NA, breaks =top_ranks$organization_name) +
+    theme_c() +
+    scale_y_reverse(n.breaks = 10) +
+    scale_x_continuous(breaks=2010:2020,limits=c(2010,2022)) +
+    labs(y = paste("Rank of ", var),
+         x = "Fiscal Year",
+         title = paste0("Rank over time for ", var),
+         fill = "Rank of the Sum of All Contributions over Time") +
+   theme(axis.title = element_text(size =26),
+         plot.title = element_text(size = 26, margin = margin(0,0,4,0)),
+         axis.text.x = element_text(size=14),
+         legend.text=element_text(size = 18),
+         legend.title = element_text(size = 20, face="bold")) +
+   labs(title = "Rank of Beginning of Year Balance over Time",
+        x = "Fiscal Year",
+        y = "Rank of Beginning of Year Balance",
+        color = "Rank of Contributions") +
+   geom_text(aes(x=2020, label = organization_name, y  = rank), 
+             data=labels_all, nudge_x=.1, size = 2.85, hjust=0) 
+ 
+ 
+ 
+    
+    
+    
+ # 
+ # 
+ # plt <- balance_ranks %>%
+ #   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+ #          alph =is.na(color_org)) %>%
+ #   group_by(organization_name) %>%
+ #   mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
+ #    ggplot(aes(x=fiscal_year, y = rank)) +
+ #       geom_line(aes(group=organization_name)) 
+
+```
+
+
+
+
+```{r, fig.height=7, fig.width=14, fig.cap ="\\label{fig:rankings-contributions}The rankings of contributions over time, by organization."}
+
+
+
+#######################################
+# CREATE BIG PALETTE WITH MANY COLORS
+#######################################
+
+pal1 <- viridis_pal(option="mako", end = .9)(12)
+pal2 <- viridis_pal(option="rocket", end = .8)(12)
+pal3 <- viridis_pal(option="magma", end = .8)(12)
+pal4 <- viridis_pal(option="inferno", end = .8)(12)
+
+set.seed(123)
+pal <- c(pal1, pal2, pal3, pal4)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+
+
+
+#############################################
+# RANK OVER TIME FOR CONTRIBUTIONS
+#############################################
+
+
+var <- "ContributionsAmt"
+
+
+balance_ranks <- endowment_data_wide %>%
+    filter(fiscal_year >=2011 & fiscal_year <=2020) %>%
+    group_by(fiscal_year) %>%
+    mutate(rank = rank(-!!sym(var), na.last = "keep")) %>%
+    filter(!is.na(rank)) %>%
+     select(organization_name,rank,fiscal_year, ContributionsAmt) %>%
+    group_by(organization_name) %>%
+    arrange(fiscal_year) %>%
+    mutate(rankdiff = rank-lag(rank, n=1, order_by=fiscal_year),
+           n_years_on_file = n()) %>%
+    mutate(mean_diff = mean(abs(rankdiff),na.rm=TRUE)) %>%
+  ungroup() 
+ # group_by(organization_name) %>%
+  
  
  top_ranks <- balance_ranks %>% 
    filter(n_years_on_file>=5) %>%
@@ -819,75 +1067,67 @@ balance_ranks <- endowment_data_wide %>%
    distinct()
  
  balance_ranks %>%
-   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
-          alph =is.na(color_org)) %>%
    group_by(organization_name) %>%
    mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
-    ggplot(aes(x=fiscal_year, y = rank)) +
-       geom_line(aes(group=organization_name)) +
-    geom_line(aes(group=organization_name, alpha = alph), linewidth=.5, color="gray") +
-    geom_line(aes(group=organization_name,color =color_org), linewidth=1.3) +
-    scale_alpha_manual(values =c('TRUE' = 1, 'FALSE'=.01), guide="none") +
+    ggplot(aes(x=fiscal_year, y = rank, color = organization_name, group = organization_name)) +
+       geom_line() +
+   # scale_alpha_manual(values =c('TRUE' = 1, 'FALSE'=.01), guide="none") +
     geom_point(alpha = .3, size =.5) +
-    scale_color_manual(values=pal, na.value=NA, breaks =top_ranks$organization_name) +
+    scale_color_manual(values=pal, na.value=NA) +
     theme_c() +
     scale_y_reverse(n.breaks = 10) +
-    scale_x_continuous(breaks=2010:2020,limits=c(2010,2022)) +
+    scale_x_continuous(breaks=2011:2020,limits=c(2010,2022)) +
     labs(y = paste("Rank of ", var),
          x = "Fiscal Year",
          title = paste0("Rank over time for ", var)) +
-   geom_label(aes(x=minyear, y =rank,
-                  label=organization_name,
-                  color=organization_name), 
-              nudge_x = -.3,
-              alpha = 1,
-              label.size=1.5,
-              data=labels) +
-   geom_label(aes(x = minyear,
+   # geom_label(aes(x=minyear, y =rank,
+   #                label=organization_name,
+   #                color=organization_name), 
+   #            nudge_x = -.3,
+   #            alpha = 1,
+   #            label.size=1.5,
+   #            data=labels) +
+   geom_text_repel(aes(x = 2020,
                   label = organization_name,
+                  color=organization_name,
               #  color=organization_name,
                  y =rank),
-              nudge_x = -.3,
-              color = "black",
-             label.size = NA,
-             data=labels) +
-   theme(axis.title = element_text(size =26),
-         plot.title = element_text(size = 26, margin = margin(0,0,4,0)),
+              direction="y",
+              nudge_x = .1,
+        #      color = "black",
+           #  label.size = NA,
+             hjust = 0,
+             min.segment.length = .7,
+             size =3.4,
+             data=labels_all) +
+   theme(axis.title = element_text(size =22),
+         plot.title = element_text(size = 24, margin = margin(0,0,4,0)),
          axis.text.x = element_text(size=14),
          legend.position = "none") +
-   labs(title = "Rank of Beginning of Year Balance over Time",
+   labs(title = "Rank of Contributions over Time",
         x = "Fiscal Year",
-        y = "Rank of Beginning of Year Balance") +
-   geom_text(aes(x=2020, label = organization_name, y  = rank), 
-             data=labels_all, nudge_x=.1, size = 2.85, hjust=0)
- 
- 
-balance_ranks %>%
-   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
-          alph =is.na(color_org)) %>%
-   group_by(organization_name) %>%
-   mutate(minyear = min(fiscal_year,na.rm=TRUE),
-          maxyear = max(fiscal_year, na.rm=TRUE)) %>%
-  filter(fiscal_year == minyear | fiscal_year == maxyear) %>% 
-  mutate(year = ifelse(fiscal_year == minyear, "min", "max")) %>%
-  select(organization_name, rank, year) %>%
-  pivot_wider(names_from=year, values_from= rank) %>%
-  mutate(difference = max - min) %>%
-  arrange(desc(abs(difference)))
-
-
+        y = "Rank of Contributions") 
 
  
- # 
- # 
- # plt <- balance_ranks %>%
- #   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
- #          alph =is.na(color_org)) %>%
- #   group_by(organization_name) %>%
- #   mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
- #    ggplot(aes(x=fiscal_year, y = rank)) +
- #       geom_line(aes(group=organization_name)) 
+ 
 
+ 
+# balance_ranks %>%
+#    mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
+#           alph =is.na(color_org)) %>%
+#    group_by(organization_name) %>%
+#    mutate(minyear = min(fiscal_year,na.rm=TRUE),
+#           maxyear = max(fiscal_year, na.rm=TRUE)) %>%
+#   filter(fiscal_year == minyear | fiscal_year == maxyear) %>% 
+#   mutate(year = ifelse(fiscal_year == minyear, "min", "max")) %>%
+#   select(organization_name, rank, year) %>%
+#   pivot_wider(names_from=year, values_from= rank) %>%
+#   mutate(difference = max - min) %>%
+#   arrange(desc(abs(difference)))
+
+
+
+ 
 ```
 
 
