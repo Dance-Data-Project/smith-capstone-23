@@ -19,6 +19,8 @@ library(here)
 library(kableExtra)
 library(plotly)
 library(viridis)
+library(ggrepel)
+
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
@@ -614,7 +616,6 @@ pct_change_inv_rtd %>%
   geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
 ```
 
-
 ```{r}
 pct_change_inv_rtd %>%
   mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
@@ -629,6 +630,49 @@ pct_change_inv_rtd %>%
 
 
 > Rank plots about how they perform relative to the S&P 500?  
+
+## Looking at Companies who Drop at Any Point Below 40%  
+
+
+```{r}
+
+minimums <- pct_change_inv_rtd %>%
+  #filter(pct_change < -40) %>%
+  group_by(organization_name) %>%
+  summarize(pct_change = min(pct_change)) %>%
+  ungroup() %>%
+  filter(pct_change < -40) %>%
+  left_join(pct_change_inv_rtd, by = c("organization_name", "pct_change")) %>%
+  select(organization_name, TaxPeriodEndDt,pct_change)
+
+##Plotting and labeling only those with dips below 40
+pct_change_inv_rtd %>%
+  filter(pct_change != Inf) %>%
+  filter(organization_name %in% minimums$organization_name) %>%
+  ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
+  geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = TRUE) + 
+  #scale_colour_manual(values = pal) + 
+  scale_color_viridis_d(option = "D") +
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "Black Dot: Median of that fiscal year.",
+       color = "Company") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(2, 'mm'),
+        legend.text = element_text(size=7),
+        legend.title = element_text(size = 7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  scale_x_date(breaks = scales::pretty_breaks(n = 10)) +
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1)
+```
+
 
 
 # Investments and S&P 500 specifically  
@@ -983,17 +1027,6 @@ most_recent_ds %>%
   scale_color_gradient(low = "yellow", high = "blue")
 
 ```
-
-## Looking at Companies who Drop at Any Point 
-
-### Below 40%  
-
-### Below 50%  
-
-### Below 60%  
-
-### Below 70%  
-
 
 # Total Revenue  
 
