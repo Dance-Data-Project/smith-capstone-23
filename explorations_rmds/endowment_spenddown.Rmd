@@ -293,7 +293,9 @@ ggplotly(box_plot_inv_lim)  %>%
 pct_change_med <- pct_change_ds %>%
   group_by(fiscal_year) %>%
   summarize(median = median(pct_change, na.rm = TRUE)) %>%
-  mutate(organization_name = "Median")
+  mutate(organization_name = "Median",
+         fiscal_year = paste(fiscal_year, "-01-01", sep = ""))
+pct_change_med$fiscal_year = as.Date(pct_change_med$fiscal_year, format = "%Y-%m-%d")
 ```
 
 ```{r}  
@@ -466,110 +468,11 @@ pct_change_rtd <- ungroup(pct_change_rtd)
 pct_change_inv_rtd <- ungroup(pct_change_inv_rtd)
 ```
 
-```{r}  
-## Gets just values from beginnings of the months 
-sp_begin <- read_csv(here('data','SP500.csv')) %>%
-  rename_with(tolower) %>%
-  mutate(sp500 = as.numeric(sp500)) %>%
-  filter(!is.na(sp500)) %>%
-  mutate(month = month(date),
-         year = year(date)) %>%
-  group_by(month,year) %>%
-  arrange(month) %>%
- slice_min(n=1,order_by = date) %>%
-  ungroup() %>%
-  mutate(type = "START")
-
-##Values from the end of the month
-sp_end <- read_csv(here('data','SP500.csv')) %>%
-  rename_with(tolower) %>%
-  mutate(sp500 = as.numeric(sp500)) %>%
-  filter(!is.na(sp500)) %>%
-  mutate(month = month(date),
-         year = year(date)) %>%
-  group_by(month,year) %>%
-  arrange(month) %>%
- slice_max(n=1,order_by = date) %>%
-  ungroup() %>%
-  mutate(type = "END")
-
-sp_pct_chg <- sp_begin %>%
-  bind_rows(sp_end) %>%
-  pivot_wider(names_from = type, values_from = c(date, sp500)) %>%
-  mutate(pct_change_mon = (sp500_END - sp500_START)/sp500_START * 100)
-```
-
 ## WITH investments  
-```{r}
-## SPend down over time with new X axis 
-## Median by year 
-pct_change_med <- pct_change_rtd %>%
-  mutate(fiscal_year = paste(fiscal_year, "-01-01", sep = ""),
-         fiscal_year = as.Date(fiscal_year, "%Y-%m-%d")) %>%
-  group_by(fiscal_year) %>%
-  summarize(median = median(pct_change, na.rm = TRUE)) %>%
-  mutate(organization_name = "Median")
-
-## Spend Down over Time
-pct_change_rtd %>%
-  filter(pct_change != Inf) %>%
-  ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
-  geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
-  theme_bw() + 
-  labs(y = "Percent Change",
-       x = "Fiscal Year",
-       title = "Percentage of Change in Endowment Balance",
-       subtitle = "Black Dot: Median. Black line: S&P500 % change in a month") + 
-  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
-        axis.title = element_text(size = 12, face = "bold"),
-        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 10, angle = 25),
-        strip.text = element_text(face="bold",size = 5),
-        legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7)) + 
-  scale_y_continuous(labels = scales::comma_format(),
-                     breaks = scales::pretty_breaks(n = 10),
-                     limits = c(-100, 100)) +
-  scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
-  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1) + 
-  geom_line(data = sp_pct_chg, aes(x = date_END, y = pct_change_mon), color = "black", show.legend = FALSE)
-```
 
 ```{r}
 ## GETTING PERCENT CHANGE OF FISCAL YEARS THAT EXIST IN THE DATASET
-## All 'end' dates of fiscal years
-date_ends <- pct_change_rtd %>%
-  pull(TaxPeriodEndDt) %>%
-  unique()
-
-sp_end <- read_csv(here('data','SP500.csv')) %>%
-  rename_with(tolower) %>%
-  mutate(sp500 = as.numeric(sp500)) %>%
-  filter(!is.na(sp500)) %>%
-  filter(date %in% date_ends) %>%
-  select(date_end = date, sp500_end = sp500) %>%
-  mutate(month = month(date_end),
-         year = year(date_end),
-         year_last = year(date_end) - 1)
-
-sp_start <- read_csv(here('data','SP500.csv')) %>%
-  rename_with(tolower) %>%
-  mutate(sp500 = as.numeric(sp500)) %>%
-  filter(!is.na(sp500)) %>%
-  select(date_start = date, sp500_start = sp500) %>%
-  mutate(month = month(date_start),
-         year = year(date_start)) %>%
-  group_by(month,year) %>%
-  arrange(month) %>%
- slice_min(n=1,order_by = date_start) %>%
-  ungroup()
-
-sp_change_years <- sp_end_month %>%
-  left_join(sp_start_month, by = c("month", "year_last" = "year")) %>%
-  mutate(pct_change = (sp500_end - sp500_start)/sp500_start * 100)
-```
-
-```{r}
+## Year wise PCT change for S&P 500 
 sp_end <- read_csv(here('data','SP500.csv')) %>%
   rename_with(tolower) %>%
   mutate(sp500 = as.numeric(sp500)) %>%
@@ -577,8 +480,13 @@ sp_end <- read_csv(here('data','SP500.csv')) %>%
   select(date_end = date, sp500_end = sp500) %>%
   mutate(month = month(date_end),
          year = year(date_end),
-         year_last = year(date_end) - 1)
-
+         # Weekend / National holiday detection 
+         date_last = case_when( 
+           wday(date_end - 365) == as.factor("1") ~ date_end - 367, #Sunday
+           wday(date_end - 365) == as.factor("7") ~ date_end - 366, #Saturday
+           TRUE ~ date_end - 365
+           ))
+## All 'starting' fiscal year values 
 sp_start <- read_csv(here('data','SP500.csv')) %>%
   rename_with(tolower) %>%
   mutate(sp500 = as.numeric(sp500)) %>%
@@ -587,13 +495,16 @@ sp_start <- read_csv(here('data','SP500.csv')) %>%
   mutate(month = month(date_start),
          year = year(date_start))
 
+#Change over the fiscal year
 sp_change_years <- sp_end %>%
-  left_join(sp_start, by = c("month", "year_last" = "year")) %>%
+  left_join(sp_start, by = c("date_last" = "date_start")) %>%
   mutate(pct_change_yr = (sp500_end - sp500_start)/sp500_start * 100)
+
 ```
 
 ```{r}
-## Spend Down over Time
+## Spend Down over Time  
+## With year-wise pct change for S&P 500
 pct_change_rtd %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
@@ -624,8 +535,8 @@ pct_change_rtd %>%
   mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
   filter(pct_change != Inf) %>%
   left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
-  select(organization_name, TaxPeriodEndDt, pct_change.x, pct_change.y) %>%
-  arrange(desc(abs(pct_change.x))) %>%
+  select(organization_name, TaxPeriodEndDt, pct_change, pct_change_yr) %>%
+  arrange(desc(abs(pct_change))) %>%
   make_table(title = "Percentage Change of Endowment and S&P 500", 
              col_names = c("Organization Name", "Fiscal Year End Date", "Endowment Percent Change", "S&P 500 Percent Change")) %>%
   scroll_box(height = "450px")
@@ -971,6 +882,8 @@ most_recent_ds %>%
 ### Below 60%  
 
 ### Below 70%  
+
+
 # Total Revenue  
 
 ```{r}
