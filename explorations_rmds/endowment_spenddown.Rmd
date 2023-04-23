@@ -751,14 +751,16 @@ ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change,
   labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance (max 100)",
-       subtitle = "By Fiscal Year") + 
+       subtitle = "By Fiscal Year",
+       color = "Consistency\nRank") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
-        legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7)) + 
+        legend.key.size = unit(2, 'mm'),
+        legend.text = element_text(size=7),
+        legend.title = element_text(size = 6)) + 
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))  +
@@ -808,7 +810,7 @@ ggplot(inv_box, aes(x = organization_name, y = pct_change)) +
 inv_consist %>% 
   filter(consistent == TRUE) %>%
   select(-consistent) %>%
-  make_table(title = "Companies with Consistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  make_table(title = "Companies with Consistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation", "Rank")) %>%
   scroll_box(height = "450px")
 ```
  
@@ -821,7 +823,7 @@ There are `r inv_consist %>% filter(consistent == TRUE) %>% nrow()` companies wh
 inv_consist %>% 
   filter(consistent == FALSE) %>%
   select(-consistent) %>%
-  make_table(title = "Companies with Inconsistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation")) %>%
+  make_table(title = "Companies with Inconsistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation", "Rank")) %>%
   scroll_box(height = "450px")
 ```
 
@@ -948,7 +950,7 @@ most_recent_ds %>%
   theme_bw() + 
   labs(y = "Organization Name",
        x = "Most Recent End Endowment balance",
-       color = "Rank") + 
+       color = "Consistency\nRank") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
@@ -956,7 +958,7 @@ most_recent_ds %>%
         axis.text.y = element_text(size = 4),
         legend.key.size = unit(2, 'mm'),
         legend.text = element_text(size=7),
-        legend.title = element_text(size = 10)) + 
+        legend.title = element_text(size = 6)) + 
     scale_x_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 10)) + 
   scale_color_gradient(low = "yellow", high = "blue")
@@ -967,7 +969,7 @@ most_recent_ds %>%
   theme_bw() + 
   labs(y = "Organization Name",
        x = "Most Recent Employee Count",
-       color = "Rank") + 
+       color = "Consistency Rank") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
@@ -975,7 +977,7 @@ most_recent_ds %>%
         axis.text.y = element_text(size = 4),
         legend.key.size = unit(2, 'mm'),
         legend.text = element_text(size=7),
-        legend.title = element_text(size = 10)) + 
+        legend.title = element_text(size = 6)) + 
     scale_x_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 10)) + 
   scale_color_gradient(low = "yellow", high = "blue")
