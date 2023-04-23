@@ -945,11 +945,11 @@ most_recent_ds %>%
   geom_point()
 
 most_recent_ds %>%
-  ggplot(aes(y = reorder(organization_name, rank), x = EndYearBalanceAmt, color = rank)) +
+  ggplot(aes(y = reorder(organization_name, rank), x = log10(EndYearBalanceAmt), color = rank)) +
   geom_point() + 
   theme_bw() + 
   labs(y = "Organization Name",
-       x = "Most Recent End Endowment balance",
+       x = "Most Recent End Endowment balance, Log Scale",
        color = "Consistency\nRank") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
