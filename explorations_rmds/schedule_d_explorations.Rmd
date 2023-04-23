@@ -20,6 +20,7 @@ library(kableExtra)
 library(lubridate)
 library(forcats)
 library(here)
+library(viridis)
 
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
@@ -456,8 +457,32 @@ test_diff %>%
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7)) + 
+  scale_fill_viridis_d() +
   labs( title = "Number of Times Companies Miscalculated End Year Balance")
 
+test_diff %>%
+  filter(same_end == FALSE) %>%
+  left_join(names, by = "EIN") %>%
+  select(EIN, fiscal_year, organization_name, EndYearBalanceAmt, end_bal_calc) %>%
+  pivot_longer(cols = c(EndYearBalanceAmt, end_bal_calc),
+               names_to = "type",
+               values_to = "balance") %>%
+  mutate(type = ifelse(type == "EndYearBalanceAmt", "Reported", "Calculated")) %>%
+  ggplot(aes(x = type, y = balance, fill = type)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~organization_name, scales = "free") + 
+  theme_bw() + 
+    theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 5),
+        axis.text.y = element_text(size = 5),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) +
+  scale_y_continuous(labels = scales::label_dollar()) +
+  scale_fill_manual(values = c("yellow", "Purple"))
+  
 test_diff %>%
   filter(same_end == FALSE) %>%
   left_join(names, by = "EIN") %>%
