@@ -650,7 +650,7 @@ pct_change_inv_rtd %>%
   filter(pct_change != Inf) %>%
   filter(organization_name %in% minimums$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
-  geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = TRUE) + 
+  geom_line(aes(group = organization_name, color = organization_name), show.legend = TRUE) + 
   #scale_colour_manual(values = pal) + 
   scale_color_viridis_d(option = "D") +
   theme_bw() + 
