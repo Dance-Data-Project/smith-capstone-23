@@ -19,7 +19,6 @@ library(here)
 library(kableExtra)
 library(plotly)
 library(viridis)
-library(ggrepel)
 
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
