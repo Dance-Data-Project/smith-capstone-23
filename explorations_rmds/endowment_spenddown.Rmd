@@ -18,6 +18,7 @@ library(tidyverse)
 library(here)
 library(kableExtra)
 library(plotly)
+library(viridis)
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
@@ -35,6 +36,23 @@ make_table <- function(..., title = "", col_names = c("")) {
     row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
 }
 
+```
+
+
+```{r}
+#######################################
+# CREATE BIG PALETTE WITH MANY COLORS
+#######################################
+
+pal1 <- viridis_pal(option="mako", end = .9)(12)
+pal2 <- viridis_pal(option="rocket", end = .8)(12)
+pal3 <- viridis_pal(option="magma", end = .9)(12)
+pal4 <- viridis_pal(option="inferno", end = .8)(12)
+
+set.seed(123)
+pal <- c(pal1, pal2, pal3, pal4)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
 ```
 
 ```{r}
@@ -214,13 +232,14 @@ pct_change_ds_box <- pct_change_ds %>%
 ## Unlimited 
 box_plot <- ggplot(pct_change_ds_box, aes(x = organization_name, y = pct_change)) + 
   geom_boxplot(aes(color = organization_name), show.legend = FALSE) + 
-  geom_point(size = 1, alpha = 0.5) + 
+  geom_point(size = 1, alpha = 0.5, show.legend = FALSE) + 
   theme_bw() + 
   labs(title = "Range of Endowment Percent Change per Company",
        x = "Dance Company",
        y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
-  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon") + 
+  scale_colour_manual(values = pal)
 ggplotly(box_plot) %>%
   layout(showlegend = FALSE)
 
@@ -234,7 +253,9 @@ box_plot_lim <- ggplot(pct_change_ds_box, aes(x = organization_name, y = pct_cha
        y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
   scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
-                     limit = c(-100,100))
+                     limit = c(-100,100)) + 
+   scale_colour_manual(values = pal)
+box_plot_lim
 ggplotly(box_plot_lim)  %>%
   layout(showlegend = FALSE)
 
@@ -263,7 +284,8 @@ box_plot_inv <- ggplot(pct_change_inv_box, aes(x = organization_name, y = pct_ch
        x = "Dance Company",
        y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
-  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon")
+  geom_hline(yintercept = 100, linetype = "dotted", color = "maroon") + 
+  scale_colour_manual(values = pal)
 ggplotly(box_plot_inv) %>%
   layout(showlegend = FALSE)
 
@@ -277,7 +299,8 @@ box_plot_inv_lim <- ggplot(pct_change_inv_box, aes(x = organization_name, y = pc
        y = "Percentage of Change in Endowment Balance") + 
   theme(axis.text.x = element_blank()) + 
   scale_y_continuous(breaks = scales::breaks_pretty(n = 20),
-                     limit = c(-100,100))
+                     limit = c(-100,100)) + 
+  scale_colour_manual(values = pal)
 ggplotly(box_plot_inv_lim)  %>%
   layout(showlegend = FALSE)
 
@@ -306,6 +329,7 @@ pct_change_plot <- pct_change_ds %>%
              group = organization_name, color = organization_name)) +
   geom_line(alpha = 0.5, show.legend =FALSE) + 
   theme_bw() + 
+  scale_colour_manual(values = pal) + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance",
@@ -321,16 +345,19 @@ pct_change_plot <- pct_change_ds %>%
                      breaks = scales::pretty_breaks(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray") +
   geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+pct_change_plot
 ggplotly(pct_change_plot) 
 ```
 
 ```{r}
 ##Plot with Y scale between -100 and 100 
 limited_scale <- pct_change_ds %>%
+  filter(pct_change != Inf) %>%
   ggplot(aes(x = fiscal_year, y = pct_change, 
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
   theme_bw() + 
+  scale_colour_manual(values = pal) + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
        title = "Percentage of Change in Endowment Balance (max 100)",
@@ -346,6 +373,7 @@ limited_scale <- pct_change_ds %>%
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))  +
   geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+limited_scale
 ggplotly(limited_scale)
 ```
 
@@ -364,9 +392,11 @@ pct_change_inv_med <- pct_change_inv_ds %>%
 ```{r}  
 ## Spend Down over Time
 pct_change_inv_plot <- pct_change_inv_ds %>%
+  filter(pct_change != Inf) %>%
   ggplot(aes(x = fiscal_year, y = pct_change, 
              group = organization_name, color = organization_name)) +
-  geom_line(alpha = 0.5) + 
+  geom_line(alpha = 0.5, show.legend = FALSE) + 
+  scale_colour_manual(values = pal) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
@@ -383,15 +413,18 @@ pct_change_inv_plot <- pct_change_inv_ds %>%
                      breaks = scales::pretty_breaks(n = 20)) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray")  +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 1)
+pct_change_inv_plot
 ggplotly(pct_change_inv_plot) 
 ```
 
 ```{r}
 ##Plot with Y scale between -100 and 100 
 limited_scale_inv <- pct_change_inv_ds %>%
+  filter(pct_change != Inf) %>%
   ggplot(aes(x = fiscal_year, y = pct_change, 
              group = organization_name, color = organization_name)) +
   geom_line(show.legend = FALSE, alpha = 0.5) + 
+  scale_colour_manual(values = pal) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
@@ -408,6 +441,7 @@ limited_scale_inv <- pct_change_inv_ds %>%
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))  +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5)
+limited_scale_inv
 ggplotly(limited_scale_inv)
 ```
 
@@ -526,9 +560,10 @@ pct_change_rtd %>%
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(-100, 100)) +
+  scale_color_manual(values=pal) + 
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
   geom_point(data = pct_change_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
-  geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE, alpha = 0.5)
+  geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
 ```
 
 ```{r}
@@ -558,6 +593,7 @@ pct_change_inv_rtd %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
+  scale_colour_manual(values = pal) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
