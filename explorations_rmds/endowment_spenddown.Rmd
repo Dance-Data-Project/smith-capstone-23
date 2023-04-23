@@ -703,19 +703,20 @@ inv_consist <- pct_change_inv_ds %>%
             sd = sd(pct_change)) %>%
   mutate(consistent = ifelse(between(min + sd, -7, 7) & between(max - sd, -7, 7), TRUE, FALSE),
          #Manual inspection showed BQC should be marked as consistent but just didnt quite make it math-wise
-         consistent = ifelse(organization_name == "Ballet Quad Cities", TRUE, consistent))
+         consistent = ifelse(organization_name == "Ballet Quad Cities", TRUE, consistent),
+         rank = rank(sd))
 
 ## Adding consistency 
 inv_consist_ds <- inv_consist %>% 
-  select(organization_name, consistent) %>% 
-  right_join(pct_change_inv_ds, by = "organization_name") %>%
+  select(organization_name, consistent, rank) %>% 
+  right_join(pct_change_inv_rtd, by = "organization_name") %>%
   filter(pct_change != Inf & pct_change != -Inf)
 
 ```
 
 ```{r}
 ##plottinng
-consist_plot <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change, 
+consist_plot <- ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change, 
              group = organization_name, color = consistent)) +
   geom_line(show.legend = TRUE, alpha = 0.3) + 
   theme_bw() + 
@@ -733,12 +734,36 @@ consist_plot <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change,
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))  +
-  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 0.5) + 
+  scale_color_manual(values = c("navy", "orange")) + 
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 0.5) + 
   geom_hline(yintercept = 7, alpha = .5, linetype = "dotted") + 
   geom_hline(yintercept = -7, alpha = .5, linetype = "dotted") 
 
 consist_plot
 #ggplotly(consist_plot)
+
+## Consistent by standard deviation ranking 
+
+ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change, 
+             group = organization_name, color = rank)) +
+  geom_line(show.legend = TRUE, alpha = 0.7) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance (max 100)",
+       subtitle = "By Fiscal Year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 20),
+                     limits = c(-100, 100))  +
+  scale_color_gradient(low = "yellow", high = "blue") + 
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 0.5)
 
 inv_box <- inv_consist_ds %>%
   group_by(organization_name) %>%
