@@ -294,16 +294,17 @@ pct_change_med <- pct_change_ds %>%
   group_by(fiscal_year) %>%
   summarize(median = median(pct_change, na.rm = TRUE)) %>%
   mutate(organization_name = "Median",
-         fiscal_year = paste(fiscal_year, "-01-01", sep = ""))
-pct_change_med$fiscal_year = as.Date(pct_change_med$fiscal_year, format = "%Y-%m-%d")
+         fiscal_year_dt = paste(fiscal_year, "-01-01", sep = ""))
+pct_change_med$fiscal_year_dt = as.Date(pct_change_med$fiscal_year_dt, format = "%Y-%m-%d")
 ```
 
 ```{r}  
 ## Spend Down over Time
 pct_change_plot <- pct_change_ds %>%
+  filter(pct_change != Inf) %>%
   ggplot(aes(x = fiscal_year, y = pct_change, 
              group = organization_name, color = organization_name)) +
-  geom_line(alpha = 0.5) + 
+  geom_line(alpha = 0.5, show.legend =FALSE) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
@@ -356,6 +357,7 @@ pct_change_inv_med <- pct_change_inv_ds %>%
   group_by(fiscal_year) %>%
   summarize(median = median(pct_change, na.rm = TRUE)) %>%
   mutate(organization_name = "Median")
+
 ```
 
 
@@ -525,14 +527,12 @@ pct_change_rtd %>%
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(-100, 100)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
-  geom_point(data = pct_change_med, aes(x = fiscal_year, y = median), color = "black", size = 1) + 
+  geom_point(data = pct_change_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
   geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE, alpha = 0.5)
 ```
 
-
 ```{r}
 pct_change_rtd %>%
-  mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
   filter(pct_change != Inf) %>%
   left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
   select(organization_name, TaxPeriodEndDt, pct_change, pct_change_yr) %>%
@@ -542,15 +542,14 @@ pct_change_rtd %>%
   scroll_box(height = "450px")
 ```
 
-
 ## WITHOUT investments 
 ```{r}
 ## SPend down over time with new X axis 
 ## Median by year 
 pct_change_inv_med <- pct_change_inv_rtd %>%
-  mutate(fiscal_year = paste(fiscal_year, "-01-01", sep = ""),
-         fiscal_year = as.Date(fiscal_year, "%Y-%m-%d")) %>%
-  group_by(fiscal_year) %>%
+  mutate(fiscal_year_dt = paste(fiscal_year, "-01-01", sep = ""),
+         fiscal_year_dt = as.Date(fiscal_year_dt, "%Y-%m-%d")) %>%
+  group_by(fiscal_year_dt, fiscal_year) %>%
   summarize(median = median(pct_change, na.rm = TRUE)) %>%
   mutate(organization_name = "Median")
 
@@ -575,8 +574,8 @@ pct_change_inv_rtd %>%
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(-100, 100)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
-  geom_point(data = pct_change_inv_med, aes(x = fiscal_year, y = median), color = "black", size = 1) + 
-  geom_line(data = sp_pct_chg, aes(x = date_END, y = pct_change), color = "black", show.legend = FALSE)
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
+  geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
 ```
 
 
@@ -585,12 +584,16 @@ pct_change_inv_rtd %>%
   mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
   filter(pct_change != Inf) %>%
   left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
-  select(organization_name, TaxPeriodEndDt, pct_change.x, pct_change.y) %>%
-  arrange(desc(abs(pct_change.x))) %>%
+  select(organization_name, TaxPeriodEndDt, pct_change, pct_change_yr) %>%
+  arrange(desc(abs(pct_change))) %>%
   make_table(title = "Percentage Change of Endowment and S&P 500", 
              col_names = c("Organization Name", "Fiscal Year End Date", "Endowment Percent Change", "S&P 500 Percent Change")) %>%
   scroll_box(height = "450px")
 ```
+
+
+> Rank plots about how they perform relative to the S&P 500?  
+
 
 # Investments and S&P 500 specifically  
 
@@ -676,7 +679,7 @@ inv_consist_ds <- inv_consist %>%
 
 ```{r}
 ##plottinng
-test <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change, 
+consist_plot <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change, 
              group = organization_name, color = consistent)) +
   geom_line(show.legend = TRUE, alpha = 0.3) + 
   theme_bw() + 
@@ -698,8 +701,8 @@ test <- ggplot(inv_consist_ds, aes(x = fiscal_year, y = pct_change,
   geom_hline(yintercept = 7, alpha = .5, linetype = "dotted") + 
   geom_hline(yintercept = -7, alpha = .5, linetype = "dotted") 
 
-test
-ggplotly(test)
+consist_plot
+#ggplotly(consist_plot)
 
 inv_box <- inv_consist_ds %>%
   group_by(organization_name) %>%
