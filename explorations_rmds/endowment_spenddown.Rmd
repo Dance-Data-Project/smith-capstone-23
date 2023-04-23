@@ -936,6 +936,51 @@ most_recent_ds %>%
   labs( title = "Size of Companies by End Year Balance Amount, Limit $20,000,000")
 ```
 
+```{r}
+## Looking at size by standard deviation ranking  
+most_recent_ds %>%
+  ggplot(aes(x = rank, y = TotalEmployeeCnt)) +
+  geom_point()
+
+most_recent_ds %>%
+  ggplot(aes(y = reorder(organization_name, rank), x = EndYearBalanceAmt, color = rank)) +
+  geom_point() + 
+  theme_bw() + 
+  labs(y = "Organization Name",
+       x = "Most Recent End Endowment balance",
+       color = "Rank") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 8, angle = 90),
+        axis.text.y = element_text(size = 4),
+        legend.key.size = unit(2, 'mm'),
+        legend.text = element_text(size=7),
+        legend.title = element_text(size = 10)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) + 
+  scale_color_gradient(low = "yellow", high = "blue")
+
+most_recent_ds %>%
+  ggplot(aes(y = reorder(organization_name, rank), x = TotalEmployeeCnt, color = rank)) +
+  geom_point() + 
+  theme_bw() + 
+  labs(y = "Organization Name",
+       x = "Most Recent Employee Count",
+       color = "Rank") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 8, angle = 90),
+        axis.text.y = element_text(size = 4),
+        legend.key.size = unit(2, 'mm'),
+        legend.text = element_text(size=7),
+        legend.title = element_text(size = 10)) + 
+    scale_x_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) + 
+  scale_color_gradient(low = "yellow", high = "blue")
+
+```
 
 ## Looking at Companies who Drop at Any Point 
 
