@@ -16,14 +16,18 @@ header-includes:
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8, fig.pos = "H", out.extra = "")
 ```
 
-
+<style>
+.math {
+  font-size: small;
+}
+</style>
 
 Definitions:
 
 * `OtherExpendituresAmt`: Other expenditures for facilities and programs
 
 
-```{r}
+```{r packages and theme}
 library(tidyverse)
 library(kableExtra)
 library(scales)
@@ -103,6 +107,13 @@ theme_c <- function(...){
 companies_to_ein <- readRDS(here("data", "companies.RDS")) 
 
 
+companies_to_ein <- companies_to_ein %>%
+  mutate(organization_name = ifelse(
+    organization_name == "Ballet Hispanico", 
+    "Ballet Hispánico",
+    organization_name))
+
+
 endowment_data <- read_rds(here("data", 
                                 "endowments_by_most_recent_filings.RDS")) %>%
   select(-c(EndowmentsHeldUnrelatedOrgInd, EndowmentsHeldRelatedOrgInd)) %>%
@@ -112,6 +123,11 @@ endowment_data <- read_rds(here("data",
   mutate(fiscal_year=as.numeric(paste(fiscal_year)),
          organization_name = ifelse(is.na(organization_name),
                                     EIN, organization_name))
+
+
+
+
+
 
 ```
 
@@ -125,25 +141,24 @@ files <- dir(here("ballet_990_released_20230208"),
 
 dates <- map_df(files,
                 ~get_df(filename = .x, 
-                        variables = c("//Return//ReturnHeader//TaxPeriodEndDt"))) %>%
+                        variables = c("//Return//ReturnHeader//TaxPeriodEndDt",
+                                      "//Return//ReturnHeader//TaxPeriodBeginDt"))) %>%
   mutate(fiscal_year = as.numeric(paste(fiscal_year))) %>%
    filter_ein()
-
-
-files <- dir(here("ballet_990_released_20230208"),
-              full.names = TRUE)
-
-grep("870264274", files)
 
 saveRDS(dates, here('data', 'dates.RDS')) 
 
 ```
 
 
-```{r, eval=TRUE}
+
+
+
+
+```{r sp500, eval=TRUE}
 
 dates <- readRDS( here('data', 'dates.RDS')) %>%
-  select(EIN, TaxPeriodEndDt, fiscal_year) 
+  select(EIN, TaxPeriodEndDt, TaxPeriodBeginDt, fiscal_year) 
  
 
 endowment_data <- endowment_data %>%
@@ -153,12 +168,292 @@ endowment_data <- endowment_data %>%
 
 endowment_data_wide <- endowment_data %>% 
   pivot_wider(names_from=variable_name,
-              values_from=value) 
+              values_from=value) %>%
+  mutate(begin_week = week(TaxPeriodBeginDt),
+         begin_month = month(TaxPeriodBeginDt),
+         begin_year = year(TaxPeriodBeginDt),
+         end_week = week(TaxPeriodEndDt),
+         end_month = month(TaxPeriodEndDt),
+         end_year = year(TaxPeriodEndDt))
+
+
+
+# no data in sp&500 for week 53 in these years, so change to 52
+years_52 <- c(2011, 2017)
+
+
+# fill week, month from previous years
+# adjust year depending on whether the fiscal year is across years or not
+endowment_data_wide <- endowment_data_wide %>%
+  # select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt,
+  #        fiscal_year, contains("month"), 
+  #        contains("year"), contains("week")) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(diffyears = any(begin_year != end_year, na.rm=TRUE)) %>%
+  fill(c(begin_month, begin_week, end_month, end_week), .direction="up") %>%
+  mutate(begin_year = ifelse(diffyears == TRUE, fiscal_year - 1, fiscal_year),
+         end_year = fiscal_year) %>%
+  ungroup() %>%
+  mutate(end_week = ifelse(end_week == 53 & end_year %in% years_52, 52, end_week))
+
+
+
+  
+# source: https://www.investing.com/indices/us-spx-500-historical-data
+sp <- read_csv(here('data','SP500_historical.csv'))
+
+
+
+sp <- sp %>%
+  rename_with(tolower) %>%
+  select( sp500 = open, date) %>%
+  mutate(sp500 = as.numeric(sp500),
+         date = as_date(date, format= "%m/%d/%Y")) %>%
+  filter(!is.na(sp500)) %>%
+  mutate(
+         year = year(date),
+         week = week(date))  %>%
+  group_by(week, year) %>%
+  summarize(sp500 = mean(sp500,na.rm=TRUE),
+            .groups ="drop") %>%
+  group_by(year) %>%
+  mutate(maxweek = max(week))
+
+
+# shift up 1 by one week so we are joining by lagged week
+sp <- sp %>% 
+  mutate(week_new = ifelse(week ==maxweek, 1, week+1),
+         year_new = ifelse(week == maxweek, year+1, year)) %>%
+  select(sp500, week = week_new, year = year_new)
+
+
+
+endowment_data_wide <- endowment_data_wide %>%
+  # select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt,
+  #        fiscal_year, contains("month"), 
+  #        contains("year"), contains("week")) %>%
+  group_by(EIN) %>%
+  arrange(fiscal_year) %>%
+  mutate(diffyears = any(begin_year != end_year, na.rm=TRUE)) %>%
+  fill(c(begin_month, begin_week, end_month, end_week), .direction="up") %>%
+  mutate(begin_year = ifelse(diffyears == TRUE, fiscal_year - 1, fiscal_year),
+         end_year = fiscal_year) %>%
+  ungroup()
+
+# renaming columns
+sp_start <- sp %>%
+  select(week, year, sp500_begin = sp500)
+sp_end <- sp %>%
+  select(week, year, sp500_end = sp500)
+
+end_sp <- endowment_data_wide %>%
+  left_join(sp_start, by = c('begin_week' = 'week',
+                             'begin_year' = 'year')) %>%
+  left_join(sp_end,  by = c('end_week' = 'week',
+                             'end_year' = 'year'))
+
+end_sp %>% filter(is.na(sp500_begin) | is.na(sp500_end)) %>% 
+  select(EIN, TaxPeriodEndDt, 
+         TaxPeriodBeginDt, 
+         begin_week, 
+         begin_year,
+         sp500_begin,
+         sp500_end)
+
+```
+
+
+## Annual Growth Rate
+
+The annual growth rate is the percentage change in a year. That is,
+
+$$\text{growth rate} = \dfrac{\text{Beginning Value}- \text{End Value}}{\text{Beginning Value}}.$$ 
+We can compute this for the S&P 500 for the same time interval. Here, we use mean value of the S&P 500 to the previous week compared to the beginning and end dates of each company's fiscal year. 
+
+
+
+To account for withdrawals and contributions, we add back withdrawals and subtract contributions, so we calculate the annual growth rate as
+
+$$\small \text{Annual Growth Rate} = \dfrac{ ( \text{End Value} + \text{Other Expenditures} + \text{Grants and Scholarships} + \text{Administrative Expenses} - \text{Contributions} ) -\text{Beginning Value}}{\text{Beginning Value}}$$ 
+This adjustment is important because we want to see how much of the change from the beginning of year balance to the end of year balance is due to the investments, not, for example, a large contribution.
+
+
+```{r, fig.height = 15, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period."}
+
+# top_20 <- end_sp %>%
+#   group_by(organization_name) %>%
+#   summarize(mean_balance = mean(BeginningYearBalanceAmt, na.rm=TRUE)) %>%
+#   slice_max(mean_balance, n = 20)
+
+# replace NAs with 0's
+end_sp <-  end_sp %>%
+  mutate(across(c(AdministrativeExpensesAmt, OtherExpendituresAmt,
+                  ContributionsAmt, GrantsOrScholarshipsAmt,
+                  BeginningYearBalanceAmt, EndYearBalanceAmt), ~ifelse(is.na(.x), 0, .x))) %>%
+  filter(BeginningYearBalanceAmt != 0)
+
+
+top_20 <- end_sp %>%
+  group_by(organization_name) %>%
+  summarize(mean_balance = mean(BeginningYearBalanceAmt, na.rm=TRUE)) 
+
+
+end_sp %>%
+  inner_join(top_20) %>%
+  mutate(pct_change_adjusted = (EndYearBalanceAmt + OtherExpendituresAmt + 
+                     GrantsOrScholarshipsAmt +  AdministrativeExpensesAmt
+                   - ContributionsAmt - BeginningYearBalanceAmt ) / BeginningYearBalanceAmt
+         ) %>%
+  mutate(organization_name = fct_reorder(organization_name,mean_balance, .desc=TRUE)) %>%
+  mutate(pct_change_sp = (sp500_end - sp500_begin) / sp500_begin) %>%
+  select(contains("pct_change"), organization_name, fiscal_year) %>%
+  pivot_longer(c(contains('pct_change'))) %>%
+  mutate(name = case_when(
+    name == "pct_change_sp" ~ "Growth Rate of S&P 500",
+    name == "pct_change_adjusted" ~ "Growth Rate of Adjusted Endowment Balance"
+  )) %>%
+  ggplot(aes(x = fiscal_year, y = value, color = name)) +
+  geom_line() +
+  geom_point(alpha = .5, size = .3, show.legend=FALSE) +
+  facet_wrap(~organization_name, scales= "free_y", ncol=4) +
+  theme_c() +
+  scale_x_continuous(breaks = 2010:2021) +
+  scale_y_continuous(labels=scales::percent) +
+  scale_color_manual(values=c("#51B09A","#C59742")) +
+  labs(x = "Date",
+       y = "Percent Change",
+       color = "",
+       title = "Annual Growth of S&P 500 Compared to ",
+       subtitle = "Top 15 Companies by Size of Endowment") +
+  theme(legend.position = "top",
+        plot.title = element_text(size = 25),
+        plot.subtitle = element_text(size =20),
+        legend.text=element_text(size =17),
+        axis.text.x = element_text(size = 12, angle=30),
+        strip.text = element_text(size =14)) +
+  guides(color = guide_legend(override.aes = list(linewidth=2)))
+
+
+
+
 
 
 ```
 
 
+```{r,eval=FALSE,include=FALSE}
+
+# not adjusted 
+end_sp %>%
+  inner_join(top_20) %>%
+  mutate(organization_name = fct_reorder(organization_name,mean_balance, .desc=TRUE)) %>%
+  mutate(pct_change_sp = (sp500_end - sp500_begin) / sp500_begin,
+         pct_change_endowment = (EndYearBalanceAmt - BeginningYearBalanceAmt) / BeginningYearBalanceAmt) %>%
+  select(pct_change_sp,pct_change_endowment, organization_name, fiscal_year) %>%
+  pivot_longer(c(contains('pct_change'))) %>%
+  ggplot(aes(x = fiscal_year, y = value, color = name)) +
+  geom_line() +
+  geom_point(alpha = .5, size = .3, show.legend=FALSE) +
+  facet_wrap(~organization_name, scales= "free_y", ncol=4) +
+  theme_c(axis.text.x = element_text(size = 12)) +
+  scale_x_continuous(breaks = 2010:2021) +
+  scale_y_continuous(labels=scales::percent) +
+  scale_color_manual(values=c("#51B09A","#C59742")) +
+  labs(x = "Date",
+       y = "Percent Change",
+       color = "",
+       title = "Annual Growth of S&P 500 Compared to ",
+       subtitle = "Top 15 Companies by Size of Endowment") +
+  theme(legend.position = "top",
+        plot.title = element_text(size = 25),
+        plot.subtitle = element_text(size =20)) +
+  guides(color = guide_legend(override.aes = list(linewidth=2)))
+
+
+
+
+
+
+
+
+
+```
+
+## Compound Growth Rate
+
+Letting $t$ denote the number of years considered, 
+$$\text{Compound Annual Growth Rate} = \left( \dfrac{\text{End Value}}{\text{Beginning Value}}\right)^{\dfrac{1}{t}}-1$$
+To adjust for contributions and expenditures, we define the Compound Annual Growth Rate as
+
+
+$$\small\left( \dfrac{\text{End Value} + \sum_{i=1}^{t-1} \text{Other Expenditures} +  \sum_{i=1}^{t-1}\text{Grants and Scholarships} +  \sum_{i=1}^{t-1} \text{Administrative Expenses} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\dfrac{1}{t}}-1$$
+We visualize the compound growth rates for all companies in Figure \ref{fig:compound-growth}. Notably, San Francisco Ballet, Joffrey Ballet, and 
+
+```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500.", fig.width = 17, fig.height=9}
+
+cagr <- end_sp %>%
+    filter(fiscal_year <= 2020) %>%
+  group_by(organization_name) %>%
+  mutate(minyear = min(fiscal_year),
+         maxyear = max(fiscal_year)) %>%
+  mutate(across(c(AdministrativeExpensesAmt, OtherExpendituresAmt,
+                  ContributionsAmt, GrantsOrScholarshipsAmt), ~ifelse(fiscal_year == maxyear, NA, .x))) %>%
+  filter(BeginningYearBalanceAmt != 0) %>%
+  select(minyear, maxyear, organization_name, contains("Amt"), fiscal_year, contains('sp')) %>%
+  group_by(organization_name, minyear, maxyear) %>%
+  summarize(cont = sum(ContributionsAmt, na.rm = TRUE),
+            exp = sum(OtherExpendituresAmt, na.rm= TRUE),
+            grants = sum(GrantsOrScholarshipsAmt, na.rm=TRUE),
+            admin = sum(AdministrativeExpensesAmt, na.rm=TRUE),
+            endowment_begin = BeginningYearBalanceAmt[which.min(fiscal_year)],
+            endowment_end = BeginningYearBalanceAmt[which.max(fiscal_year)],
+            sp_begin = sp500_begin[which.min(fiscal_year)],
+            sp_end = sp500_begin[which.max(fiscal_year)],
+            .groups="drop",
+            n_years = unique(maxyear)- unique(minyear)) %>%
+  mutate(cagr_adj =   ((endowment_end + exp + grants + admin - cont)/endowment_begin)^(1/n_years) - 1,
+         cagr_sp = (sp_end/sp_begin)^(1/n_years) -1)
+
+
+cagr %>%
+  select(cagr_adj, cagr_sp, organization_name) %>%
+  mutate(order = cagr_adj) %>%
+  pivot_longer(contains('cagr')) %>%
+  mutate(name=case_when(
+    name == "cagr_adj" ~ "Compound Annual Growth Rate\nfor Endowment",
+    name == "cagr_sp" ~ "Compound Annual Growth Rate\nin S&P 500"
+  )) %>%
+  mutate(xlab = ifelse(value > 0, value+ .007, value-.008)) %>%
+  ggplot(aes(y = fct_reorder(organization_name, order),
+             x = value, fill = name)) +
+  geom_bar(stat="identity",position = position_dodge(1.2), width=.8)+
+  labs(y = "",
+       x= "Compound Annual Growth Rate",
+       fill = "") +
+  theme_c(legend.spacing.y = unit(4, 'cm')) + 
+  theme(axis.text.y  =element_text(size = 14),
+        legend.text=element_text(size = 14)) +
+  scale_fill_manual(values=c("#51B09A","#C59742")) +
+  scale_x_continuous(labels = scales::percent, n.breaks = 6) +
+  geom_text(aes(y= organization_name, x =xlab, label=paste0(round(100*value), '%')),
+            #nudge_x = .1,
+            size = 3,
+            position=position_dodge(.9),
+            hjust=0) 
+
+
+```
+
+We see immediately in Figure \ref{fig:compound-growth}that some companies have a compound growth rate is indistinguishable from zero. This includes:
+
+- Oregon Ballet: reported no investment earnings/losses for any year
+- Harlem Ballet: investment earnings/gains were extremely small ($\pm 13$ dollars)
+- First State Ballet Theatre: reported no investment earnings/losses for any year
+- Eugene Ballet: only reported investment earnings/losses for 2020 and 2021
+- American Repertory Ballet: reported no investment earnings/losses for any year
+
+We see in \ref{fig:annual-growth-endowment} that each of these companies annual growth rates are essentially zero when accounting for contributions and withdrawals.
 
 ```{r plot_ranks function}
 
@@ -746,7 +1041,7 @@ prop_balanced_ranked_higher %>%
   theme( plot.title = element_text(size = 20, margin=margin(1,1,0,1)),
          axis.text.y = element_text(size = 16)) +
   scale_fill_manual(values = c("#5191B0",  "#B05162", "#51B09A")) +
-    guides(fill = guide_legend(byrow = TRUE))+
+    guides(fill = guide_legend(byrow = TRUE, ))+
   scale_x_continuous(expand=c(0,0))
 
 ```
