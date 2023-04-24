@@ -31,7 +31,6 @@ library(plotly)
 ```
 
 ```{r}
-
 # make kable table with consistent formatting
 make_table <- function(df, title = "", ...) {
   title <- paste0("<center><span style = 'font-size:160%;color:black'><b>",
@@ -48,6 +47,7 @@ make_table <- function(df, title = "", ...) {
 
 ```{r, include=FALSE}
 ##this is Ruth's dataset. It includes EIN, Business Name, Year, Total Employee Count, Total Volunteer count from the get_vars function. It also includes a state column, which was merged in SQL from Zhen's state file. Because my dataset deals with unpaid labor, all filings with NA values for employees and volunteers were omitted. Additionally, four variables were calculated: empminusvol is the number of employees minus the number of volunteers, EmpoverVol is the number of employees divided by the number of volunteers, emprank is the numerical ranking based on the number of repeorted employees, and volrank is the numerical ranking based on the number of reported volunteers.  
+
 ruthdata <- read.csv(here('data/ruthdata.csv'))
 ```
 
@@ -123,7 +123,7 @@ ruthdata <- ruthdata %>%
 ruthdata %>% 
   group_by(EIN, year) %>% 
   mutate(
-    rank_vol_pct = rank(desc(volunteer_pct))
+    rank_vol_pct = rank(volunteer_pct)
   )
 ```
 
@@ -168,36 +168,47 @@ ggplot(data = map_data_pct) +
 
 
 2. Show descriptive statistics for the top 50% of volunteer labor, 25%, 10%, and 5% by region, and by state. Visualize these quantiles. 
+
 ```{r}
-# under construction
-ruthdata$vol_pct_quantile <- cut(ruthdata$volunteer_pct, breaks = quantile(ruthdata$volunteer_pct, na.rm = TRUE), labels = FALSE)
-  
+data_trend$quantiles = cut(data_trend$rank_pct, breaks = quantile(data_trend$rank_pct, type = 1), include.lowest = TRUE, labels = c("25%","50%","75%","100%"))
+
+data_trend <- data_trend%>%
+  mutate(region= as.character(case_when(state %in% c("IA", "IL", "IN", "MI", "MN", "OH", "WI") ~ "MidWest",
+                state %in% c("AR", "MO", "NE", "OK", "TX") ~ "Mid-America",
+                state %in% c("DC", "DE", "MD", "NJ", "NY", "PA", "VA", "WV") ~ "Mid-Atlantic",
+                state %in% c("CT", "MA", "ME", "NH", "RI") ~  "New England",
+                state%in% c("AZ", "CA", "CO", "ID", "MT", "NM", "NV", "OR", "UT", "WA") ~ "West",
+                state %in% c("AL", "FL", "GA", "KY", "LA", "MS", "NC", "SC", "TN") ~ "South")) )
+
+```
+
+```{r}
 options(digits = 4)
-regions_num <- ruthdata %>% 
+regions_num <- data_trend %>% 
   group_by(region) %>% 
   summarise(number = n())
 
-quantile_num <- ruthdata %>% 
-  group_by(vol_pct_quantile) %>% 
+quantile_num <- data_trend %>% 
+  group_by(quantiles) %>% 
   summarise(quant_num = n())
 
-stack_region<-ruthdata %>% 
-  group_by(region, vol_pct_quantile) %>% 
+stack_region<-data_trend %>% 
+  group_by(region, quantiles) %>% 
   summarise(number = n()) %>% 
   left_join(regions_num, by = "region") %>% 
   mutate(Percent = number.x/number.y * 100)
 
-stack_quantile <- ruthdata %>% 
-  group_by(vol_pct_quantile, region) %>% 
+stack_quantile <- data_trend %>% 
+  group_by(quantiles, region) %>% 
   summarise(number = n()) %>% 
-  left_join(quantile_num, by = "vol_pct_quantile") %>% 
+  left_join(quantile_num, by = "quantiles") %>% 
   mutate(Percent = number/quant_num * 100)
 ```
 
 ```{r}
-ggplot(stack_region, aes(x = region, y = Percent, fill = vol_pct_quantile)) +
+ggplot(stack_region, aes(x = region, y = Percent, fill = quantiles)) +
   geom_bar(stat = "identity", position = "stack")+
-  viridis::scale_fill_viridis(discrete=FALSE,
+  viridis::scale_fill_viridis(discrete=TRUE,
                                  option = "rocket",
                                  end = .9)+
   theme_bw()
@@ -205,13 +216,14 @@ ggplot(stack_region, aes(x = region, y = Percent, fill = vol_pct_quantile)) +
 ```
 
 ```{r}
-ggplot(stack_quantile, aes(x = vol_pct_quantile, y = Percent, fill = region)) +
+
+ggplot(stack_quantile, aes(x = as.factor(quantiles), y = Percent, fill = region)) +
   geom_bar(stat = "identity", position = "stack")+
   viridis::scale_fill_viridis(discrete=TRUE,
                                  option = "rocket",
                                  end = .9)+
   theme_bw()+
-  xlab("Quantile of Percentage of Volunteer in Total Labor Count")
+  scale_x_discrete("Quantile of Percentage of Volunteer in Total Labor Count")
   
 
 ```
@@ -220,6 +232,7 @@ ggplot(stack_quantile, aes(x = vol_pct_quantile, y = Percent, fill = region)) +
 3. Figure out trends of employees and volunteers through the pandemic and identify shifts in these variables over the pandemic
 
 ```{r}
+# how rank of percent volunteer change each year for all comapnies
 ggplotly(
   ggplot(data = data_trend, aes(x = year, y = rank_pct, color = as.factor(BusinessName)))+
     geom_line()+
@@ -229,7 +242,7 @@ ggplotly(
                                  end = .9)
 )
 ```
-
+The trend is not conspicuous. 
 
 
 ```{r}
@@ -246,7 +259,10 @@ employment <- ggplot(ruthdata, aes(x = year, y = TotalEmployeeCnt, color = as.fa
        x = "Year",
        title = "Ballet Company Reported Employees",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(employment)
 ```
 
@@ -264,10 +280,35 @@ Volunteer <- ggplot(ruthdata, aes(x = year, y = TotalVolunteersCnt, color = as.f
        x = "Year",
        title = "Ballet Company Reported Volunteers",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 
 ggplotly(Volunteer)
 ```
+```{r}
+## volunteer percentage change 
+percent <- ggplot(ruthdata, aes(x = year, y = volunteer_pct, color = as.factor(BusinessName))) +
+  geom_line()+
+  theme(legend.position="none") +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10),
+        strip.text = element_text(face="bold",size = 5)) +
+  labs(y = "Volunteer Percent",
+       x = "Year",
+       title = "Ballet Company Reported Volunteers",
+       subtitle = "By Fiscal Year")+
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
+
+ggplotly(percent)
+```
+
 
 ```{r}
 ##Filtering in interesting employment trends
@@ -297,7 +338,10 @@ Employment <- ggplot(lbordf, aes(x = year, y = TotalEmployeeCnt, color = as.fact
        x = "Year",
        title = "Ballet Company Reported Employees",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(Employment)
 ```
 
@@ -315,7 +359,10 @@ volunteer <- ggplot(lbordf, aes(x = year, y = TotalVolunteersCnt, color = as.fac
        x = "Year",
        title = "Ballet Company Reported Volunteers",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(volunteer)
 ```
 
@@ -332,7 +379,10 @@ Employment1 <- ggplot(lbordf1, aes(x = year, y = TotalEmployeeCnt, color = as.fa
        x = "Year",
        title = "Ballet Company Reported Employees",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(Employment1)
 ```
 
@@ -349,7 +399,10 @@ volunteer1 <- ggplot(lbordf1, aes(x = year, y = TotalVolunteersCnt, color = as.f
        x = "Year",
        title = "Ballet Company Reported Volunteers",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(volunteer1)
 ```
 
@@ -367,22 +420,45 @@ EmpSubVol <- ggplot(ruthdata, aes(x = year, y = empminusvol, color = as.factor(B
        x = "Year",
        title = "Reliance on Unpaid Labor",
        subtitle = "By Fiscal Year")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(EmpSubVol)
 ```
+```{r}
+ruthdata %>% 
+  group_by(region, type) %>% 
+  summarise(number = n()) %>% 
+  ggplot(aes(x = reorder(region, -number), y = number, fill = type))+geom_col()+theme_bw()+
+  viridis::scale_fill_viridis(discrete=TRUE,
+                                 option = "A",
+                                 end = .9)+
+  labs(x = "Region", y = "Number")
+```
+
 
 ```{r}
 #Looking at the correlation between the rank of employees and the rank of volunteers 
 voloutliers <- ggplot(ruthdata, aes(x=emprank, y=volrank, color = as.factor(BusinessName))) +
   geom_point()+
    theme(legend.position="none")+
-  theme_bw()
+  theme_bw()+
+  viridis::scale_color_viridis(discrete=TRUE,
+                                 option = "rocket",
+                                 end = .9)
 ggplotly(voloutliers)
 ```
 
 ```{r}
 #code to find most egregious outliers in emprank and volrank
 ruthdata$uplaborrankdif <- ruthdata$volrank-ruthdata$emprank
+df20172019$uplaborrankdif <- df20172019$volrank - df20172019$emprank
+df20202021$uplaborrankdif <- df20202021$volrank - df20202021$emprank
+```
+
+
+```{r}
 #sorted this in descending order and collected the top 5% outliers
 
 #summarize the descriptive stats for uplaborrankdif
@@ -395,160 +471,32 @@ summarize(min=min(uplaborrankdif),
 ```
 
 ```{r}
+ruthdata %>% 
+  group_by(year) %>% 
+  summarise(
+    min_rankdif = min(uplaborrankdif),
+    max_rankdif = max(uplaborrankdif),
+    median_rankdif = median(uplaborrankdif),
+    mean_rankdif = mean(uplaborrankdif),
+    
+    #employee count
+    min_employee = min(TotalEmployeeCnt),
+    max_employee = max(TotalEmployeeCnt),
+    median_employee = min(TotalEmployeeCnt),
+    min_employee = min(TotalEmployeeCnt),
+    
+    #volunteer count
+    min_volunteer = min(TotalVolunteersCnt),
+    max_volunteer = max(TotalVolunteersCnt),
+    mean_volunteer = mean(TotalVolunteersCnt),
+    median_volunteer = median(TotalVolunteersCnt)
+  )
 
 
-```{r}
-#summaries for uplabor over years
-ruthdata2016%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          mean = mean(uplaborrankdif),
-          median = median(uplaborrankdif)
-          )
-```
-
-
-```{r}
-ruthdata2017%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          median = median(uplaborrankdif),
-          mean= mean(uplaborrankdif))
-```
-
-
-```{r}
-ruthdata2018%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          median = median(uplaborrankdif),
-          mean= mean(uplaborrankdif))
-```
-
-
-```{r}
-ruthdata2019%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          median = median(uplaborrankdif),
-          mean= mean(uplaborrankdif))
-```
-
-
-```{r}
-ruthdata2020%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          median = median(uplaborrankdif),
-          mean= mean(uplaborrankdif))
-```
-
-
-```{r}
-ruthdata2021%>%
-summarize(min=min(uplaborrankdif),
-          max = max(uplaborrankdif),
-          median = median(uplaborrankdif),
-          mean= mean(uplaborrankdif))
-
-#calculated weighted values for multiple year desc stats below
-```
-
-```{r}
-#Desc Stats for total volunteers over years
-ruthdata2017%>%
-summarize(min=min(TotalVolunteersCnt),
-          max = max(TotalVolunteersCnt),
-          median = median(TotalVolunteersCnt),
-          mean= mean(TotalVolunteersCnt))
-```
-
-
-```{r}
-ruthdata2018%>%
-summarize(min=min(TotalVolunteersCnt),
-          max = max(TotalVolunteersCnt),
-          median = median(TotalVolunteersCnt),
-          mean= mean(TotalVolunteersCnt))
-```
-
-
-```{r}
-ruthdata2019%>%
-summarize(min=min(TotalVolunteersCnt),
-          max = max(TotalVolunteersCnt),
-          median = median(TotalVolunteersCnt),
-          mean= mean(TotalVolunteersCnt))
 
 ```
 
 
-```{r}
-ruthdata2020%>%
-summarize(min=min(TotalVolunteersCnt),
-          max = max(TotalVolunteersCnt),
-          median = median(TotalVolunteersCnt),
-          mean= mean(TotalVolunteersCnt))
-
-```
-
-
-```{r}
-ruthdata2021%>%
-summarize(min=min(TotalVolunteersCnt),
-          max = max(TotalVolunteersCnt),
-          median = median(TotalVolunteersCnt),
-          mean= mean(TotalVolunteersCnt))
-
-#calculated weighted values for multiple year desc stats below
-```
-
-```{r}
-ruthdata2017%>%
-summarize(min=min(TotalEmployeeCnt),
-          max = max(TotalEmployeeCnt),
-          median = median(TotalEmployeeCnt),
-          mean= mean(TotalEmployeeCnt))
-
-```
-
-
-```{r}
-ruthdata2018%>%
-summarize(min=min(TotalEmployeeCnt),
-          max = max(TotalEmployeeCnt),
-          median = median(TotalEmployeeCnt),
-          mean= mean(TotalEmployeeCnt))
-```
-
-
-```{r}
-ruthdata2019%>%
-summarize(min=min(TotalEmployeeCnt),
-          max = max(TotalEmployeeCnt),
-          median = median(TotalEmployeeCnt),
-          mean= mean(TotalEmployeeCnt))
-```
-
-
-```{r}
-ruthdata2020%>%
-summarize(min=min(TotalEmployeeCnt),
-          max = max(TotalEmployeeCnt),
-          median = median(TotalEmployeeCnt),
-          mean= mean(TotalEmployeeCnt))
-```
-
-
-```{r}
-ruthdata2021%>%
-summarize(min(TotalEmployeeCnt),
-          max = max(TotalEmployeeCnt),
-          median = median(TotalEmployeeCnt),
-          mean= mean(TotalEmployeeCnt))
-
-#calculated weighted values for multiple year desc stats below
-```
 
 ```{r}
 ##Summary stats for range 2017-2019
@@ -607,7 +555,7 @@ df <- select(ruthdata, c("BusinessName", "year", "region", "uplaborrankdif"))
 ```
 
 
-Top 5% outliers in reiance on unpaid labor as judged by volrank minus emprank:
+Top 5% outliers in reliance on unpaid labor as judged by volrank minus emprank:
 
 1. Ballet Theater of Des Moines (2019) MidWest
 2 Ballet Theater of Des Moines (2018) MidWest

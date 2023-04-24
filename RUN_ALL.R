@@ -7,6 +7,7 @@
 library(rmarkdown)
 library(here)
 library(tibble)
+library(tidyverse)
 
 # Infrastructure folder 
 files <- tibble(full = dir(here("infrastructure_rmds"),
@@ -38,7 +39,7 @@ for (i in files) {
 files <- dir(here("explorations_rmds"),
              full.names = TRUE)
 # will need to update 410uplabor once we have all prerequisite files 
-files <- files[files != "410uplabor.Rmd"]
+files <- files[!grepl("410uplabor.Rmd", files)]
 output <- here("explorations_rmds", "output_html")
 
 for (i in files) {

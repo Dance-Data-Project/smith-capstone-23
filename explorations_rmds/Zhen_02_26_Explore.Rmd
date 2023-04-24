@@ -26,6 +26,25 @@ library(here)
 ```
 
 ```{r}
+options(warn = -1)
+schedule_d <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'd')) %>%
+  filter_ein()
+
+# filter columns related to buildings and land
+cols <- names(schedule_d)
+index <- grepl("Land|Buildings", cols)
+cols <- cols[index]
+
+schedule_d <- subset(schedule_d, select = cols)
+
+schedule_d %>%
+  # remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared
+  # across all columns
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
+```
+
+```{r}
 #functions of making graphs and tables
 make_graph <- function(df){
   graph <- ggplot(df, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
@@ -38,24 +57,36 @@ make_graph <- function(df){
         strip.text = element_text(face="bold",size = 5))
   return(graph)
 }
-
-
 ```
 
 
 ## Importing variables related to the endowment of building 
 
 ```{r}
-# use get_var
-files<- dir(here("ballet_990_released_20230208"),
+# example of loading variables 
+files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
               full.names = TRUE)  
-source(here::here("GET_VARS.R"))
+data <- map_df(files, ~
+                    get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
+                           filename = .x
+                           ))
+```
 
-buildings <- map_df(files, ~get_df(filename = .x , 
-                              schedule = 'd')) %>%
-  filter_ein() %>% 
-  select(ReturnTs, EIN,TotalBookValueLandBuildingsAmt,OtherLandBuildingsGrp,TotalBookValueLandBuildingsAmt,BuildingsGrp,fiscal_year)
 
+```{r}
+# change column name and selct ones with buuildings and otherland 
+# Sample data frame
+my_df <- data.frame(var1_a = rnorm(5),
+                     var1_b = rnorm(5),
+                     var2_a = rnorm(5),
+                     var2_b = rnorm(5))
+
+# Rename columns that contain "_a"
+new_names <- sub("_a", "", names(my_df))
+names(my_df) <- new_names
+
+# Display the new column names
+names(my_df)
 
 
 ```

@@ -28,7 +28,8 @@ make_table <- function(..., title = "", col_names = c("")) {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
                   title,
                   "</span></b><center>")
-   as_tibble(...) %>%
+  df <- as.data.frame(...)
+   df %>%
     kbl(caption = title,
         col.names = col_names) %>%
     kable_material() %>%

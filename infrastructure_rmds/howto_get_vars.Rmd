@@ -31,7 +31,7 @@ This will load the functions into your environment.
 
 To apply the `get_df`, run this: 
 ```{r}
-files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
+files <- dir(here("ballet_990_released_20230208"),
               full.names = TRUE)  
 data <- map_df(files, ~
                     get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",

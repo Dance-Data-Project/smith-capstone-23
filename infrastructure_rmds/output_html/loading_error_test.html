@@ -7,7 +7,7 @@
 
         <meta name="author" content="Rose Evard" />
     
-        <meta name="date" content="2023-04-15" />
+        <meta name="date" content="2023-04-18" />
     
     <title>Examining Discrepancies in Loading</title>
 
@@ -2640,7 +2640,7 @@ margin-left: 0 !important;
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Rose
 Evard</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-15</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-18</p>
           </div>
    </div>
      
@@ -2968,8 +2968,13 @@ Evard</p>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(ReturnTs)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="do">##Different all_equal&#39;s produce different things</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">all_equal</span>(endowment_data_old, endowment_data_new)</span></code></pre></div>
+<pre><code>## Warning: `all_equal()` was deprecated in dplyr 1.1.0.
+## ℹ Please use `all.equal()` instead.
+## ℹ And manually order the rows/cols as needed
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
 <pre><code>## [1] &quot;- Rows in x but not in y: 378, 576, 624\n- Rows in y but not in x: 378, 576, 624\n&quot;</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(endowment_data_old, endowment_data_new)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(endowment_data_old, endowment_data_new)</span></code></pre></div>
 <pre><code>## [1] &quot;Component \&quot;TaxPeriodBeginDt\&quot;: &#39;is.NA&#39; value mismatch: 0 in current 3 in target&quot;                 
 ## [2] &quot;Component \&quot;TaxPeriodEndDt\&quot;: &#39;is.NA&#39; value mismatch: 0 in current 3 in target&quot;                   
 ## [3] &quot;Component \&quot;DonorRstrOrQuasiEndowmentsInd\&quot;: &#39;is.NA&#39; value mismatch: 621 in current 623 in target&quot;
@@ -2977,17 +2982,17 @@ Evard</p>
 ## [5] &quot;Component \&quot;fiscal_year\&quot;: 3 NA mismatches&quot;</code></pre>
 <p>Only three rows effected, with five differing variables between
 them.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>subset_new <span class="ot">&lt;-</span> endowment_data_new[<span class="fu">c</span>(<span class="dv">378</span>, <span class="dv">576</span>, <span class="dv">624</span>),]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>subset_old <span class="ot">&lt;-</span> endowment_data_old[<span class="fu">c</span>(<span class="dv">378</span>, <span class="dv">576</span>, <span class="dv">624</span>),]</span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>subset_new <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt, DonorRstrOrQuasiEndowmentsInd, ReturnDate, fiscal_year)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>subset_new <span class="ot">&lt;-</span> endowment_data_new[<span class="fu">c</span>(<span class="dv">378</span>, <span class="dv">576</span>, <span class="dv">624</span>),]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>subset_old <span class="ot">&lt;-</span> endowment_data_old[<span class="fu">c</span>(<span class="dv">378</span>, <span class="dv">576</span>, <span class="dv">624</span>),]</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>subset_new <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt, DonorRstrOrQuasiEndowmentsInd, ReturnDate, fiscal_year)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["EIN"],"name":[1],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt"],"name":[2],"type":["date"],"align":["right"]},{"label":["TaxPeriodEndDt"],"name":[3],"type":["date"],"align":["right"]},{"label":["DonorRstrOrQuasiEndowmentsInd"],"name":[4],"type":["lgl"],"align":["right"]},{"label":["ReturnDate"],"name":[5],"type":["date"],"align":["right"]},{"label":["fiscal_year"],"name":[6],"type":["fct"],"align":["left"]}],"data":[{"1":"811338606","2":"2017-01-01","3":"2017-12-31","4":"NA","5":"2019-01-08","6":"2017"},{"1":"471249404","2":"2019-01-01","3":"2019-12-31","4":"FALSE","5":"2020-06-12","6":"2019"},{"1":"461967830","2":"2019-01-01","3":"2019-12-31","4":"FALSE","5":"2020-10-15","6":"2019"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>subset_old <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt, DonorRstrOrQuasiEndowmentsInd, ReturnDate, fiscal_year)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>subset_old <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(EIN, TaxPeriodBeginDt, TaxPeriodEndDt, DonorRstrOrQuasiEndowmentsInd, ReturnDate, fiscal_year)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["EIN"],"name":[1],"type":["chr"],"align":["left"]},{"label":["TaxPeriodBeginDt"],"name":[2],"type":["date"],"align":["right"]},{"label":["TaxPeriodEndDt"],"name":[3],"type":["date"],"align":["right"]},{"label":["DonorRstrOrQuasiEndowmentsInd"],"name":[4],"type":["lgl"],"align":["right"]},{"label":["ReturnDate"],"name":[5],"type":["date"],"align":["right"]},{"label":["fiscal_year"],"name":[6],"type":["fct"],"align":["left"]}],"data":[{"1":"811338606","2":"<NA>","3":"<NA>","4":"NA","5":"<NA>","6":"NA"},{"1":"471249404","2":"<NA>","3":"<NA>","4":"NA","5":"<NA>","6":"NA"},{"1":"461967830","2":"<NA>","3":"<NA>","4":"NA","5":"<NA>","6":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
