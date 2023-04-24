@@ -253,13 +253,13 @@ end_sp <- endowment_data_wide %>%
   left_join(sp_end,  by = c('end_week' = 'week',
                              'end_year' = 'year'))
 
-end_sp %>% filter(is.na(sp500_begin) | is.na(sp500_end)) %>% 
-  select(EIN, TaxPeriodEndDt, 
-         TaxPeriodBeginDt, 
-         begin_week, 
-         begin_year,
-         sp500_begin,
-         sp500_end)
+# end_sp %>% filter(is.na(sp500_begin) | is.na(sp500_end)) %>% 
+#   select(EIN, TaxPeriodEndDt, 
+#          TaxPeriodBeginDt, 
+#          begin_week, 
+#          begin_year,
+#          sp500_begin,
+#          sp500_end)
 
 ```
 
@@ -268,14 +268,14 @@ end_sp %>% filter(is.na(sp500_begin) | is.na(sp500_end)) %>%
 
 The annual growth rate is the percentage change in a year. That is,
 
-$$\text{growth rate} = \dfrac{\text{Beginning Value}- \text{End Value}}{\text{Beginning Value}}.$$ 
+$$\text{growth rate} = \frac{\text{Beginning Value}- \text{End Value}}{\text{Beginning Value}}.$$ 
 We can compute this for the S&P 500 for the same time interval. Here, we use mean value of the S&P 500 to the previous week compared to the beginning and end dates of each company's fiscal year. 
 
 
 
 To account for withdrawals and contributions, we add back withdrawals and subtract contributions, so we calculate the annual growth rate as
 
-$$\small \text{Annual Growth Rate} = \dfrac{ ( \text{End Value} + \text{Other Expenditures} + \text{Grants and Scholarships} + \text{Administrative Expenses} - \text{Contributions} ) -\text{Beginning Value}}{\text{Beginning Value}}$$ 
+$$\tiny{\text{Annual Growth Rate} = \frac{ ( \text{End Value} + \text{Other Expenditures} + \text{Grants and Scholarships} + \text{Administrative Expenses} - \text{Contributions} ) -\text{Beginning Value}}{\text{Beginning Value}}}$$ 
 This adjustment is important because we want to see how much of the change from the beginning of year balance to the end of year balance is due to the investments, not, for example, a large contribution.
 
 
@@ -383,14 +383,14 @@ end_sp %>%
 ## Compound Growth Rate
 
 Letting $t$ denote the number of years considered, 
-$$\text{Compound Annual Growth Rate} = \left( \dfrac{\text{End Value}}{\text{Beginning Value}}\right)^{\dfrac{1}{t}}-1$$
+$$\tiny{\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{t}}-1}$$
 To adjust for contributions and expenditures, we define the Compound Annual Growth Rate as
 
 
-$$\small\left( \dfrac{\text{End Value} + \sum_{i=1}^{t-1} \text{Other Expenditures} +  \sum_{i=1}^{t-1}\text{Grants and Scholarships} +  \sum_{i=1}^{t-1} \text{Administrative Expenses} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\dfrac{1}{t}}-1$$
+$$\tiny{\left( \frac{\text{End Value} + \sum_{i=1}^{t-1} \text{Other Expenditures} +  \sum_{i=1}^{t-1}\text{Grants and Scholarships} +  \sum_{i=1}^{t-1} \text{Administrative Expenses} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\frac{1}{t}}-1}$$
 We visualize the compound growth rates for all companies in Figure \ref{fig:compound-growth}. Notably, San Francisco Ballet, Joffrey Ballet, and 
 
-```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500.", fig.width = 17, fig.height=9}
+```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500.", fig.width = 17, fig.height=10}
 
 cagr <- end_sp %>%
     filter(fiscal_year <= 2020) %>%
@@ -424,10 +424,11 @@ cagr %>%
     name == "cagr_adj" ~ "Compound Annual Growth Rate\nfor Endowment",
     name == "cagr_sp" ~ "Compound Annual Growth Rate\nin S&P 500"
   )) %>%
-  mutate(xlab = ifelse(value > 0, value+ .007, value-.008)) %>%
+  mutate(xlab = ifelse(value > 0, value+ .007, value-.014)) %>%
   ggplot(aes(y = fct_reorder(organization_name, order),
              x = value, fill = name)) +
-  geom_bar(stat="identity",position = position_dodge(1.2), width=.8)+
+  geom_bar(stat="identity", position="dodge") +
+ # geom_bar(stat="identity",position = position_dodge(.9), width=.8)+
   labs(y = "",
        x= "Compound Annual Growth Rate",
        fill = "") +
