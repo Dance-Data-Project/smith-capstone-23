@@ -53,7 +53,7 @@ companies <- read_csv(here("data/companies.csv")) %>%
 ein_to_state <- readRDS(here("./data/ein_to_state_update.RDS")) 
 
 # joining these information to scheudle_d
-schedule_d_buildings_lands<- schedule_d %>% 
+schedule_d_buildings_lands_fy<- schedule_d %>% 
   left_join(select(endow, EIN, fiscal_year), by = "EIN") %>% 
   left_join(companies, by = "EIN") %>% 
   left_join(ein_to_state, by = "EIN") %>% 
@@ -61,25 +61,63 @@ schedule_d_buildings_lands<- schedule_d %>%
   unique() %>% 
   group_by(EIN) %>% 
   arrange(desc(ReturnTs))
+
+schedule_d_buildings_lands_rt<- schedule_d %>% 
+  left_join(companies, by = "EIN") %>% 
+  left_join(ein_to_state, by = "EIN") %>% 
+  #select(-c("OtherLandBuildingsGrp", "BuildingsGrp","LandGrp", "fiscal_year.y", "ein","organization_name.y")) %>% 
+  unique() %>% 
+  group_by(EIN) %>% 
+  arrange(desc(ReturnTs))
   
-saveRDS(schedule_d_buildings_lands, here("data","schedule_d_buildings_lands.RDS"))
+saveRDS(schedule_d_buildings_lands_fy, here("data","schedule_d_buildings_lands_fy.RDS"))
+saveRDS(schedule_d_buildings_lands_rt, here("data","schedule_d_buildings_lands_rt.RDS"))
 ```
-
-
-
+## Analyze using only ReturnTs
 ```{r}
-#functions of making graphs and tables
-make_graph <- function(df){
-  graph <- ggplot(df, aes(x = year, y = BookValueSum, color = as.factor(BusinessName))) +
-  geom_line() +
-  theme_bw() +
-  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
-        axis.title = element_text(size = 10, face = "bold"),
-        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 10),
-        strip.text = element_text(face="bold",size = 5))
-  return(graph)
+# 
+data_each_year_rt<-list(
+  data_2015 <- filter(schedule_d_buildings_lands_rt, grepl("2015", ReturnTs)),
+  data_2016 <- filter(schedule_d_buildings_lands_rt, grepl("2016", ReturnTs)),
+  data_2017 <- filter(schedule_d_buildings_lands_rt, grepl("2017", ReturnTs)),
+  data_2018 <- filter(schedule_d_buildings_lands_rt, grepl("2018", ReturnTs)),
+  data_2019 <- filter(schedule_d_buildings_lands_rt, grepl("2019", ReturnTs)),
+  data_2020 <- filter(schedule_d_buildings_lands_rt, grepl("2020", ReturnTs)),
+  data_2021 <- filter(schedule_d_buildings_lands_rt, grepl("2021", ReturnTs))
+)
+
+# get the most updated values of each fiscal_year according to ReturnT
+for(i in 1:length(data_each_year_rt)){
+  data_each_year_rt[[i]] <- data_each_year[[i]] %>% 
+    group_by(organization_name.x,ReturnTs) %>% 
+    filter(ReturnTs == max(as.Date(ReturnTs)))
 }
+
+# buildings_updated_values_rt <- bind_rows(data_each_year)
+
+BookValueSum <- list()
+
+# restore each year's sum for each EIN's buildings bookvalue 
+for(i in c(1:7)){
+  data = data_each_year_rt[[i]]
+  df <- data.frame(data %>% 
+    filter(!is.na(TotalBookValueLandBuildingsAmt)) %>% 
+    mutate_at(c("TotalBookValueLandBuildingsAmt"), as.numeric) %>% 
+    group_by(EIN) %>% 
+    summarise(
+      BookValueSum = sum(TotalBookValueLandBuildingsAmt)
+    ) %>% 
+    mutate(year = 2014+i,
+           EIN = as.numeric(EIN)))
+           
+  #print(df)
+  BookValueSum[[i]] = df
+}
+BookValueSum <- bind_rows(BookValueSum) %>% 
+  mutate(EIN = as.character(EIN)) %>% 
+  left_join(companies, by = "EIN") %>% 
+  left_join(ein_to_state, by = "EIN")
+
 ```
 
 
@@ -98,8 +136,35 @@ data_each_year<-list(
   data_2020 <- filter(schedule_d_buildings_lands, grepl("2020", fiscal_year)),
   data_2021 <- filter(schedule_d_buildings_lands, grepl("2021", fiscal_year))
 )
+```
+
+
+```{r}
+graphs <- list()
+for(i in 1:length(data_each_year)){
+  data_each_year[[i]]<-data_each_year[[i]] %>% 
+    mutate(ReturnTs = as.Date(ReturnTs)) %>% 
+    arrange(ReturnTs)
+  
+
+    graphs[[i]] <- ggplot(data_each_year[[i]], aes(x = ReturnTs, y = as.numeric(TotalBookValueLandBuildingsAmt), color = organization_name.x))+
+               geom_point(stat = "identity")+
+        theme_bw()
+}
+```
+
+
+```{r}
+ggplotly(graphs[[1]])
+ggplotly(graphs[[2]])
+ggplotly(graphs[[3]])
+ggplotly(graphs[[4]])
+ggplotly(graphs[[5]])
+ggplotly(graphs[[6]])
+ggplotly(graphs[[7]])
 
 ```
+
 
 ```{r}
 # get the most updated values of each fiscal_year according to ReturnT
