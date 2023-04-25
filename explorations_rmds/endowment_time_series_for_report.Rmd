@@ -384,8 +384,13 @@ end_sp %>%
 
 Letting $t$ denote the number of years considered, 
 $$\tiny{\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{t}}-1}$$
-To adjust for contributions and expenditures, we define the Compound Annual Growth Rate as
 
+Now, we note that we can compute the withdrawals using other variables reported in the 990:
+$$\small{\text{Withdrawals} = \text{Other Expenditures} +\text{Administrative Expenses} +\text{Administrative Expenses} + \text{Grants and Scholarships}}.$$
+
+
+To adjust for contributions and expenditures, we define the Compound Annual Growth Rate as
+$$\tiny{\left( \frac{\text{End Value} + \sum_{i=1}^{t-1} \text{Withdrawals} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\frac{1}{t}}-1}$$
 
 $$\tiny{\left( \frac{\text{End Value} + \sum_{i=1}^{t-1} \text{Other Expenditures} +  \sum_{i=1}^{t-1}\text{Grants and Scholarships} +  \sum_{i=1}^{t-1} \text{Administrative Expenses} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\frac{1}{t}}-1}$$
 We visualize the compound growth rates for all companies in Figure \ref{fig:compound-growth}. Notably, San Francisco Ballet, Joffrey Ballet, and 
@@ -627,7 +632,7 @@ all_category <- endowment_data_wide %>%
               across(contains("EOY"),~ mean(.x, na.rm=TRUE))) %>%
    filter(if_any(contains("EOY"), ~.x==1 )) %>%
    pivot_longer(contains("EOY")) %>%
-  filter(!is.na(value)) %>%
+  filter(!is.na(value) & value !=0) %>%
   mutate(name = case_when(
     name == "TermEndowmentBalanceEOYPct" ~ "Temporarily restricted endowment",
     name == "PrmnntEndowmentBalanceEOYPct" ~ "Permanent endowment",
@@ -688,7 +693,7 @@ all_category%>%
 
 ```
 
-```{r, fig.width=14, fig.height=16, fig.cap="\\label{fig:endowment-type}The percentage of endowments held in temporarily restricted endowment, permanent endowment, or board designated or quasi-endowment. The first row of plots corresponds to the percentages for companies ranked in the top 15 by beginning of year balance, and the second row includes all remaining companies."}
+```{r, fig.width=16, fig.height=10, fig.cap="\\label{fig:endowment-type}The percentage of endowments held in temporarily restricted endowment, permanent endowment, or board designated or quasi-endowment. The first row of plots corresponds to the percentages for companies ranked in the top 15 by beginning of year balance, and the second row includes all remaining companies."}
 
 
 # eins that have endowments that are in a single category for all years
@@ -736,14 +741,15 @@ not_top_20 <- ranks %>% filter(rank >15)
   
 
 dat <- endowment_data_wide_filt %>%
+  filter(fiscal_year <=2020) %>%
   select(contains("EOY"),fiscal_year, 
          EIN, organization_name) %>%
   mutate(rank_category = ifelse(organization_name %in% top_20$organization_name,
-                                "Endowment Ranked\nin Top 15", 
-                                "Endowment Not Ranked\nin Top 15")) %>%
+                                "Top 15", 
+                                "Not in\n Top 15")) %>%
   mutate(rank_category=factor(rank_category,
-                              levels = c( "Endowment Ranked\nin Top 15",
-                                          "Endowment Not Ranked\nin Top 15"))) %>%
+                              levels = c( "Top 15",
+                                          "Not in\n Top 15"))) %>%
   pivot_longer(cols = contains("EOY"))  %>%
   mutate(name = case_when(
     name == "TermEndowmentBalanceEOYPct" ~ "Temporarily restricted\nendowment",
@@ -758,13 +764,99 @@ dat <- endowment_data_wide_filt %>%
          value=100*value,
          ylabel = ifelse(EIN %in% ein_beginning,
                          value[which.min(fiscal_year)],
-                         value[which.max(fiscal_year)]) )
+                         value[which.max(fiscal_year)]) ) %>%
+  ungroup()  %>%
+   filter(fiscal_year <=2020) 
+
 
 dat_labels <- dat %>%
-  select(organization_name,xlabel,ylabel,name,rank_category) %>%
+  select(organization_name,xlabel,ylabel,name,rank_category, EIN) %>%
+  mutate(beginning = EIN %in% ein_beginning) %>%
   distinct()
 
+dat_labels_left <- dat_labels %>%
+  filter(beginning)
 
+
+dat_labels_right <- dat_labels %>%
+  filter(!beginning)
+
+
+
+
+
+
+
+pal1 <- viridis_pal(option="mako", end = .8, begin=.2)(10)
+pal2 <- viridis_pal(option="rocket", end = .8, begin=.2)(8)
+pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(8)
+pal4 <- viridis_pal(option="inferno", end = .8, begin=.2)(8)
+
+set.seed(999)
+pal <- c(pal1, pal2, pal3, pal4)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+
+
+
+##############################################################################
+# plot showing types of endowments over time by company
+##############################################################################
+ dat %>%
+   ggplot(aes(x=fiscal_year,
+             y  = value, 
+             color = organization_name)) +
+  geom_line(show.legend=FALSE,
+            alpha = .9) +
+  facet_wrap(~name) +
+  theme_c(
+    strip.text = element_text(margin =margin(6,0,6,0),
+                                    size =4,
+                                    lineheight=.5),
+        #  strip.text.y = element_text(angle=-90, color="white", size =18),
+          legend.position="none",
+        axis.title = element_text(size =16),
+    axis.text.x = element_text(angle = 30),
+    plot.title = element_text(             #title
+                   size = 30,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3)) +
+  scale_color_manual(values=pal) +
+   geom_point(size=.5, alpha =.5) +
+  labs(y="Percentage of Endowment in Category",
+       x = "Fiscal Year") + 
+   theme(strip.text.y =element_text(angle=0)) +
+  geom_text_repel(aes(label = organization_name,
+                 y = ylabel,
+                 x = xlabel,  
+                 color=organization_name),
+             size = 2.5,
+             direction="y",
+             hjust="right",
+             vjust="middle",
+            data=dat_labels_left) +
+  facet_grid(rank_category~name, scales="free") +
+   scale_x_continuous(limits=c(2012.5,2021.5), breaks=2014:2021) +
+   scale_y_continuous(limits = c(-5, 105), breaks = seq(0,100, by = 20), 
+                      labels=paste0(seq(0,100, by = 20), "%")) +
+   labs(title = "Types of Endowments by Organization")+ 
+  geom_text_repel(aes(label = organization_name,
+                 y = ylabel,
+                 x = xlabel,  
+                 color=organization_name),
+             size = 2.5,
+             direction="y",
+             hjust="left",
+             vjust="middle",
+            data=dat_labels_right)
+
+
+
+
+```
+
+```{r old version, eval=FALSE}
  dat %>%
    ggplot(aes(x=fiscal_year,
              y  = value, 
@@ -824,8 +916,120 @@ dat_labels <- dat %>%
 
 
 
-  
-  
+
+```
+
+
+```{r new version, eval=FALSE}
+
+
+pal1 <- viridis_pal(option="mako", end = .8, begin=.2)(10)
+pal2 <- viridis_pal(option="rocket", end = .8, begin=.2)(8)
+pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(8)
+pal4 <- viridis_pal(option="inferno", end = .8, begin=.2)(8)
+
+set.seed(999)
+pal <- c(pal1, pal2, pal3, pal4)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+
+
+# 
+# 
+# endowment_data_wide %>%
+#   ggplot(aes(x=fiscal_year, y=BeginningYearBalanceAmt,color=organization_name)) +
+#   geom_line() +
+#   scale_color_viridis(option="rocket", end = .8, begin=.5 ,discrete=TRUE)
+
+ dat %>%
+   ggplot(aes(x=fiscal_year,
+             y  = value, 
+             color = organization_name)) +
+  geom_line(show.legend=FALSE,
+            alpha = .9) +
+  facet_wrap(~name) +
+  theme_c(
+    strip.text = element_text(margin =margin(6,0,6,0),
+                                    size =4,
+                                    lineheight=.5),
+        #  strip.text.y = element_text(angle=-90, color="white", size =18),
+          legend.position="none",
+        axis.title = element_text(size =16),
+    axis.text.x = element_text(angle = 30),
+    plot.title = element_text(             #title
+                   size = 30,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3)) +
+  scale_color_manual(values=pal) +
+   geom_point(size=.5, alpha =.5) +
+  labs(y="Percentage of Endowment in Category",
+       x = "Fiscal Year") + 
+   theme(strip.text.y =element_text(angle=0)) +
+  geom_text_repel(aes(label = organization_name,
+                 y = ylabel,
+                 x = xlabel,  
+                 color=organization_name),
+             size = 2,
+             direction="y",
+             hjust="right",
+             vjust="middle",
+            data=dat_labels_left) +
+  facet_grid(rank_category~name, scales="free") +
+   scale_x_continuous(limits=c(2013,2021), breaks=2014:2021) +
+   scale_y_continuous(limits = c(-5, 105), breaks = seq(0,100, by = 20), 
+                      labels=paste0(seq(0,100, by = 20), "%")) +
+   labs(title = "Types of Endowments by Organization")+ 
+  geom_text_repel(aes(label = organization_name,
+                 y = ylabel,
+                 x = xlabel,  
+                 color=organization_name),
+             size = 2,
+             direction="y",
+             hjust="left",
+             vjust="middle",
+            data=dat_labels_right)
+
+         
+
+
+
+  geom_text_repel(aes(label = organization_name,
+                 y = ylabel,
+                 x = xlabel,  
+                 color=organization_name),
+             size = 2,
+             seed=124,
+             data=dat_labels_left,
+              min.segment.length=9,
+            # label.size = 1.2,
+             force=.8,
+            hjust=1,
+            nudge_x = -.1,
+           #  nudge_x = -.5,
+             # direction="y",
+             force_pull = 10,
+             max.overlaps = 20) +
+  # geom_label_repel(aes(label = organization_name,
+  #               color=organization_name,
+  #                y = ylabel, x = xlabel),
+  #             color = "black",
+  #            label.size = NA,
+  #            size = 3,
+  #           # nudge_x = -.5,
+  #            seed=124,
+  #            data=dat_labels,
+  #            min.segment.length=9,
+  #            force=.8,
+  #            # direction="y",
+  #            force_pull=20,
+  #            max.overlaps = 20) +
+   facet_grid(rank_category~name, scales="free") +
+   scale_x_continuous(limits=c(2012,2023), breaks=2014:2021) +
+   scale_y_continuous(limits = c(-5, 105), breaks = seq(0,100, by = 20)) +
+   labs(title = "Types of Endowments by Organization")
+
+
 ```
 
 
@@ -1238,12 +1442,6 @@ balance_ranks %>%
                        trans="reverse",
                        breaks = c(5,40),
                        labels = c("Ranked Higher", "Ranked Lower"),
-                     #  trans="exp",
-                      # discrete=TRUE,
-                     #  trans="sqrt",
-                     #  direction=-1,
-                     #  breaks = c(2.5,5), 
-                    #   labels=list("Higher Ranked", "Lower Ranked"),
                        end=.9,
                     begin=.2) +
  #   scale_color_manual(values=pal, na.value=NA, breaks =top_ranks$organization_name) +
