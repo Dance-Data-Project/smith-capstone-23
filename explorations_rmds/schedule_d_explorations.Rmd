@@ -28,6 +28,23 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 ```{r}
 
+#######################################
+# CREATE BIG PALETTE WITH MANY COLORS
+#######################################
+
+pal1 <- viridis_pal(option="mako", end = .9)(12)
+pal2 <- viridis_pal(option="rocket", end = .8)(12)
+pal3 <- viridis_pal(option="magma", end = .9)(12)
+pal4 <- viridis_pal(option="inferno", end = .8)(12)
+
+set.seed(123)
+pal <- c(pal1, pal2, pal3, pal4)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+```
+
+```{r}
+
 # make kable table with consistent formatting
 make_table <- function(..., title = "", col_names = c("")) {
   title <- paste0("<center><span style = 'font-size:150%;color:black'><b>",
@@ -467,7 +484,13 @@ companies_miscalculate <- test_diff %>%
   pull(organization_name) %>%
   unique()
 
-#Table if they do 
+## Counts per company
+counts <- test_diff %>%
+  left_join(names, by = "EIN") %>%
+  filter(same_end == FALSE) %>%
+  group_by(organization_name) %>%
+  summarize(n = n())
+
 test_diff %>%
   left_join(names, by = "EIN") %>%
   filter(organization_name %in% c(companies_miscalculate)) %>%
@@ -480,17 +503,14 @@ test_diff %>%
         axis.text.x = element_text(size = 10, angle = 90),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7)) + 
-  scale_fill_viridis_d() +
+        legend.text = element_text(size=7),
+        legend.title = element_text(size = 7)) + 
+  scale_fill_viridis_d(labels = c("Yes", "No")) +
   labs( title = "Number of Times Companies Miscalculated End Year Balance",
-        y = "Number of Miscalculations",
-        x = "Company Name")
-  
-  group_by(organization_name, same_end) %>%
-  summarize(n = n()) %>%
-  make_table(title = "Companies With Misreports",
-             col_names = c("Organization Name","Did they Miscalculate","Number of Reports"))
-
+        y = "Total Reports",
+        x = "Company Name",
+        fill = "Was End Balance \nMiscalculated?") +
+  geom_label(counts, aes(x = organization_name, y = n, label = n))
 
 #Histograms of all misreports compared (sorta)
 test_diff %>%
@@ -515,6 +535,31 @@ test_diff %>%
         legend.text = element_text(size=7)) +
   scale_y_continuous(labels = scales::label_dollar()) +
   scale_fill_manual(values = c("darkgoldenrod1", "blue4"))
+
+# Difference Plotted
+test_diff %>%
+  filter(same_end == FALSE) %>%
+  left_join(names, by = "EIN") %>%
+  select(EIN, fiscal_year, organization_name, EndYearBalanceAmt, diff_end) %>%
+  mutate(name = paste(organization_name, fiscal_year, sep = ", ")) %>%
+  ggplot(aes(y = name, x = diff_end, fill = organization_name)) +
+  geom_col(position = "dodge", show.legend = FALSE) +
+  #facet_wrap(~organization_name, scales = "free") + 
+  theme_bw() + 
+    theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 5),
+        axis.text.y = element_text(size = 5),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) +
+  scale_x_continuous(labels = scales::label_dollar()) + 
+  scale_fill_manual(values = pal)+ 
+  labs(title = "Difference Between Calculated and Reported End Balances",
+       x = "Calculated Difference",
+       y = "Company Name and Fiscal Year")
+
 
 # Relationship between year and misreports?  No
 test_diff %>%
