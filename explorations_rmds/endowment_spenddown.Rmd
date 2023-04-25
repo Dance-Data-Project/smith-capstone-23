@@ -39,7 +39,6 @@ make_table <- function(..., title = "", col_names = c("")) {
 
 ```
 
-
 ```{r}
 #######################################
 # CREATE BIG PALETTE WITH MANY COLORS
@@ -73,12 +72,12 @@ names <- read_csv(here("data", "companies.csv")) %>%
 
 ## Including Investments
 
-**(End Year Balance - Beginning Year Balance) / Beginning Year Balance * 100**
+**(End Year Balance - Beginning Year Balance) / Beginning Year Balance \* 100**
 
-> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.  
-> If BYB is larger, negative result. Meaning a DECREASE in total funds.  
-> If result is above 100, the fund was at least DOUBLED.  
- 
+> If EYB is larger, positive result. Meaning there was a INCREASE in total funds.\
+> If BYB is larger, negative result. Meaning a DECREASE in total funds.\
+> If result is above 100, the fund was at least DOUBLED.
+
 ```{r, eval = TRUE}
 #### USE THIS
 ## (EYB - BYB)/BYB * 100
@@ -92,13 +91,13 @@ pct_change_ds <- endowment_data %>%
 
 ```
 
-## REMOVING Investments  
+## REMOVING Investments
 
-**(End Year Balance - Investment Earnings or Losses Amount - Beginning Year Balance) / Beginning Year Balance * 100**
+**(End Year Balance - Investment Earnings or Losses Amount - Beginning Year Balance) / Beginning Year Balance \* 100**
 
-> Positive result: INCREASE in total funds.  
-> Negative result: DECREASE in total funds.  
-> If result is above 100, the fund was at least DOUBLED.  
+> Positive result: INCREASE in total funds.\
+> Negative result: DECREASE in total funds.\
+> If result is above 100, the fund was at least DOUBLED.
 
 ```{r, eval = TRUE}
 #### USE THIS
@@ -113,10 +112,10 @@ pct_change_inv_ds <- endowment_data %>%
   left_join(names, by = "EIN")
 ```
 
+# Summarizing Information
 
-# Summarizing Information  
+## With investments
 
-## With investments  
 ```{r}
 # Basic summary stats
 pct_change_ds %>%   
@@ -166,7 +165,8 @@ pct_change_ds %>%
   scroll_box(height = "450px")
 ```
 
-## REMOVING investments   
+## REMOVING investments
+
 ```{r}
 # Basic summary stats
 pct_change_inv_ds %>%   
@@ -216,9 +216,10 @@ pct_change_inv_ds %>%
   scroll_box(height = "450px")
 ```
 
-# Range of Endowment Percent Change  
+# Range of Endowment Percent Change
 
-## WITH investments  
+## WITH investments
+
 ```{r}
 ## Ranges of different percent change  
 # Reordering by standard deviation of pct_spend down
@@ -263,7 +264,8 @@ ggplotly(box_plot_lim)  %>%
 
 ```
 
-## WITHOUT investments  
+## WITHOUT investments
+
 ```{r}
 ## Ranges of different percent change  
 # reorder(organization_name, pull(summarize(spend_down, sd = sd(group_by(spend_down, pct_change)))), na.rm = TRUE)
@@ -308,9 +310,9 @@ ggplotly(box_plot_inv_lim)  %>%
 
 ```
 
+# Percent Change over Time
 
-# Percent Change over Time   
-## WITH investments  
+## WITH investments
 
 ```{r}
 ## Retrieving median values  
@@ -322,7 +324,7 @@ pct_change_med <- pct_change_ds %>%
 pct_change_med$fiscal_year_dt = as.Date(pct_change_med$fiscal_year_dt, format = "%Y-%m-%d")
 ```
 
-```{r}  
+```{r}
 ## Spend Down over Time
 pct_change_plot <- pct_change_ds %>%
   filter(pct_change != Inf) %>%
@@ -378,7 +380,7 @@ limited_scale
 ggplotly(limited_scale)
 ```
 
-## WITHOUT investments   
+## WITHOUT investments
 
 ```{r}
 ## Retrieving median values  
@@ -389,8 +391,7 @@ pct_change_inv_med <- pct_change_inv_ds %>%
 
 ```
 
-
-```{r}  
+```{r}
 ## Spend Down over Time
 pct_change_inv_plot <- pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
@@ -446,7 +447,7 @@ limited_scale_inv
 ggplotly(limited_scale_inv)
 ```
 
-# Comparing within-year percent change to S&P 500  
+# Comparing within-year percent change to S&P 500
 
 ```{r}
 ## Adding end date 
@@ -505,7 +506,7 @@ pct_change_ds <- ungroup(pct_change_ds)
 pct_change_inv_ds <- ungroup(pct_change_inv_ds)
 ```
 
-## WITH investments  
+## WITH investments
 
 ```{r}
 ## GETTING PERCENT CHANGE OF FISCAL YEARS THAT EXIST IN THE DATASET
@@ -579,7 +580,8 @@ pct_change_ds %>%
   scroll_box(height = "450px")
 ```
 
-## WITHOUT investments 
+## WITHOUT investments
+
 ```{r}
 ## SPend down over time with new X axis 
 ## Median by year 
@@ -627,11 +629,9 @@ pct_change_inv_ds %>%
   scroll_box(height = "450px")
 ```
 
+> Rank plots about how they perform relative to the S&P 500?
 
-> Rank plots about how they perform relative to the S&P 500?  
-
-## Looking at Companies who Drop at Any Point Below 40%  
-
+## Looking at Companies who Drop at Any Point Below 40%
 
 ```{r}
 
@@ -640,18 +640,10 @@ low_forty <- pct_change_inv_ds %>%
     filter(pct_change < -40) %>%
     select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
 
-minimums_forty <- pct_change_inv_ds %>%
-  group_by(organization_name) %>%
-  summarize(pct_change = min(pct_change)) %>%
-  ungroup() %>%
-  filter(pct_change < -40) %>%
-  left_join(pct_change_inv_ds, by = c("organization_name", "pct_change")) %>%
-  select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
-
 ##Plotting and labeling only those with dips below 40
 pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
-  filter(organization_name %in% minimums_forty$organization_name) %>%
+  filter(organization_name %in% low_forty$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), show.legend = TRUE) + 
   #scale_colour_manual(values = pal) + 
@@ -677,6 +669,7 @@ pct_change_inv_ds %>%
 ```
 
 ## Looking at Companies who Grow above 200% At Any Point
+
 ```{r}
 
 ## Table for higher than 200%
@@ -685,18 +678,10 @@ high_200 <- pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
     select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year) 
 
-max_200 <- pct_change_inv_ds %>%
-  group_by(organization_name) %>%
-  summarize(pct_change = max(pct_change)) %>%
-  ungroup() %>%
-  filter(pct_change >= 200) %>%
-  left_join(pct_change_inv_ds, by = c("organization_name", "pct_change")) %>%
-  select(organization_name, TaxPeriodEndDt,pct_change)
-
 ##Plotting and labeling only those with dips below 40
 pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
-  filter(organization_name %in% max_200$organization_name) %>%
+  filter(organization_name %in% high_200$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), show.legend = TRUE) + 
   #scale_colour_manual(values = pal) + 
@@ -721,12 +706,11 @@ pct_change_inv_ds %>%
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1)
 ```
 
+# Investments and S&P 500 specifically
 
-# Investments and S&P 500 specifically  
+Asking the question: How much of the change in endowment balance is specifically due to investments.
 
-Asking the question:  How much of the change in endowment balance is specifically due to investments.  
-
-Calculation:  
+Calculation:
 
 $$\frac{\sum(Investments)}{(Newest EYB - Oldest BYB)} \times 100$$
 
@@ -769,10 +753,11 @@ inv_change <- inv_sum %>%
   mutate(inv_ch_pct = inv_sum/(EndYearBalanceAmt - BeginningYearBalanceAmt))
 ```
 
-> Where do I go next with this?  How do I compare it to the market?  
+> Where do I go next with this? How do I compare it to the market?
 
-# Breaking Companies up by Behavior   
-Using only the dataset normalized for investments, as that has more consistency.  
+# Breaking Companies up by Behavior
+
+Using only the dataset normalized for investments, as that has more consistency.
 
 ```{r}
 # Adding var for "Consistency"  
@@ -855,7 +840,9 @@ ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change,
   scale_y_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 20),
                      limits = c(-100, 100))  +
-  scale_color_gradient(low = "yellow", high = "blue") + 
+  scale_color_gradient(low = "yellow", high = "blue",
+                      breaks = c(5,40), 
+                      labels = c("Ranked Higher", "Ranked Lower")) + 
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 0.5)
 
 inv_box <- inv_consist_ds %>%
@@ -895,6 +882,7 @@ ggplot(inv_box, aes(x = organization_name, y = pct_change)) +
 ## Examining the Two Classes
 
 ### Lists of Companies within Each Class
+
 ```{r}
 ## Names in a table  
 # CONSISTENT ones  
@@ -904,9 +892,8 @@ inv_consist %>%
   make_table(title = "Companies with Consistent Endowment Changes", col_names = c("Organization Name", "Minimum Change", "Maximum Change", "Standard Deviation", "Rank")) %>%
   scroll_box(height = "450px")
 ```
- 
-There are `r inv_consist %>% filter(consistent == TRUE) %>% nrow()` companies which have 'consistent' endowment percent change. 
 
+There are `r inv_consist %>% filter(consistent == TRUE) %>% nrow()` companies which have 'consistent' endowment percent change.
 
 ```{r}
 ## Names in a table  
@@ -918,9 +905,9 @@ inv_consist %>%
   scroll_box(height = "450px")
 ```
 
-There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change. 
+There are `r inv_consist %>% filter(consistent == FALSE) %>% nrow()` companies which have 'inconsistent' endowment percent change.
 
-### Size of Companies in Each Class   
+### Size of Companies in Each Class
 
 ```{r}
 ##Getting employee data
@@ -951,7 +938,7 @@ most_recent_ds <- inv_consist_ds %>%
 ```
 
 ```{r}
-## Consistent  
+## Table of Consistent  
 most_recent_ds %>%
   filter(consistent == TRUE) %>%
   select(organization_name, TotalEmployeeCnt, EndYearBalanceAmt, recent_year) %>%
@@ -959,9 +946,8 @@ most_recent_ds %>%
   scroll_box(height = "450px")
 ```
 
-
 ```{r}
-## Inconsistent  
+## Table of Inconsistent  
 most_recent_ds %>%
   filter(consistent == FALSE) %>%
   filter(!is.na(TotalEmployeeCnt)) %>%
@@ -971,7 +957,7 @@ most_recent_ds %>%
 ```
 
 ```{r}
-
+##Plotting based on consistent/inconsistent language
 ## Labels for facet 
 consistent_labels <- c(
   `TRUE` = "Consistent",
@@ -1035,6 +1021,7 @@ most_recent_ds %>%
   ggplot(aes(x = rank, y = TotalEmployeeCnt)) +
   geom_point()
 
+##Scatter plot log scale for endowment balance
 most_recent_ds %>%
   ggplot(aes(y = reorder(organization_name, rank), x = log10(EndYearBalanceAmt), color = rank)) +
   geom_point() + 
@@ -1052,8 +1039,11 @@ most_recent_ds %>%
         legend.title = element_text(size = 6)) + 
     scale_x_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 10)) + 
-  scale_color_gradient(low = "yellow", high = "blue")
+  scale_color_gradient(low = "yellow", high = "blue",
+                      breaks = c(5,40), 
+                      labels = c("Ranked Higher", "Ranked Lower"))
 
+## Scatter plot employee count
 most_recent_ds %>%
   ggplot(aes(y = reorder(organization_name, rank), x = TotalEmployeeCnt, color = rank)) +
   geom_point() + 
@@ -1071,11 +1061,12 @@ most_recent_ds %>%
         legend.title = element_text(size = 6)) + 
     scale_x_continuous(labels = scales::comma_format(),
                      breaks = scales::pretty_breaks(n = 10)) + 
-  scale_color_gradient(low = "yellow", high = "blue")
-
+  scale_color_gradient(low = "yellow", high = "blue",
+                      breaks = c(5,40), 
+                      labels = c("Ranked Higher", "Ranked Lower"))
 ```
 
-# Total Revenue  
+# Total Revenue
 
 ```{r}
 ##Getting Total Revenue data
@@ -1093,7 +1084,7 @@ revenue_data <- map_df(files, ~
 revenue_data$fiscal_year = as.numeric(as.character(revenue_data$fiscal_year))
 ```
 
-## Total Revenue vs Pct Change- any pattern?  
+## Total Revenue vs Pct Change- any pattern?
 
 ```{r}
 ggplot(revenue_data, aes(x = CYTotalRevenueAmt)) + 
@@ -1119,10 +1110,11 @@ pct_change_inv_ds %>%
                      limits = c(-200, 800))
 ```
 
+# Percent Change Within the Pandemic
 
-# Percent Change Within the Pandemic   
-## WITH investments 
-```{r}  
+## WITH investments
+
+```{r}
 ## Pandemic Years
 pct_change_plot <- pct_change_ds %>%
   filter(fiscal_year %in% c("2018", "2019", "2020", "2021", "2022")) %>% 
@@ -1165,8 +1157,9 @@ pct_change_ds %>%
   summarize(total_in_year = n())
 ```
 
-## WITHOUT investments 
-```{r}  
+## WITHOUT investments
+
+```{r}
 ## Pandemic Years
 pct_change_plot_inv <- pct_change_inv_ds %>%
   filter(fiscal_year %in% c("2018", "2019", "2020", "2021", "2022")) %>% 
@@ -1208,4 +1201,3 @@ pct_change_inv_ds %>%
   group_by(fiscal_year) %>%
   summarize(total_in_year = n())
 ```
-
