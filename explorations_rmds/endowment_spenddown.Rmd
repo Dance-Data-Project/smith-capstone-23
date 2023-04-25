@@ -549,8 +549,8 @@ pct_change_rtd %>%
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
-       title = "Percentage of Change in Endowment Balance",
-       subtitle = "Black Dot: Median. Black line: S&P500 % change in a month") + 
+       title = "Percentage of Change in Endowment Balance, Zoomed in to 200%",
+       subtitle = "Black Dot: fiscal-year median. Black line: S&P500 percent change across a fiscal year") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
@@ -559,12 +559,13 @@ pct_change_rtd %>%
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
-                     breaks = scales::pretty_breaks(n = 10),
-                     limits = c(-100, 100)) +
+                     breaks = scales::pretty_breaks(n = 10)) +
   scale_color_manual(values=pal) + 
+  coord_cartesian(ylim=c(-100, 200)) + 
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
   geom_point(data = pct_change_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
   geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
+
 ```
 
 ```{r}
@@ -598,8 +599,8 @@ pct_change_inv_rtd %>%
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
-       title = "Percentage of Change in Endowment Balance",
-       subtitle = "Black Dot: Median. Black line: S&P500 % change in a month") + 
+       title = "Percentage of Change in Endowment Balance, Zoomed in to 200%",
+       subtitle = "Black Dot: fiscal-year median. Black line: S&P500 percent change across a fiscal year") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
@@ -608,8 +609,8 @@ pct_change_inv_rtd %>%
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7)) + 
   scale_y_continuous(labels = scales::comma_format(),
-                     breaks = scales::pretty_breaks(n = 10),
-                     limits = c(-100, 100)) +
+                     breaks = scales::pretty_breaks(n = 10)) +
+  coord_cartesian(ylim=c(-100, 200)) + 
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
   geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
