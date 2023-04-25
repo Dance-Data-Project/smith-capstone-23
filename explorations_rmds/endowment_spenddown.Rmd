@@ -635,13 +635,18 @@ pct_change_inv_rtd %>%
 
 ```{r}
 
+## Table for less than 40% 
+low_forty <- pct_change_inv_rtd %>%
+    filter(pct_change < -40) %>%
+    select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
+
 minimums_forty <- pct_change_inv_rtd %>%
   group_by(organization_name) %>%
   summarize(pct_change = min(pct_change)) %>%
   ungroup() %>%
   filter(pct_change < -40) %>%
   left_join(pct_change_inv_rtd, by = c("organization_name", "pct_change")) %>%
-  select(organization_name, TaxPeriodEndDt,pct_change)
+  select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
 
 ##Plotting and labeling only those with dips below 40
 pct_change_inv_rtd %>%
@@ -673,6 +678,12 @@ pct_change_inv_rtd %>%
 
 ## Looking at Companies who Grow above 200% At Any Point
 ```{r}
+
+## Table for higher than 200%
+high_200 <- pct_change_inv_rtd %>%
+    filter(pct_change >200) %>% 
+  filter(pct_change != Inf) %>%
+    select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year) 
 
 max_200 <- pct_change_inv_rtd %>%
   group_by(organization_name) %>%
