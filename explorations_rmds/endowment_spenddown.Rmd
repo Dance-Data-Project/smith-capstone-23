@@ -461,22 +461,22 @@ taxperiod_data <- map_df(files, ~
 
 taxperiod_data$fiscal_year = as.numeric(as.character(taxperiod_data$fiscal_year))
 
-pct_change_rtd <- pct_change_ds %>%
+pct_change_ds <- pct_change_ds %>%
   left_join(taxperiod_data, by = c("EIN", "fiscal_year"))
 
-pct_change_inv_rtd <- pct_change_inv_ds %>%
+pct_change_inv_ds <- pct_change_inv_ds %>%
   left_join(taxperiod_data, by = c("EIN", "fiscal_year"))
 
 ## Imputing return_date from N/A 
 # Assuming that month/day is the same, fiscal year is one year prior 
-pct_change_rtd <- pct_change_rtd %>%
+pct_change_ds <- pct_change_ds %>%
   group_by(EIN) %>%
   arrange(desc(EIN), desc(fiscal_year)) %>%
   mutate(TaxPeriodEndDt= ifelse(is.na(TaxPeriodEndDt), 
                     paste(fiscal_year, substring(lag(TaxPeriodEndDt), 5, 10), sep = ""), 
                     as.character(TaxPeriodEndDt))) 
 
-pct_change_inv_rtd <- pct_change_inv_rtd %>%
+pct_change_inv_ds <- pct_change_inv_ds %>%
   group_by(EIN) %>%
   arrange(desc(EIN), desc(fiscal_year)) %>%
   mutate(TaxPeriodEndDt= ifelse(is.na(TaxPeriodEndDt), 
@@ -487,22 +487,22 @@ pct_change_inv_rtd <- pct_change_inv_rtd %>%
 # Rids all '2010NA' etcs.  
 # Only have 11 years, so at max will run 11 times 
 for (i in 1:11) {
-  pct_change_rtd <- pct_change_rtd %>%
+  pct_change_ds <- pct_change_ds %>%
     mutate(TaxPeriodEndDt= ifelse(grepl("NA", TaxPeriodEndDt), 
                     paste(fiscal_year, substring(lag(TaxPeriodEndDt), 5, 10), sep = ""), 
                     as.character(TaxPeriodEndDt)))
   
-    pct_change_inv_rtd <- pct_change_inv_rtd %>%
+    pct_change_inv_ds <- pct_change_inv_ds %>%
     mutate(TaxPeriodEndDt= ifelse(grepl("NA", TaxPeriodEndDt), 
                     paste(fiscal_year, substring(lag(TaxPeriodEndDt), 5, 10), sep = ""), 
                     as.character(TaxPeriodEndDt)))
 }
 
-pct_change_rtd$TaxPeriodEndDt = as.Date(pct_change_rtd$TaxPeriodEndDt, format = "%Y-%m-%d")
-pct_change_inv_rtd$TaxPeriodEndDt = as.Date(pct_change_inv_rtd$TaxPeriodEndDt, format = "%Y-%m-%d")
+pct_change_ds$TaxPeriodEndDt = as.Date(pct_change_ds$TaxPeriodEndDt, format = "%Y-%m-%d")
+pct_change_inv_ds$TaxPeriodEndDt = as.Date(pct_change_inv_ds$TaxPeriodEndDt, format = "%Y-%m-%d")
 
-pct_change_rtd <- ungroup(pct_change_rtd)
-pct_change_inv_rtd <- ungroup(pct_change_inv_rtd)
+pct_change_ds <- ungroup(pct_change_ds)
+pct_change_inv_ds <- ungroup(pct_change_inv_ds)
 ```
 
 ## WITH investments  
@@ -542,7 +542,7 @@ sp_change_years <- sp_end %>%
 ```{r}
 ## Spend Down over Time  
 ## With year-wise pct change for S&P 500
-pct_change_rtd %>%
+pct_change_ds %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
@@ -569,7 +569,7 @@ pct_change_rtd %>%
 ```
 
 ```{r}
-pct_change_rtd %>%
+pct_change_ds %>%
   filter(pct_change != Inf) %>%
   left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
   select(organization_name, TaxPeriodEndDt, pct_change, pct_change_yr) %>%
@@ -583,7 +583,7 @@ pct_change_rtd %>%
 ```{r}
 ## SPend down over time with new X axis 
 ## Median by year 
-pct_change_inv_med <- pct_change_inv_rtd %>%
+pct_change_inv_med <- pct_change_inv_ds %>%
   mutate(fiscal_year_dt = paste(fiscal_year, "-01-01", sep = ""),
          fiscal_year_dt = as.Date(fiscal_year_dt, "%Y-%m-%d")) %>%
   group_by(fiscal_year_dt, fiscal_year) %>%
@@ -591,7 +591,7 @@ pct_change_inv_med <- pct_change_inv_rtd %>%
   mutate(organization_name = "Median")
 
 ## Spend Down over Time
-pct_change_inv_rtd %>%
+pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
@@ -616,7 +616,7 @@ pct_change_inv_rtd %>%
 ```
 
 ```{r}
-pct_change_inv_rtd %>%
+pct_change_inv_ds %>%
   mutate(month = as.numeric(substring(TaxPeriodEndDt, 6, 7))) %>%
   filter(pct_change != Inf) %>%
   left_join(sp_change_years, by = c("TaxPeriodEndDt" = "date_end")) %>%
@@ -636,20 +636,20 @@ pct_change_inv_rtd %>%
 ```{r}
 
 ## Table for less than 40% 
-low_forty <- pct_change_inv_rtd %>%
+low_forty <- pct_change_inv_ds %>%
     filter(pct_change < -40) %>%
     select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
 
-minimums_forty <- pct_change_inv_rtd %>%
+minimums_forty <- pct_change_inv_ds %>%
   group_by(organization_name) %>%
   summarize(pct_change = min(pct_change)) %>%
   ungroup() %>%
   filter(pct_change < -40) %>%
-  left_join(pct_change_inv_rtd, by = c("organization_name", "pct_change")) %>%
+  left_join(pct_change_inv_ds, by = c("organization_name", "pct_change")) %>%
   select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
 
 ##Plotting and labeling only those with dips below 40
-pct_change_inv_rtd %>%
+pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   filter(organization_name %in% minimums_forty$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
@@ -680,21 +680,21 @@ pct_change_inv_rtd %>%
 ```{r}
 
 ## Table for higher than 200%
-high_200 <- pct_change_inv_rtd %>%
+high_200 <- pct_change_inv_ds %>%
     filter(pct_change >200) %>% 
   filter(pct_change != Inf) %>%
     select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year) 
 
-max_200 <- pct_change_inv_rtd %>%
+max_200 <- pct_change_inv_ds %>%
   group_by(organization_name) %>%
   summarize(pct_change = max(pct_change)) %>%
   ungroup() %>%
   filter(pct_change >= 200) %>%
-  left_join(pct_change_inv_rtd, by = c("organization_name", "pct_change")) %>%
+  left_join(pct_change_inv_ds, by = c("organization_name", "pct_change")) %>%
   select(organization_name, TaxPeriodEndDt,pct_change)
 
 ##Plotting and labeling only those with dips below 40
-pct_change_inv_rtd %>%
+pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   filter(organization_name %in% max_200$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
@@ -800,7 +800,7 @@ inv_consist <- pct_change_inv_ds %>%
 ## Adding consistency 
 inv_consist_ds <- inv_consist %>% 
   select(organization_name, consistent, rank) %>% 
-  right_join(pct_change_inv_rtd, by = "organization_name") %>%
+  right_join(pct_change_inv_ds, by = "organization_name") %>%
   filter(pct_change != Inf & pct_change != -Inf)
 
 ```
