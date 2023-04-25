@@ -3,7 +3,7 @@ title: "Retrieve Endowment Funds"
 author: "Rose Evard"
 date: "`r Sys.Date()`"
 output:
-  rmdformats::readthedown:
+  rmdformats::html_clean:
     df_print: paged
     code_folding: hide
     css: !expr here::here('css', 'template.css')
@@ -117,7 +117,6 @@ filed_schd_d %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
   select(EIN, organization_name, num_times_fil_sche_D) %>%
   make_table(title = "EINs that reported an endowment at least once", col_names = c("EIN", "Organization Name", "# Times an endowment was filled out")) %>%
@@ -263,7 +262,7 @@ filed_schd_d %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
              y = EIN)) +
-  geom_linerange(size = 1, alpha = .8) +
+  geom_linerange(linewidth = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
         axis.title = element_text(size = 16, face = "bold"),
@@ -294,7 +293,7 @@ filed_schd_d %>%
   ggplot(aes(xmin = as.Date(TaxPeriodBeginDt, "%Y-%m-%d"), 
              xmax = TaxPeriodEndDt, 
              y = EIN)) +
-  geom_linerange(size = 1, alpha = .8) +
+  geom_linerange(linewidth = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
         axis.title = element_text(size = 16, face = "bold"),
@@ -324,7 +323,6 @@ filed_schd_d %>%
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
   select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
   make_table(title = "Endowment Reporting Gaps", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
@@ -343,7 +341,6 @@ filed_schd_d %>%
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
   select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
   make_table(title = "990 Filing Gaps for EINs\nwhich once reported an Endowment", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
@@ -376,7 +373,7 @@ filed_schd_d %>%
              xmax = TaxPeriodEndDt, 
              y = organization_name,
              color = type)) +
-  geom_linerange(size = 1, alpha = .8) +
+  geom_linerange(linewidth = 1, alpha = .8) +
   theme_bw() + 
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
         axis.title = element_text(size = 16, face = "bold"),
@@ -420,7 +417,6 @@ filed_schd_d %>%
   mutate(num_dups = n()) %>%
   filter(num_dups < 2) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
   group_by(EIN, organization_name) %>%
   summarize() %>%
   make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = c("EIN", "Organization Name"))
@@ -514,7 +510,6 @@ test_diff %>%
         x = "Company Name",
         fill = "Was End Balance \nMiscalculated?") +
   coord_flip()
-  geom_label(counts, aes(x = organization_name, y = n, label = n))
 
 #Histograms of all misreports compared (sorta)
 test_diff %>%
