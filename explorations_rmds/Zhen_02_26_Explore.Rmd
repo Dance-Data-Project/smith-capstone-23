@@ -27,22 +27,45 @@ library(here)
 
 ```{r}
 options(warn = -1)
+
 schedule_d <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein()
 
 # filter columns related to buildings and land
 cols <- names(schedule_d)
-index <- grepl("Land|Buildings", cols)
+index <- grepl("Land|Building|EIN|ReturnTs", cols)
 cols <- cols[index]
 
-schedule_d <- subset(schedule_d, select = cols)
+# remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared across all columns
+schedule_d <- subset(schedule_d, select = cols) %>% 
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .)) 
 
-schedule_d %>%
-  # remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared
-  # across all columns
-  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
 ```
+
+
+```{r}
+# load in company names corresponding to EIN
+companies <- read_csv(here("data/companies.csv")) %>%
+  mutate(EIN = as.character(ein))
+
+#load in regional information
+ein_to_state <- readRDS(here("./data/ein_to_state_update.RDS")) 
+
+# joining these information to scheudle_d
+schedule_d_buildings_lands<- schedule_d %>% 
+  left_join(select(endow, EIN, fiscal_year), by = "EIN") %>% 
+  left_join(companies, by = "EIN") %>% 
+  left_join(ein_to_state, by = "EIN") %>% 
+  #select(-c("OtherLandBuildingsGrp", "BuildingsGrp","LandGrp", "fiscal_year.y", "ein","organization_name.y")) %>% 
+  unique() %>% 
+  group_by(EIN) %>% 
+  arrange(desc(ReturnTs))
+  
+saveRDS(schedule_d_buildings_lands, here("data","schedule_d_buildings_lands.RDS"))
+```
+
+
 
 ```{r}
 #functions of making graphs and tables
@@ -60,57 +83,6 @@ make_graph <- function(df){
 ```
 
 
-## Importing variables related to the endowment of building 
-
-```{r}
-# example of loading variables 
-files <- dir("/Users/niezhen/Desktop/Spring 2023/SDS 410/ballet_990_released_20230208",
-              full.names = TRUE)  
-data <- map_df(files, ~
-                    get_df(variables =  "//Return//ReturnHeader//ReturnTypeCd",
-                           filename = .x
-                           ))
-```
-
-
-```{r}
-# change column name and selct ones with buuildings and otherland 
-# Sample data frame
-my_df <- data.frame(var1_a = rnorm(5),
-                     var1_b = rnorm(5),
-                     var2_a = rnorm(5),
-                     var2_b = rnorm(5))
-
-# Rename columns that contain "_a"
-new_names <- sub("_a", "", names(my_df))
-names(my_df) <- new_names
-
-# Display the new column names
-names(my_df)
-
-
-```
-
-
-```{r}
-companies <- read_csv(here("data/companies.csv")) %>%
-  mutate(EIN = as.character(ein))
-
-#load in regional information
-# add state information to buildings dataframe
-ein_to_state <- readRDS(here("./data/ein_to_state.RDS")) 
-
-test_state<-buildings %>% 
-  left_join(y = ein_to_state, by = "EIN") %>% 
-  mutate(
-    TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt)
-  )
-
-test_state <- unique(test_state) %>% 
-  mutate(name = tolower(name))
-test_state <- unique(test_state)
-```
-
 ## Preliminary Analysis of PartIV Data
 
 Term explained: 
@@ -118,25 +90,58 @@ Term explained:
 ```{r}
 # filter out all data each year
 data_each_year<-list(
-  data_2015 <- filter(buildings, grepl("2015", ReturnTs)),
-  data_2016 <- filter(buildings, grepl("2016", ReturnTs)),
-  data_2017 <- filter(buildings, grepl("2017", ReturnTs)),
-  data_2018 <- filter(buildings, grepl("2018", ReturnTs)),
-  data_2019 <- filter(buildings, grepl("2019", ReturnTs)),
-  data_2020 <- filter(buildings, grepl("2020", ReturnTs)),
-  data_2021 <- filter(buildings, grepl("2021", ReturnTs)),
-  data_2022 <- filter(buildings, grepl("2022", ReturnTs))
+  data_2015 <- filter(schedule_d_buildings_lands, grepl("2015", fiscal_year)),
+  data_2016 <- filter(schedule_d_buildings_lands, grepl("2016", fiscal_year)),
+  data_2017 <- filter(schedule_d_buildings_lands, grepl("2017", fiscal_year)),
+  data_2018 <- filter(schedule_d_buildings_lands, grepl("2018", fiscal_year)),
+  data_2019 <- filter(schedule_d_buildings_lands, grepl("2019", fiscal_year)),
+  data_2020 <- filter(schedule_d_buildings_lands, grepl("2020", fiscal_year)),
+  data_2021 <- filter(schedule_d_buildings_lands, grepl("2021", fiscal_year))
 )
 
 ```
 
+```{r}
+# get the most updated values of each fiscal_year according to ReturnT
+for(i in 1:length(data_each_year)){
+  data_each_year[[i]] <- data_each_year[[i]] %>% 
+    group_by(organization_name.x,fiscal_year) %>% 
+    filter(ReturnTs == max(as.Date(ReturnTs)))
+}
 
+buildings_updated_values <- bind_rows(data_each_year)
+```
 
+## TotalBookValueLandBuildingsAmt
+```{r}
+ggplotly(
+  ggplot(buildings, aes(x = fiscal_year, y = as.numeric(buildings$TotalBookValueLandBuildingsAmt), color = organization_name.x))+
+  geom_point()
+)
+```
+
+```{r}
+ggplotly(
+  ggplot(buildings, aes(x = fiscal_year, y = as.numeric(buildings$`OtherLandBuildingsGrp/DepreciationAmt`), color = organization_name.x))+
+  geom_line()
+)
+```
+ 
+## Number of companies updating Buildings and Land filings for each fiscal year
+```{r}
+# 
+schedule_d_buildings_lands %>% 
+  group_by(fiscal_year, organization_name.x) %>% 
+  summarise(number = n()) %>% 
+  arrange(desc(number))
+```
+ 
+ 
 ```{r}
 BookValueSum <- list()
 
 # restore each year's sum for each EIN's buildings bookvalue 
-for(i in c(1:8)){
+for(i in c(1:7)){
   data = data_each_year[[i]]
   df <- data.frame(data %>% 
     filter(!is.na(TotalBookValueLandBuildingsAmt)) %>% 
@@ -429,6 +434,7 @@ changes %>%
 bookvalues %>% 
   left_join(y = ein_to_state, by = "EIN")
 ```
+
 ```{r}
 test_state <- test_state %>% 
   mutate(
