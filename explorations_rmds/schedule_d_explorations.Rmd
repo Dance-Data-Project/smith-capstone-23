@@ -481,6 +481,9 @@ test_diff %>%
 companies_miscalculate <- test_diff %>%
   filter(same_end == FALSE) %>%
   left_join(names, by = "EIN") %>%
+  group_by(organization_name) %>%
+  summarize(n = n()) %>%
+  arrange(n) %>%
   pull(organization_name) %>%
   unique()
 
@@ -493,6 +496,7 @@ counts <- test_diff %>%
 
 test_diff %>%
   left_join(names, by = "EIN") %>%
+  mutate(organization_name = factor(organization_name, level = companies_miscalculate)) %>%
   filter(organization_name %in% c(companies_miscalculate)) %>%
   ggplot(aes(x = organization_name, fill = same_end)) + 
   geom_bar() +
@@ -500,7 +504,6 @@ test_diff %>%
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 10, angle = 90),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7),
@@ -510,6 +513,7 @@ test_diff %>%
         y = "Total Reports",
         x = "Company Name",
         fill = "Was End Balance \nMiscalculated?") +
+  coord_flip()
   geom_label(counts, aes(x = organization_name, y = n, label = n))
 
 #Histograms of all misreports compared (sorta)

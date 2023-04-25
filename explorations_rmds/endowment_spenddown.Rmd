@@ -58,14 +58,12 @@ pal <- pal[indexes]
 ```{r}
 ## Loading in data
 endowment_data <- read_rds(here("data", "endowments_by_most_recent_filings.RDS"))
-names <- read_csv(here("data", "companies.csv")) %>% 
-  ## Dealing with EINs reading in without zero in front
-  mutate(EIN = as.character(ein),
-         EIN = case_when(
-           nchar(EIN) == 8 ~ paste("0", EIN, sep =""),
-           TRUE ~ EIN
-  )) %>% 
-  select(-ein)
+names <- readRDS(here("data","companies.RDS"))
+names <- names %>%
+  mutate(organization_name = ifelse(
+    organization_name == "Ballet Hispanico", 
+    "Ballet Hispánico",
+    organization_name))
 ```
 
 # Calculating Percent Change
@@ -638,7 +636,8 @@ pct_change_inv_ds %>%
 ## Table for less than 40% 
 low_forty <- pct_change_inv_ds %>%
     filter(pct_change < -40) %>%
-    select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year)
+    select(organization_name, BeginningYearBalanceAmt, EndYearBalanceAmt, pct_change, fiscal_year)
+
 
 ##Plotting and labeling only those with dips below 40
 pct_change_inv_ds %>%
@@ -676,7 +675,7 @@ pct_change_inv_ds %>%
 high_200 <- pct_change_inv_ds %>%
     filter(pct_change >200) %>% 
   filter(pct_change != Inf) %>%
-    select(organization_name, TaxPeriodEndDt,pct_change, fiscal_year) 
+    select(organization_name, BeginningYearBalanceAmt, EndYearBalanceAmt, pct_change, fiscal_year)
 
 ##Plotting and labeling only those with dips below 40
 pct_change_inv_ds %>%
