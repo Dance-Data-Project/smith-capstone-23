@@ -157,16 +157,21 @@ state_coords <- map_data_pct %>%
   group_by(state) %>%
   summarise(lat = mean(x), long = mean(y))
 
-map<-ggplot(data = map_data_pct) +
+vol_map<-ggplot(data = map_data_pct) +
   geom_polygon(aes(x = x, y = y, group = group, fill = values)) +
   scale_fill_gradient(low = "white", high = "royalblue") +
   geom_text(data = state_coords, aes(x = lat, y = long, label = state), 
             size = 3, color = "black") +
   labs(fill = "Volunteer Percent",
-       title = "Volunteer Percent by state")+xlab("latitude")+ylab("longitude")+
-  theme_bw()
+       title = "Volunteer Percent by State")+xlab("latitude")+ylab("longitude")+
+  theme_bw()+
+  theme(
+    axis.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
 
-ggsave(plot = map, "~/Desktop/vol_map.png", width = 6, height = 4, dpi = 300)
+ggsave(plot = vol_map, "~/Desktop/vol_map.png", width = 6, height = 4, dpi = 300)
 ```
 
 
