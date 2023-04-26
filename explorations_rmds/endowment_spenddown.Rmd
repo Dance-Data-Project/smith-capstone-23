@@ -560,7 +560,33 @@ sp_change_years <- sp_end %>%
 ```{r}
 ## Spend Down over Time  
 ## With year-wise pct change for S&P 500
-pct_change_ds %>%
+
+pc_endow_sp_fr <- pct_change_ds %>%
+  filter(pct_change != Inf) %>%
+  ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
+  geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
+  theme_bw() + 
+  labs(y = "Percent Change",
+       x = "Fiscal Year",
+       title = "Percentage of Change in Endowment Balance",
+       subtitle = "Black Dot: fiscal-year median. Black line: S&P500 percent change across a fiscal year") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7)) + 
+  scale_y_continuous(labels = scales::comma_format(),
+                     breaks = scales::pretty_breaks(n = 10)) +
+  scale_color_manual(values=pal) +
+  scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
+  geom_point(data = pct_change_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
+  geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
+pc_endow_sp_fr
+
+##Limited to 200 
+pc_endow_sp_fr_200 <- pct_change_ds %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
@@ -584,6 +610,7 @@ pct_change_ds %>%
   geom_point(data = pct_change_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1) + 
   geom_line(data = sp_change_years, aes(x = date_end, y = pct_change_yr), color = "black", show.legend = FALSE)
 
+pc_endow_sp_fr_200
 ```
 
 ```{r}
@@ -610,7 +637,7 @@ pct_change_inv_med <- pct_change_inv_ds %>%
   mutate(organization_name = "Median")
 
 ## Spend Down over Time
-pct_change_inv_ds %>%
+pc_endo_ft <- pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), alpha = 0.5, show.legend = FALSE) + 
@@ -632,6 +659,7 @@ pct_change_inv_ds %>%
   coord_cartesian(ylim=c(-100, 200)) + 
   scale_x_date(breaks = scales::pretty_breaks(n = 20)) +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1)
+pc_endo_ft
 ```
 
 ```{r}
@@ -659,13 +687,12 @@ low_forty <- pct_change_inv_ds %>%
 
 
 ##Plotting and labeling only those with dips below 40
-pct_change_inv_ds %>%
+below_40_fr <- pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   filter(organization_name %in% low_forty$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), show.legend = TRUE) + 
-  #scale_colour_manual(values = pal) + 
-  scale_color_viridis_d(option = "D") +
+  scale_colour_manual(values = pal) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
@@ -684,6 +711,7 @@ pct_change_inv_ds %>%
                      breaks = scales::pretty_breaks(n = 10)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 10)) +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1)
+below_40_fr
 ```
 
 ## Looking at Companies who Grow above 200% At Any Point
@@ -697,13 +725,13 @@ high_200 <- pct_change_inv_ds %>%
     select(organization_name, BeginningYearBalanceAmt, EndYearBalanceAmt, pct_change, fiscal_year)
 
 ##Plotting and labeling only those with dips below 40
-pct_change_inv_ds %>%
+above_200_fr <- pct_change_inv_ds %>%
   filter(pct_change != Inf) %>%
   filter(organization_name %in% high_200$organization_name) %>%
   ggplot(aes(x = TaxPeriodEndDt, y = pct_change)) +
   geom_line(aes(group = organization_name, color = organization_name), show.legend = TRUE) + 
-  #scale_colour_manual(values = pal) + 
-  scale_color_viridis_d(option = "D") +
+  scale_colour_manual(values = pal) + 
+  #scale_color_viridis_d(option = "D") +
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
@@ -722,6 +750,7 @@ pct_change_inv_ds %>%
                      breaks = scales::pretty_breaks(n = 10)) +
   scale_x_date(breaks = scales::pretty_breaks(n = 10)) +
   geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 1)
+above_200_fr
 ```
 
 ```{r}
@@ -847,13 +876,13 @@ consist_plot
 
 ## Consistent by standard deviation ranking 
 
-ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change, 
+consist_sd <- ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change, 
              group = organization_name, color = rank)) +
   geom_line(show.legend = TRUE, alpha = 0.7) + 
   theme_bw() + 
   labs(y = "Percent Change",
        x = "Fiscal Year",
-       title = "Percentage of Change in Endowment Balance (max 100)",
+       title = "Percentage of Change in Endowment Balance, Limited to 200",
        subtitle = "By Fiscal Year",
        color = "Consistency\nRank") + 
   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
@@ -865,12 +894,14 @@ ggplot(inv_consist_ds, aes(x = TaxPeriodEndDt, y = pct_change,
         legend.text = element_text(size=7),
         legend.title = element_text(size = 8)) + 
   scale_y_continuous(labels = scales::comma_format(),
-                     breaks = scales::pretty_breaks(n = 20),
-                     limits = c(-100, 100))  +
+                     breaks = scales::pretty_breaks(n = 20))  +
   scale_color_gradient(low = "yellow", high = "blue",
                       breaks = c(5,40), 
                       labels = c("Rank 1", "Rank 46")) + 
-  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 0.5)
+  geom_point(data = pct_change_inv_med, aes(x = fiscal_year_dt, y = median), color = "black", size = 0.5) + 
+    coord_cartesian(ylim=c(-100, 200)) 
+consist_sd
+
 
 inv_box <- inv_consist_ds %>%
   group_by(organization_name) %>%
@@ -1048,7 +1079,7 @@ most_recent_ds %>%
   geom_point()
 
 ##Scatter plot log scale for endowment balance
-most_recent_ds %>%
+endo_size_consist_fr <- most_recent_ds %>%
   ggplot(aes(y = reorder(organization_name, rank), x = log10(EndYearBalanceAmt), color = rank)) +
   geom_point() + 
   theme_bw() + 
@@ -1068,9 +1099,9 @@ most_recent_ds %>%
   scale_color_gradient(low = "yellow", high = "blue",
                       breaks = c(5,40), 
                       labels = c("Rank 1", "Rank 46")) 
-
+endo_size_consist_fr
 ## Scatter plot employee count
-most_recent_ds %>%
+employ_size_consist_ft <- most_recent_ds %>%
   ggplot(aes(y = reorder(organization_name, rank), x = TotalEmployeeCnt, color = rank)) +
   geom_point() + 
   theme_bw() + 
@@ -1090,7 +1121,55 @@ most_recent_ds %>%
   scale_color_gradient(low = "yellow", high = "blue",
                       breaks = c(5,40), 
                       labels = c("Rank 1", "Rank 46"))
+employ_size_consist_ft
 ```
+
+# Saving Relevant Images For Report 
+
+## Spend Down
+
+```{r}
+pc_endow_sp_fr
+ggsave("pc_endow.png", path = here("final_report", "images"))
+```
+
+```{r}
+pc_endow_sp_fr_200
+ggsave("pc_endow_zoom.png", path = here("final_report", "images"))
+```
+
+```{r}
+pc_endo_ft
+ggsave("pc_endow_flat.png", path = here("final_report", "images"))
+```
+
+```{r}
+below_40_fr
+ggsave("pc_below_40.png", path = here("final_report", "images"))
+```
+
+```{r}
+above_200_fr
+ggsave("pc_above_200.png", path = here("final_report", "images"))
+```
+
+
+## Consistency  
+```{r}
+endo_size_consist_fr
+ggsave("consist_by_endo_size.png", path = here("final_report", "images"))
+```
+
+```{r}
+employ_size_consist_ft
+ggsave("consist_by_employ_count.png", path = here("final_report", "images"))
+```
+
+```{r}
+consist_sd
+ggsave("pc_consist.png", path = here("final_report", "images"))
+```
+
 
 # Total Revenue
 
