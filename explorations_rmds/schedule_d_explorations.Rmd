@@ -360,7 +360,7 @@ schd_d_gap <- filed_schd_d %>%
          type = "Endowment Reported")
 
 ##Gap plot  
-filed_schd_d %>%
+gap_plot_fr <- filed_schd_d %>%
   filter(EIN %in% ein_with_sch_d) %>%
   mutate(time = interval(TaxPeriodBeginDt, TaxPeriodEndDt),
          time = as.numeric(time, "days")) %>%
@@ -389,6 +389,7 @@ filed_schd_d %>%
        x = "Fiscal Year",
        title = "Endowment Reporting & 990 Filing",
        color = "Type of Filing")
+gap_plot_fr
 
 ## Table Identifying those that don't line up 
 filed_schd_d %>%
@@ -490,7 +491,7 @@ counts <- test_diff %>%
   group_by(organization_name) %>%
   summarize(n = n())
 
-test_diff %>%
+hist_diff_fr <- test_diff %>%
   left_join(names, by = "EIN") %>%
   mutate(organization_name = factor(organization_name, level = companies_miscalculate)) %>%
   filter(organization_name %in% c(companies_miscalculate)) %>%
@@ -510,6 +511,7 @@ test_diff %>%
         x = "Company Name",
         fill = "Was End Balance \nMiscalculated?") +
   coord_flip()
+hist_diff_fr
 
 #Histograms of all misreports compared (sorta)
 test_diff %>%
@@ -535,8 +537,9 @@ test_diff %>%
   scale_y_continuous(labels = scales::label_dollar()) +
   scale_fill_manual(values = c("darkgoldenrod1", "blue4"))
 
+
 # Difference Plotted
-test_diff %>%
+calc_diff <- test_diff %>%
   filter(same_end == FALSE) %>%
   left_join(names, by = "EIN") %>%
   select(EIN, fiscal_year, organization_name, EndYearBalanceAmt, diff_end) %>%
@@ -558,6 +561,7 @@ test_diff %>%
   labs(title = "Difference Between Calculated and Reported End Balances",
        x = "Calculated Difference",
        y = "Company Name and Fiscal Year")
+calc_diff
 
 
 # Relationship between year and misreports?  No
@@ -587,4 +591,29 @@ test_diff %>%
              col_names = c("Organization Name", "Total Miscalculations")) %>%
   scroll_box(height = "450px")
 ```
+
+# Saving Relevant Images For Report 
+
+## Schedule D Gap Plot  
+
+```{r}
+gap_plot_fr
+ggsave("gap_plot_endowment.png", path = here("final_report", "images"))
+```
+
+
+## Reporting Consistencies
+
+```{r}
+hist_diff_fr
+ggsave("miscalc_end_bal.png", path = here("final_report", "images"))
+```
+
+```{r}
+calc_diff
+ggsave("diff_end_bal.png", path = here("final_report", "images"))
+```
+
+
+
 
