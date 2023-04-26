@@ -146,10 +146,13 @@ for(i in 1:length(data_each_year)){
     mutate(ReturnTs = as.Date(ReturnTs)) %>% 
     arrange(ReturnTs)
   
-
-    graphs[[i]] <- ggplot(data_each_year[[i]], aes(x = ReturnTs, y = as.numeric(TotalBookValueLandBuildingsAmt), color = organization_name.x))+
-               geom_point(stat = "identity")+
-        theme_bw()
+    graphs[[i]] <- 
+      ggplot(data_each_year[[i]], aes(
+        x = ReturnTs, 
+        y = as.numeric(TotalBookValueLandBuildingsAmt), 
+        color = organization_name.x))+
+      geom_point(stat = "identity")+
+      theme_bw()
 }
 ```
 
