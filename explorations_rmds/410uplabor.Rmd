@@ -157,20 +157,23 @@ state_coords <- map_data_pct %>%
   group_by(state) %>%
   summarise(lat = mean(x), long = mean(y))
 
-ggplot(data = map_data_pct) +
+map<-ggplot(data = map_data_pct) +
   geom_polygon(aes(x = x, y = y, group = group, fill = values)) +
   scale_fill_gradient(low = "white", high = "royalblue") +
   geom_text(data = state_coords, aes(x = lat, y = long, label = state), 
             size = 3, color = "black") +
-  labs(fill = "Volunteer Percent",)+xlab("lat")+ylab("long")+
+  labs(fill = "Volunteer Percent",
+       title = "Volunteer Percent by state")+xlab("latitude")+ylab("longitude")+
   theme_bw()
+
+ggsave(plot = map, "~/Desktop/vol_map.png",width = 6, height = 4, dpi = 300)
 ```
 
 
 2. Show descriptive statistics for the top 50% of volunteer labor, 25%, 10%, and 5% by region, and by state. Visualize these quantiles. 
 
 ```{r}
-data_trend$quantiles = cut(data_trend$rank_pct, breaks = quantile(data_trend$rank_pct, type = 1), include.lowest = TRUE, labels = c("25%","50%","75%","100%"))
+data_trend$quantiles = cut(data_trend$rank_pct, breaks = quantile(data_trend$rank_pct, type = 1), include.lowest = TRUE, labels = c("0 - 25%","26% - 50%","51% - 75%","76% - 100%"))
 
 data_trend <- data_trend%>%
   mutate(region= as.character(case_when(state %in% c("IA", "IL", "IN", "MI", "MN", "OH", "WI") ~ "MidWest",
@@ -223,7 +226,13 @@ ggplot(stack_quantile, aes(x = as.factor(quantiles), y = Percent, fill = region)
                                  option = "rocket",
                                  end = .9)+
   theme_bw()+
-  scale_x_discrete("Quantile of Percentage of Volunteer in Total Labor Count")
+  scale_x_discrete("Quantile of Percentage of Volunteer in Total Labor Count")+
+  labs(title = "Volunteer Ratio in Companies by Region")+
+  theme(
+    axis.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
   
 
 ```
@@ -427,14 +436,22 @@ EmpSubVol <- ggplot(ruthdata, aes(x = year, y = empminusvol, color = as.factor(B
 ggplotly(EmpSubVol)
 ```
 ```{r}
-ruthdata %>% 
+type_region<-ruthdata %>% 
   group_by(region, type) %>% 
   summarise(number = n()) %>% 
   ggplot(aes(x = reorder(region, -number), y = number, fill = type))+geom_col()+theme_bw()+
   viridis::scale_fill_viridis(discrete=TRUE,
                                  option = "A",
                                  end = .9)+
-  labs(x = "Region", y = "Number")
+  labs(x = "Region", y = "Number",
+       title = "Distribution of Company Type in each Region")+
+  theme(
+    axis.text = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+
 ```
 
 
