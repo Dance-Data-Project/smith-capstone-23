@@ -166,7 +166,7 @@ map<-ggplot(data = map_data_pct) +
        title = "Volunteer Percent by state")+xlab("latitude")+ylab("longitude")+
   theme_bw()
 
-ggsave(plot = map, "~/Desktop/vol_map.png",width = 6, height = 4, dpi = 300)
+ggsave(plot = map, "~/Desktop/vol_map.png", width = 6, height = 4, dpi = 300)
 ```
 
 
@@ -220,7 +220,7 @@ ggplot(stack_region, aes(x = region, y = Percent, fill = quantiles)) +
 
 ```{r}
 
-ggplot(stack_quantile, aes(x = as.factor(quantiles), y = Percent, fill = region)) +
+ratio_bar_region<-ggplot(stack_quantile, aes(x = as.factor(quantiles), y = Percent, fill = region)) +
   geom_bar(stat = "identity", position = "stack")+
   viridis::scale_fill_viridis(discrete=TRUE,
                                  option = "rocket",
@@ -234,7 +234,7 @@ ggplot(stack_quantile, aes(x = as.factor(quantiles), y = Percent, fill = region)
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
   
-
+ggsave(plot =ratio_bar_region, "~/Desktop/ratio_bar_region.png", width = 6, height = 4, dpi = 300)
 ```
 
 
@@ -451,7 +451,7 @@ type_region<-ruthdata %>%
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
 
-
+ggsave(plot = type_region, "~/Desktop/type_region_bar.png", width = 6, height = 4, dpi = 300)
 ```
 
 
