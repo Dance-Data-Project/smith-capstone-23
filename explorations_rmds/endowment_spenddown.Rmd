@@ -2,15 +2,7 @@
 title: "Endowment Percent Change"
 author: "Rose Evard"
 date: "`r Sys.Date()`"
-output:
-  rmdformats::html_clean:
-    df_print: paged
-    code_folding: hide
-    css: !expr here::here('css', 'template.css')
-knit: (function(input, ...) {
-    rmarkdown::render(
-      input,
-      output_dir = "output_html")})
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -1128,44 +1120,44 @@ employ_size_consist_ft
 
 ## Spend Down
 
-```{r}
+```{r, eval = FALSE}
 pc_endow_sp_fr
 ggsave("pc_endow.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 pc_endow_sp_fr_200
 ggsave("pc_endow_zoom.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 pc_endo_ft
 ggsave("pc_endow_flat.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 below_40_fr
 ggsave("pc_below_40.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 above_200_fr
 ggsave("pc_above_200.png", path = here("final_report", "images"))
 ```
 
 
 ## Consistency  
-```{r}
+```{r, eval = FALSE}
 endo_size_consist_fr
 ggsave("consist_by_endo_size.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 employ_size_consist_ft
 ggsave("consist_by_employ_count.png", path = here("final_report", "images"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 consist_sd
 ggsave("pc_consist.png", path = here("final_report", "images"))
 ```
