@@ -5,47 +5,6 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-# Test
-
-\begin{table}
-
-\caption{Endowment Percent Change Dropping Below 40% Of Beginning Year balance}
-\centering
-\begin{tabular}[t]{lrrrr}
-\toprule
-Company Name & Percent Change & Beginning Balance & End Balance & Fiscal Year\\
-\midrule
-Aspen Santa Fe Ballet & -90.9 & 6065013 & 550000 & 2018\\
-\addlinespace
-Atlanta Ballet & -43.5 & 1706513 & 1046921 & 2014\\
-\addlinespace
-Atlanta Ballet & -44.6 & 2947203 & 1706513 & 2013\\
-\addlinespace
-Colorado Ballet & -45.6 & 182437 & 100000 & 2012\\
-\addlinespace
-First State Ballet Theatre & -72.7 & 36693 & 10000 & 2018\\
-\addlinespace
-First State Ballet Theatre & -49.5 & 35876 & 18107 & 2015\\
-\addlinespace
-First State Ballet Theatre & -53.0 & 76261 & 35876 & 2014\\
-\addlinespace
-Nashville Ballet & -94.2 & 1095624 & 61350 & 2019\\
-\addlinespace
-Orlando Ballet & -91.0 & 7732855 & 696082 & 2020\\
-\addlinespace
-Orlando Ballet & -44.3 & 613186 & 338943 & 2016\\
-\addlinespace
-San Francisco Ballet & -101.5 & 1035814 & 174 & 2012\\
-\addlinespace
-San Francisco Ballet & -58.7 & 2318646 & 1035814 & 2011\\
-\addlinespace
-The Washington Ballet & -51.9 & 621423 & 310000 & 2019\\
-\addlinespace
-The Washington Ballet & -57.6 & 1212247 & 621423 & 2017\\
-\bottomrule
-\end{tabular}
-\end{table}
-
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -751,7 +710,7 @@ below_40_fr
 high_200 <- pct_change_inv_ds %>%
     filter(pct_change >200) %>% 
   filter(pct_change != Inf) %>%
-    select(organization_name, BeginningYearBalanceAmt, EndYearBalanceAmt, pct_change, fiscal_year)
+    select(organization_name, pct_change, BeginningYearBalanceAmt, EndYearBalanceAmt, fiscal_year)
 
 high_200 %>%
   arrange(organization_name) %>%
