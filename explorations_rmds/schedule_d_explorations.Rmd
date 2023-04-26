@@ -439,14 +439,14 @@ test_diff <- endowment_data %>%
   mutate(across(.cols = 3:9, ~ ifelse(is.na(.), 0, .))) %>%
   mutate(end_bal_calc = (BeginningYearBalanceAmt + 
            ContributionsAmt + InvestmentEarningsOrLossesAmt - 
-           OtherExpendituresAmt - AdministrativeExpensesAmt - GrantsOrScholarshipsAmt),
+           abs(OtherExpendituresAmt) - abs(AdministrativeExpensesAmt) - abs(GrantsOrScholarshipsAmt)),
          same_end = ifelse(end_bal_calc == EndYearBalanceAmt, TRUE, FALSE),
          diff_end = EndYearBalanceAmt - end_bal_calc)
 
 # Looking at differences
 test_diff %>%
   filter(same_end == FALSE) %>%
-  arrange(desc(abs(diff_end))) %>%
+#  arrange(desc(abs(diff_end))) %>%
   left_join(names, by = "EIN") %>%
   select(organization_name, fiscal_year, EndYearBalanceAmt, end_bal_calc, diff_end) %>%
   make_table("Differences in Reported End Year Balances", 
@@ -557,10 +557,11 @@ calc_diff <- test_diff %>%
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7)) +
   scale_x_continuous(labels = scales::label_dollar()) + 
-  scale_fill_manual(values = pal)+ 
+ # scale_fill_manual(values = pal)+ 
   labs(title = "Difference Between Calculated and Reported End Balances",
        x = "Calculated Difference",
-       y = "Company Name and Fiscal Year")
+       y = "Company Name and Fiscal Year") + 
+  geom_text(aes(label = scales::dollar(diff_end)), size = 2)
 calc_diff
 
 
