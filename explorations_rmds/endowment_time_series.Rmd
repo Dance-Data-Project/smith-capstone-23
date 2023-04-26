@@ -506,17 +506,24 @@ employee_comp_vars <- c(
   "/Return/ReturnData/IRS990/TotalEmployeeCnt",
   "/Return/ReturnData/IRS990/EmployeeCnt",
   "/Return/ReturnData/IRS990/CYSalariesCompEmpBnftPaidAmt",
-  "/Return/ReturnData/IRS990/CompCurrentOfcrDirectorsGrp/TotalAmt")
+  "/Return/ReturnData/IRS990/CompCurrentOfcrDirectorsGrp/TotalAmt",
+  "/Return/ReturnData/IRS990/CompDisqualPersonsGrp/TotalAmt")
 
 
 employees <- map_df(files, ~get_df(filename = .x, 
-                              variables=employee_comp_vars))
+                              variables=employee_comp_vars,
+                              names=employee_comp_vars)) %>%
+  filter_ein()
+
+employees <- employees %>%
+  rename_with(~gsub("/Return/ReturnData/IRS990/", "", ., fixed=TRUE)) %>%
+  rename(OffDirCompAmt= `CompCurrentOfcrDirectorsGrp/TotalAmt`,
+         CompNotOffDir = `CompDisqualPersonsGrp/TotalAmt`)
 
 employees %>%
   select(-filename) %>%
   mutate(across(-c(ReturnTs,EIN, fiscal_year), 
                 as.numeric)) %>%
-  rename(OffDirCompAmt =TotalAmt ) %>%
   saveRDS(here("data", "employees.RDS"))
 
 
@@ -1195,11 +1202,16 @@ For a percent change of value $P$, we can interpret this as saying the value in 
 
 $$\text{Value Current Year} = (P+1) \times \text{Value in the Previous Year}.$$
 
+A couple of examples include:
+* If the percent change is $-50\%$, the current year value is half of that in the previous year. 
+* If the percent change is $100\%$, the current year value is twice that in the previous year.
+* If the percent change is $-100\%$, the current year value is zero.
+
+
+
 For example, a percentage change of 0 means the value in the current year is identical to the previous year, since we have $\text{Value Current Year} = (1) \times \text{Value in the Previous Year}$.
 
 A percentage change of 1 means the value in the current year is double that of the previous, since we have $\text{Value Current Year} = (1+1) \times \text{Value in the Previous Year}$.
-
-This interpretation still holds with the enormous percentage changes we have here, for example, Joffrey Ballet's endowment (beginning of year balance) saw approximately a $131\%$ increase in 2020 from its value in 2015, and we can interpret this as meaning the value in 2020 was 132 times the value in 2015.
 
 
 ### Percentage Change in Beginning of Year Balance Over Time
