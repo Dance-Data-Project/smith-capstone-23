@@ -6,7 +6,6 @@ output:
   pdf_document:
     latex_engine: xelatex
     toc: true
-    keep_md: true
 header-includes:
   - \usepackage{fontspec}
   - \setmainfont{Helvetica}
