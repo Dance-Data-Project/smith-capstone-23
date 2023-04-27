@@ -144,7 +144,9 @@ pct_change_ds %>%
             avg = mean(pct_change),
             med = median(pct_change),
             sd = sd(pct_change)) %>%
-  make_table(title = "Percentage of Change in Endowment Balance By Year", col_names = c("Fiscal Year", "Total Companies", "Average % Change", "Median % Change", "Standard Deviation")) %>%
+  make_table(title = "Percentage of Change in Endowment Balance By Year", 
+             col_names = c("Fiscal Year", "Total Companies", "Average % Change",
+                           "Median % Change", "Standard Deviation")) %>%
   scroll_box(height = "450px")
 ```
 
@@ -626,11 +628,11 @@ low_forty <- pct_change_inv_ds %>%
 ##Table 
 low_forty %>%
   arrange(organization_name) %>%
-  kbl(caption = "Endowment Percent Change Dropping Below 40% Of Beginning Year balance",
+  kbl(caption = "Endowment Percent Change Dropping Below 40 Percent Of Beginning Year balance",
             col.names = c("Company Name", "Percent Change", "Beginning Balance", "End Balance", "Fiscal Year"),
             format="latex",
            booktabs=TRUE,
-           escape=FALSE,
+           escape=TRUE,
            linesep = "\\addlinespace",
       digits = 1) %>%
   kable_styling(latex_options = c("hold_position"))
@@ -674,7 +676,7 @@ high_200 <- pct_change_inv_ds %>%
     select(organization_name, pct_change, BeginningYearBalanceAmt, EndYearBalanceAmt, fiscal_year)
 high_200 %>%
   arrange(organization_name) %>%
-  kbl(caption = "Endowment Percent Change Increasing Beyond 200% Of Beginning Year balance",
+  kbl(caption = "Endowment Percent Change Increasing Beyond 200 Percent Of Beginning Year Balance",
             col.names = c("Company Name", "Percent Change", "Beginning Balance", "End Balance", "Fiscal Year"),
             format="latex",
            booktabs=TRUE,
@@ -696,9 +698,9 @@ above_200_fr <- pct_change_inv_ds %>%
        title = "Percentage of Change in Endowment Balance",
        subtitle = "Black Dot: Median of that fiscal year.",
        color = "Company") + 
-  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+  theme(plot.title = element_text(size = 16, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
-        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        plot.subtitle = element_text(size = 15, face = "italic", hjust = .5),
         axis.text.x = element_text(size = 10, angle = 35),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(2, 'mm'),

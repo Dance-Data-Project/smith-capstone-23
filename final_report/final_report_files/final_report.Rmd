@@ -478,7 +478,46 @@ The Washington Ballet & -57.6 & 1212247 & 621423 & 2017\\
 \end{tabular}
 \end{table}
 
+Additionally, we can see that eight companies increased their endowment by over 200% (percent Change higher than 200%) across multiple years, which means they tripled their endowment (\ref{fig:above-200}). These eight companies are: Atlanta Ballet, Ballet Arizona, Ballet Hispánico, First State Ballet Theatre, Fort Wayne Ballet, Joffrey Ballet, Nashville Ballet, and Orlando Ballet.  
 
+
+```{r, fig.cap="\\label{fig:above-200} Annual percent change for companies that increased their endowment over 200 percent."}
+include_graphics(here('final_report/images/pc_above_200.png')) 
+```
+
+
+\begin{table}
+
+\caption{Endowment Percent Change Increasing Beyond 200 Percent Of Beginning Year Balance}
+\centering
+\begin{tabular}[t]{lrrrr}
+\toprule
+Company Name & Percent Change & Beginning Balance & End Balance & Fiscal Year\\
+\midrule
+Atlanta Ballet & 202.3 & 2119967 & 6523144 & 2017\\
+\addlinespace
+Ballet Arizona & 586.1 & 601399 & 4126424 & 2016\\
+\addlinespace
+Ballet Hispánico & 426.8 & 1405952 & 7481852 & 2021\\
+\addlinespace
+First State Ballet Theatre & 242.7 & 16999 & 58253 & 2020\\
+\addlinespace
+First State Ballet Theatre & 242.7 & 16999 & 58253 & 2020\\
+\addlinespace
+First State Ballet Theatre & 1448.1 & 5874 & 90934 & 2012\\
+\addlinespace
+Fort Wayne Ballet & 1803.3 & 60137 & 1201082 & 2014\\
+\addlinespace
+Joffrey Ballet & 3091.4 & 35600 & 1136139 & 2015\\
+\addlinespace
+Nashville Ballet & 275.0 & 54543 & 212030 & 2011\\
+\addlinespace
+Orlando Ballet & 206.4 & 2212808 & 6791249 & 2018\\
+\addlinespace
+Orlando Ballet & 547.7 & 338943 & 2212808 & 2017\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 To examine the behavior of endowments, we ranked each company by its consistency--the higher the standard deviation^[Here, we are taking the standard deviation of the percent changes for a company across all years on file for that company.] (how much on average each point deviates from the mean), the lower the consistency (Figure \ref{fig:pc-consist}).  We find that many companies who have consistent balances tend to not make large adjustments to their percent change.  Further, consistency in endowment does not appear to be related to company size (Figure \ref{fig:endo-size}), as measured by both endowment total balance and number of employees.
 

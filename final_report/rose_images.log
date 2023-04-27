@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 12:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 16:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -754,164 +754,164 @@ Overfull \hbox (122.56317pt too wide) in paragraph at lines 3541--4366
 Overfull \vbox (4450.96748pt too high) has occurred while \output is active []
 
 [28] [29]
-<rose_images_files/figure-latex/unnamed-chunk-22-1.pdf, id=300, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-22-1.pdf, id=301, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-22-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-22-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-22-1.pdf  used on input line 4466.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-22-1.pdf  used on input line 4464.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [30 <./rose_images_files/figure-latex/unnamed-chunk-22-1.pdf>] [31]
-<rose_images_files/figure-latex/unnamed-chunk-23-1.pdf, id=319, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-23-1.pdf, id=320, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-23-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-23-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-23-1.pdf  used on input line 4559.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-23-1.pdf  used on input line 4557.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [32 <./rose_images_files/figure-latex/unnamed-chunk-23-1.pdf>] [33{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}] [34]
-<rose_images_files/figure-latex/unnamed-chunk-27-1.pdf, id=345, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-27-1.pdf, id=346, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-27-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-27-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-1.pdf  used on input line 4708.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-1.pdf  used on input line 4706.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [35 <./rose_images_files/figure-latex/unnamed-chunk-27-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-27-2.pdf, id=361, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-27-2.pdf, id=362, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-27-2.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-27-2.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-2.pdf  used on input line 4742.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-2.pdf  used on input line 4740.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [36 <./rose_images_files/figure-latex/unnamed-chunk-27-2.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-27-3.pdf, id=377, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-27-3.pdf, id=378, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-27-3.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-27-3.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-3.pdf  used on input line 4767.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-3.pdf  used on input line 4765.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-<rose_images_files/figure-latex/unnamed-chunk-27-4.pdf, id=378, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-27-4.pdf, id=379, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-27-4.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-27-4.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-4.pdf  used on input line 4785.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-27-4.pdf  used on input line 4783.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [37 <./rose_images_files/figure-latex/unnamed-chunk-27-3.pdf>]
-Overfull \hbox (14.15599pt too wide) in paragraph at lines 4814--4845
+Overfull \hbox (14.15599pt too wide) in paragraph at lines 4812--4843
  [][] 
  []
 
 [38 <./rose_images_files/figure-latex/unnamed-chunk-27-4.pdf>]
-Overfull \hbox (63.68414pt too wide) in paragraph at lines 4870--4941
+Overfull \hbox (63.68414pt too wide) in paragraph at lines 4868--4939
  [][] 
  []
 
 [39] [40] [41]
-Overfull \hbox (47.59637pt too wide) in paragraph at lines 5061--5124
+Overfull \hbox (47.59637pt too wide) in paragraph at lines 5059--5122
  [][] 
  []
 
 [42]
-<rose_images_files/figure-latex/unnamed-chunk-34-1.pdf, id=429, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-34-1.pdf, id=430, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-34-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-34-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-1.pdf  used on input line 5154.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-1.pdf  used on input line 5152.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-<rose_images_files/figure-latex/unnamed-chunk-34-2.pdf, id=430, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-34-2.pdf, id=431, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-34-2.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-34-2.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-2.pdf  used on input line 5176.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-2.pdf  used on input line 5174.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [43 <./rose_images_files/figure-latex/unnamed-chunk-34-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-34-3.pdf, id=442, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-34-3.pdf, id=443, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-34-3.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-34-3.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-3.pdf  used on input line 5199.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-34-3.pdf  used on input line 5197.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [44 <./rose_images_files/figure-latex/unnamed-chunk-34-2.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-35-1.pdf, id=453, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-35-1.pdf, id=454, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-35-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-35-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-1.pdf  used on input line 5210.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-1.pdf  used on input line 5208.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [45 <./rose_images_files/figure-latex/unnamed-chunk-34-3.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-35-2.pdf, id=464, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-35-2.pdf, id=465, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-35-2.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-35-2.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-2.pdf  used on input line 5239.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-2.pdf  used on input line 5237.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [46 <./rose_images_files/figure-latex/unnamed-chunk-35-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-35-3.pdf, id=474, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-35-3.pdf, id=475, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-35-3.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-35-3.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-3.pdf  used on input line 5268.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-35-3.pdf  used on input line 5266.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [47 <./rose_images_files/figure-latex/unnamed-chunk-35-2.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-36-1.pdf, id=486, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-36-1.pdf, id=487, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-36-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-36-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-36-1.pdf  used on input line 5283.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-36-1.pdf  used on input line 5281.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [48 <./rose_images_files/figure-latex/unnamed-chunk-35-3.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-37-1.pdf, id=502, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-37-1.pdf, id=503, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-37-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-37-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-37-1.pdf  used on input line 5297.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-37-1.pdf  used on input line 5295.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [49 <./rose_images_files/figure-latex/unnamed-chunk-36-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-38-1.pdf, id=518, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-38-1.pdf, id=519, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-38-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-38-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-38-1.pdf  used on input line 5311.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-38-1.pdf  used on input line 5309.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [50 <./rose_images_files/figure-latex/unnamed-chunk-37-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-39-1.pdf, id=533, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-39-1.pdf, id=534, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-39-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-39-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-39-1.pdf  used on input line 5325.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-39-1.pdf  used on input line 5323.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [51 <./rose_images_files/figure-latex/unnamed-chunk-38-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-40-1.pdf, id=549, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-40-1.pdf, id=550, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-40-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-40-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-40-1.pdf  used on input line 5339.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-40-1.pdf  used on input line 5337.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [52 <./rose_images_files/figure-latex/unnamed-chunk-39-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-41-1.pdf, id=561, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-41-1.pdf, id=562, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-41-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-41-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-41-1.pdf  used on input line 5356.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-41-1.pdf  used on input line 5354.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [53 <./rose_images_files/figure-latex/unnamed-chunk-40-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-42-1.pdf, id=575, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-42-1.pdf, id=576, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-42-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-42-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-42-1.pdf  used on input line 5370.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-42-1.pdf  used on input line 5368.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [54 <./rose_images_files/figure-latex/unnamed-chunk-41-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-43-1.pdf, id=587, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-43-1.pdf, id=588, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-43-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-43-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-43-1.pdf  used on input line 5384.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-43-1.pdf  used on input line 5382.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [55 <./rose_images_files/figure-latex/unnamed-chunk-42-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-45-1.pdf, id=600, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-45-1.pdf, id=601, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-45-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-45-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-45-1.pdf  used on input line 5423.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-45-1.pdf  used on input line 5421.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [56 <./rose_images_files/figure-latex/unnamed-chunk-43-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-46-1.pdf, id=620, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-46-1.pdf, id=621, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-46-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-46-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-46-1.pdf  used on input line 5445.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-46-1.pdf  used on input line 5443.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [57 <./rose_images_files/figure-latex/unnamed-chunk-45-1.pdf>] [58 <./rose_images_files/figure-latex/unnamed-chunk-46-1.pdf>]
-<rose_images_files/figure-latex/unnamed-chunk-47-1.pdf, id=644, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-47-1.pdf, id=645, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-47-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-47-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-47-1.pdf  used on input line 5481.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-47-1.pdf  used on input line 5479.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [59 <./rose_images_files/figure-latex/unnamed-chunk-47-1.pdf>]
 Overfull \vbox (482.96944pt too high) has occurred while \output is active []
 
 [60]
-<rose_images_files/figure-latex/unnamed-chunk-50-1.pdf, id=663, 469.755pt x 325.215pt>
+<rose_images_files/figure-latex/unnamed-chunk-50-1.pdf, id=664, 469.755pt x 325.215pt>
 File: rose_images_files/figure-latex/unnamed-chunk-50-1.pdf Graphic file (type pdf)
 <use rose_images_files/figure-latex/unnamed-chunk-50-1.pdf>
-Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-50-1.pdf  used on input line 5746.
+Package pdftex.def Info: rose_images_files/figure-latex/unnamed-chunk-50-1.pdf  used on input line 5744.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 [61] [62 <./rose_images_files/figure-latex/unnamed-chunk-50-1.pdf>]
 Overfull \vbox (482.96944pt too high) has occurred while \output is active []
@@ -922,18 +922,18 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 15729 strings out of 477936
- 263258 string characters out of 5836209
+ 15732 strings out of 477936
+ 263290 string characters out of 5836209
  2031074 words of memory out of 5000000
- 35469 multiletter control sequences out of 15000+600000
+ 35471 multiletter control sequences out of 15000+600000
  562204 words of font info for 105 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,90p,1008b,526s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 89i,9n,90p,1008b,526s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtk10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtko10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtti10.pfb>
-Output written on rose_images.pdf (64 pages, 853207 bytes).
+Output written on rose_images.pdf (64 pages, 852895 bytes).
 PDF statistics:
- 874 PDF objects out of 1000 (max. 8388607)
- 691 compressed objects within 7 object streams
- 121 named destinations out of 1000 (max. 500000)
+ 875 PDF objects out of 1000 (max. 8388607)
+ 692 compressed objects within 7 object streams
+ 122 named destinations out of 1000 (max. 500000)
  27039 words of extra memory for PDF output out of 29859 (max. 10000000)
 

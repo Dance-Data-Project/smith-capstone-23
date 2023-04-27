@@ -900,6 +900,50 @@ The Washington Ballet & -57.6 & 1212247 & 621423 & 2017\\
 \end{tabular}
 \end{table}
 
+Additionally, we can see that eight companies increased their endowment
+by over 200\% (percent Change higher than 200\%) across multiple years,
+which means they tripled their endowment (\ref{fig:above-200}). These
+eight companies are: Atlanta Ballet, Ballet Arizona, Ballet Hispánico,
+First State Ballet Theatre, Fort Wayne Ballet, Joffrey Ballet, Nashville
+Ballet, and Orlando Ballet.
+
+\begin{figure}[H]
+\includegraphics[width=0.9\linewidth,]{../images/pc_above_200} \caption{\label{fig:above-200} Annual percent change for companies that increased their endowment over 200 percent.}\label{fig:unnamed-chunk-7}
+\end{figure}
+
+\begin{table}
+
+\caption{Endowment Percent Change Increasing Beyond 200 Percent Of Beginning Year Balance}
+\centering
+\begin{tabular}[t]{lrrrr}
+\toprule
+Company Name & Percent Change & Beginning Balance & End Balance & Fiscal Year\\
+\midrule
+Atlanta Ballet & 202.3 & 2119967 & 6523144 & 2017\\
+\addlinespace
+Ballet Arizona & 586.1 & 601399 & 4126424 & 2016\\
+\addlinespace
+Ballet Hispánico & 426.8 & 1405952 & 7481852 & 2021\\
+\addlinespace
+First State Ballet Theatre & 242.7 & 16999 & 58253 & 2020\\
+\addlinespace
+First State Ballet Theatre & 242.7 & 16999 & 58253 & 2020\\
+\addlinespace
+First State Ballet Theatre & 1448.1 & 5874 & 90934 & 2012\\
+\addlinespace
+Fort Wayne Ballet & 1803.3 & 60137 & 1201082 & 2014\\
+\addlinespace
+Joffrey Ballet & 3091.4 & 35600 & 1136139 & 2015\\
+\addlinespace
+Nashville Ballet & 275.0 & 54543 & 212030 & 2011\\
+\addlinespace
+Orlando Ballet & 206.4 & 2212808 & 6791249 & 2018\\
+\addlinespace
+Orlando Ballet & 547.7 & 338943 & 2212808 & 2017\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 To examine the behavior of endowments, we ranked each company by its
 consistency--the higher the standard deviation\footnote{Here, we are
   taking the standard deviation of the percent changes for a company
@@ -912,11 +956,11 @@ company size (Figure \ref{fig:endo-size}), as measured by both endowment
 total balance and number of employees.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/pc_consist} \caption{\label{fig:pc-consist}}\label{fig:unnamed-chunk-7}
+\includegraphics[width=0.9\linewidth,]{../images/pc_consist} \caption{\label{fig:pc-consist}}\label{fig:unnamed-chunk-8}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=0.5\linewidth,]{../images/consist_by_endo_size} \includegraphics[width=0.5\linewidth,]{../images/consist_by_employ_count} \caption{\label{fig:endo-size}}\label{fig:unnamed-chunk-8}
+\includegraphics[width=0.5\linewidth,]{../images/consist_by_endo_size} \includegraphics[width=0.5\linewidth,]{../images/consist_by_employ_count} \caption{\label{fig:endo-size}}\label{fig:unnamed-chunk-9}
 \end{figure}
 
 \hypertarget{compound-annual-growth-rate}{%
@@ -976,11 +1020,11 @@ the same concept at a more granular level considering the annual growth
 rates in Figure \ref{fig:annual-growth-endowment}.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/compound-growth} \caption{\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\&P 500 for three time periods. Not all companies are present in each plot, since not all companies have data going back the same number of years. Of note, year to year differences in the compound annual growth rate of the S\&P 500 are due to differences in companies' fiscal years.}\label{fig:unnamed-chunk-9}
+\includegraphics[width=0.9\linewidth,]{../images/compound-growth} \caption{\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\&P 500 for three time periods. Not all companies are present in each plot, since not all companies have data going back the same number of years. Of note, year to year differences in the compound annual growth rate of the S\&P 500 are due to differences in companies' fiscal years.}\label{fig:unnamed-chunk-10}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/annual-growth} \caption{\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\&P 500 for the corresponding time period.}\label{fig:unnamed-chunk-10}
+\includegraphics[width=0.9\linewidth,]{../images/annual-growth} \caption{\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\&P 500 for the corresponding time period.}\label{fig:unnamed-chunk-11}
 \end{figure}
 
 \hypertarget{volunteer-paid-labor}{%
@@ -996,7 +1040,7 @@ reported companies volunteers, followed by the Midwest, then the West,
 then Mid-America, New England, and finally the Mid-Atlantic.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/type_region_bar} \caption{\label{fig:type-region-bar}Total number of laborers reported for each region in the 2019 fiscal year, colored by the number of companies who report either more employees or more volunteers}\label{fig:unnamed-chunk-11}
+\includegraphics[width=0.9\linewidth,]{../images/type_region_bar} \caption{\label{fig:type-region-bar}Total number of laborers reported for each region in the 2019 fiscal year, colored by the number of companies who report either more employees or more volunteers}\label{fig:unnamed-chunk-12}
 \end{figure}
 
 In Figure \ref{fig:ratio-region}, we show the 1st, 2nd, 3rd, and 4th
@@ -1005,14 +1049,14 @@ the total number of volunteers they reported and then computed the
 quantiles. The share within each quantile is shown by region.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/ratio_bar_region} \caption{\label{fig:ratio-region}Share of volunteer use for each region by quantile using individual companies.}\label{fig:unnamed-chunk-12}
+\includegraphics[width=0.9\linewidth,]{../images/ratio_bar_region} \caption{\label{fig:ratio-region}Share of volunteer use for each region by quantile using individual companies.}\label{fig:unnamed-chunk-13}
 \end{figure}
 
 We visualize the percentage of total labor that was volunteer labor by
 state across the United States in Figure \ref{fig:us-map}.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/vol_map} \caption{\label{fig:us-map}Share of volunteer labor among all labor by state. States, where we do not have data, are in gray.}\label{fig:unnamed-chunk-13}
+\includegraphics[width=0.9\linewidth,]{../images/vol_map} \caption{\label{fig:us-map}Share of volunteer labor among all labor by state. States, where we do not have data, are in gray.}\label{fig:unnamed-chunk-14}
 \end{figure}
 
 \hypertarget{compensation-to-c-suite-employees}{%
@@ -1049,11 +1093,11 @@ companies that increased the percent paid to C-Suite employees versus
 those that decreased the percent going to C-Suite employees.
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/frac-comp} \caption{\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included.}\label{fig:unnamed-chunk-14}
+\includegraphics[width=0.9\linewidth,]{../images/frac-comp} \caption{\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included.}\label{fig:unnamed-chunk-15}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=0.9\linewidth,]{../images/csuite-comp-bar} \caption{\label{fig:csuite-comp-bar} Comparing the percent of total compensation paid to C-Suite employees in 2015 to that in 2020. Since we are subtracting the 2015 percent from the 2020 percent, positive values indicate a greater percent of compensation went to C-Suite employees in 2020, while negative values indicate a smaller percent of compensation went to C-Suite employees in 2020.}\label{fig:unnamed-chunk-15}
+\includegraphics[width=0.9\linewidth,]{../images/csuite-comp-bar} \caption{\label{fig:csuite-comp-bar} Comparing the percent of total compensation paid to C-Suite employees in 2015 to that in 2020. Since we are subtracting the 2015 percent from the 2020 percent, positive values indicate a greater percent of compensation went to C-Suite employees in 2020, while negative values indicate a smaller percent of compensation went to C-Suite employees in 2020.}\label{fig:unnamed-chunk-16}
 \end{figure}
 
 \hypertarget{buildings}{%
@@ -1079,15 +1123,15 @@ values are on such different scales, with some companies approaching
 quantile)}\label{the-trend-in-property-book-values-highmediumlow-by-quantile}}
 
 \begin{figure}[H]
-\includegraphics[width=0.8\linewidth,]{../images/high} \caption{\label{fig:high}}\label{fig:unnamed-chunk-16}
+\includegraphics[width=0.8\linewidth,]{../images/high} \caption{\label{fig:high}}\label{fig:unnamed-chunk-17}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=0.8\linewidth,]{../images/medium} \caption{\label{fig:medium}}\label{fig:unnamed-chunk-17}
+\includegraphics[width=0.8\linewidth,]{../images/medium} \caption{\label{fig:medium}}\label{fig:unnamed-chunk-18}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=0.8\linewidth,]{../images/low} \caption{\label{fig:low}}\label{fig:unnamed-chunk-18}
+\includegraphics[width=0.8\linewidth,]{../images/low} \caption{\label{fig:low}}\label{fig:unnamed-chunk-19}
 \end{figure}
 
 In Figures \ref{fig:high}, \ref{fig:medium}, and \ref{fig:low}, we see
