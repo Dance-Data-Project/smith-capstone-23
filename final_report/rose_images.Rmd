@@ -628,12 +628,11 @@ low_forty %>%
   arrange(organization_name) %>%
   kbl(caption = "Endowment Percent Change Dropping Below 40% Of Beginning Year balance",
             col.names = c("Company Name", "Percent Change", "Beginning Balance", "End Balance", "Fiscal Year"),
-            format="pandoc",
+            format="latex",
            booktabs=TRUE,
            escape=FALSE,
            linesep = "\\addlinespace",
       digits = 1) %>%
-  kbl() %>%
   kable_styling(latex_options = c("hold_position"))
 
   
@@ -1095,12 +1094,12 @@ ggsave("pc_above_200.png", path = here("final_report", "images"))
 ## Consistency  
 ```{r, eval = TRUE}
 endo_size_consist_fr
-ggsave("consist_by_endo_size.png", path = here("final_report", "images"))
+ggsave("consist_by_endo_size.png", path = here("final_report", "images"),width=4, height=6)
 ```
 
 ```{r, eval = TRUE}
 employ_size_consist_ft
-ggsave("consist_by_employ_count.png", path = here("final_report", "images"))
+ggsave("consist_by_employ_count.png", path = here("final_report", "images"), width=4,height=6)
 ```
 
 ```{r, eval = TRUE}

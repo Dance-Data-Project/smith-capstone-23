@@ -357,48 +357,12 @@ end_sp %>%
 
 
 
+ggsave(here('final_report/images/annual-growth.pdf'))
 
 
 ```
 
 
-```{r,eval=FALSE,include=FALSE}
-
-# not adjusted 
-end_sp %>%
-  inner_join(top_20) %>%
-  mutate(organization_name = fct_reorder(organization_name,mean_balance, .desc=TRUE)) %>%
-  mutate(pct_change_sp = (sp500_end - sp500_begin) / sp500_begin,
-         pct_change_endowment = (EndYearBalanceAmt - BeginningYearBalanceAmt) / BeginningYearBalanceAmt) %>%
-  select(pct_change_sp,pct_change_endowment, organization_name, fiscal_year) %>%
-  pivot_longer(c(contains('pct_change'))) %>%
-  ggplot(aes(x = fiscal_year, y = value, color = name)) +
-  geom_line() +
-  geom_point(alpha = .5, size = .3, show.legend=FALSE) +
-  facet_wrap(~organization_name, scales= "free_y", ncol=4) +
-  theme_c(axis.text.x = element_text(size = 12)) +
-  scale_x_continuous(breaks = 2010:2021) +
-  scale_y_continuous(labels=scales::percent) +
-  scale_color_manual(values=c("#51B09A","#C59742")) +
-  labs(x = "Date",
-       y = "Percent Change",
-       color = "",
-       title = "Annual Growth of S&P 500 Compared to ",
-       subtitle = "Top 15 Companies by Size of Endowment") +
-  theme(legend.position = "top",
-        plot.title = element_text(size = 25),
-        plot.subtitle = element_text(size =20)) +
-  guides(color = guide_legend(override.aes = list(linewidth=2)))
-
-
-
-
-
-
-
-
-
-```
 
 ## Compound Growth Rate
 
@@ -576,6 +540,8 @@ plot_grid(title_gg,
            rel_heights= c(.03, .05, .92),
           nrow=3)
 
+
+ggsave(here('final_report/images/compound-growth.pdf'))
 
 ```
 
@@ -2118,7 +2084,7 @@ plt2 <- emp_comp %>%
 
 plot_grid(title_gg, plt2, plt1, nrow=3, rel_heights = c(.07,.9,.9))
 
-  
+ggsave(here('final_report/images/frac-comp.pdf'))
 
 ```
 
@@ -2154,6 +2120,7 @@ emp_comp %>%
   scale_x_continuous(n.breaks = 10, labels=scales::percent,limits=c(-.13,.13))
 
 
+ggsave(here('final_report/images/csuite-comp-bar.pdf'))
 
 ```
 
