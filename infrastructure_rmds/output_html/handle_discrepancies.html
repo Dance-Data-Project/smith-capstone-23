@@ -7,7 +7,7 @@
 
         <meta name="author" content="Quinn White" />
     
-        <meta name="date" content="2023-04-15" />
+        <meta name="date" content="2023-04-26" />
     
     <title>Endowment Data: Taking Most Recent Data Available</title>
 
@@ -2647,12 +2647,14 @@ Available</a></h2>
       in Cases Where the EIN has a Discrepancy</a></li>
       <li><a href="#save-results" id="toc-save-results">Save
       Results</a></li>
+      <li><a href="#check-reported-versus-calculated-end-of-year-balance" id="toc-check-reported-versus-calculated-end-of-year-balance">Check
+      Reported Versus Calculated End of Year Balance</a></li>
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
                   <p class="author"><span class="glyphicon glyphicon-user"></span> Quinn
 White</p>
-                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-15</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2023-04-26</p>
           </div>
    </div>
      
@@ -2704,11 +2706,10 @@ file.</p>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># endowment variables that do not have data across multiple years</span></span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>add_vars <span class="ot">&lt;-</span> all_sched_d <span class="sc">%&gt;%</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># end is for endowment</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">matches</span>(<span class="st">&quot;end|EOY&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="sc">!</span><span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>))  <span class="sc">%&gt;%</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .))  <span class="sc">%&gt;%</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;Pct&quot;</span>), as.numeric))</span></code></pre></div>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">contains</span>(<span class="st">&quot;end&quot;</span>), <span class="fu">contains</span>(<span class="st">&quot;EOY&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="sc">!</span><span class="fu">matches</span>(<span class="st">&quot;CY|Minus&quot;</span>, <span class="at">ignore.case=</span> <span class="cn">FALSE</span>))  <span class="sc">%&gt;%</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span><span class="fu">gsub</span>(<span class="st">&quot;/Return/ReturnData/IRS990ScheduleD/&quot;</span>, <span class="st">&quot;&quot;</span>, .))  <span class="sc">%&gt;%</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;Pct&quot;</span>), as.numeric))</span></code></pre></div>
 </div>
 <div id="check-which-variables-have-data-across-multiple-years" class="section level1">
 <h1>Check Which Variables Have Data Across Multiple Years</h1>
@@ -2721,85 +2722,162 @@ file.</p>
 </div>
 <div id="use-most-recent-data-available" class="section level1">
 <h1>Use Most Recent Data Available</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for a given base name of the variable, for each fiscal year, takes the most </span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># recently available value</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>get_most_recent <span class="ot">&lt;-</span> <span class="cf">function</span>(endowment_df, base_name) {</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  endowment_df <span class="sc">%&gt;%</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, fiscal_year, <span class="fu">contains</span>(base_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make sure each has every fiscal years with NAs for fiscal years that are missing</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> fiscal_year, </span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_from=</span><span class="fu">contains</span>(base_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">contains</span>(base_name),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">names_to =</span> <span class="st">&quot;variable_year&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>     <span class="fu">separate</span>(variable_year, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;variable_name&quot;</span>, <span class="st">&quot;fiscal_year&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(fiscal_year)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">value_year =</span> <span class="fu">case_when</span>(</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_name) <span class="sc">~</span> fiscal_year,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM1&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM2&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">2</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM3&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">3</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM4&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">4</span>),</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;CYM&quot;</span>, variable_name), </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">substr</span>(variable_name, <span class="dv">1</span>,<span class="dv">4</span>), </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CY&quot;</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">paste0</span>(source, fiscal_year)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(value)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(EIN, value_year) <span class="sc">%&gt;%</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_max</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">order_by =</span> fiscal_year)<span class="sc">%&gt;%</span> </span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">variable_name =</span> base_name,</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">year =</span> value_year,</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             value,</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>             <span class="co"># assignment operator := needed when we use !! on the left side of an assigment</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">name =</span> <span class="sc">!!</span>base_name) <span class="sc">%&gt;%</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, <span class="at">fiscal_year =</span> year, source, value, name)</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Update – use the most recent year, but take all values from that
+year.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># previous version -- takes most recent (non-NA) value for each variable individually</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>get_most_recent <span class="ot">&lt;-</span> <span class="cf">function</span>(endowment_df, base_name) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  endowment_df <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, fiscal_year, <span class="fu">contains</span>(base_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make sure each has every fiscal years with NAs for fiscal years that are missing</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> fiscal_year, </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_from=</span><span class="fu">contains</span>(base_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">contains</span>(base_name),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">names_to =</span> <span class="st">&quot;variable_year&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>     <span class="fu">separate</span>(variable_year, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;variable_name&quot;</span>, <span class="st">&quot;fiscal_year&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">value_year =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_name) <span class="sc">~</span> fiscal_year,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM1&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM2&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">2</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM3&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">3</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>       variable_name <span class="sc">==</span> <span class="fu">paste0</span>(<span class="st">&quot;CYM4&quot;</span>, base_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">4</span>),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;CYM&quot;</span>, variable_name), </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">substr</span>(variable_name, <span class="dv">1</span>,<span class="dv">4</span>), </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CY&quot;</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">paste0</span>(source, fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(value)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(EIN, value_year) <span class="sc">%&gt;%</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_max</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">order_by =</span> fiscal_year)<span class="sc">%&gt;%</span> </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">variable_name =</span> base_name,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">year =</span> value_year,</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             value,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             <span class="co"># assignment operator := needed when we use !! on the left side of an assigment</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>             <span class="at">name =</span> <span class="sc">!!</span>base_name) <span class="sc">%&gt;%</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(EIN, <span class="at">fiscal_year =</span> year, source, value, name)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for a given base name of the variable, for each fiscal year, takes the most </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># recently available value</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>get_most_recent <span class="ot">&lt;-</span> <span class="cf">function</span>(endowment_df, base_name) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  endowment_df <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>   <span class="co"># select(EIN, fiscal_year, contains(base_name)) %&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># make sure each has every fiscal years with NAs for fiscal years that are missing</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> fiscal_year, </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_from=</span><span class="fu">contains</span>(<span class="st">&quot;CY&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>     <span class="fu">pivot_longer</span>(<span class="at">cols =</span><span class="fu">contains</span>(<span class="st">&quot;CY&quot;</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">names_to =</span> <span class="st">&quot;variable_year&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>     <span class="fu">separate</span>(variable_year, <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">&quot;variable_name&quot;</span>, <span class="st">&quot;fiscal_year&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(fiscal_year)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">value_year =</span> <span class="fu">case_when</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>       <span class="fu">grepl</span>(<span class="st">&quot;CYM1&quot;</span>, variable_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>       <span class="fu">grepl</span>(<span class="st">&quot;CYM2&quot;</span>, variable_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">2</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>       <span class="fu">grepl</span>(<span class="st">&quot;CYM3&quot;</span>, variable_name) <span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">3</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>       <span class="fu">grepl</span>(<span class="st">&quot;CYM4&quot;</span>, variable_name)<span class="sc">~</span> fiscal_year <span class="sc">-</span><span class="dv">4</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>       <span class="fu">grepl</span>(<span class="st">&quot;CY&quot;</span>, variable_name) <span class="sc">~</span> fiscal_year),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">source =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;CYM&quot;</span>, variable_name), </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">substr</span>(variable_name, <span class="dv">1</span>,<span class="dv">4</span>), </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;CY&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># filter(!is.na(value)) %&gt;%</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">variable_name =</span> <span class="fu">gsub</span>(<span class="st">&quot;CY|CYM1|CYM2|CYM3|CYM4&quot;</span>, <span class="st">&quot;&quot;</span>, variable_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(source)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>variable_name,<span class="at">values_from=</span>value) <span class="sc">%&gt;%</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># don&#39;t pick row if all values are NA</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">if_all</span>(<span class="fu">contains</span>(<span class="st">&quot;Amt&quot;</span>), is.na)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(EIN, value_year) <span class="sc">%&gt;%</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_max</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">order_by =</span> fiscal_year)<span class="sc">%&gt;%</span> </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>fiscal_year) <span class="sc">%&gt;%</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">fiscal_year =</span> value_year)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="check-results-are-concordant-with-those-from-get_df-except-in-cases-where-the-ein-has-a-discrepancy" class="section level1">
 <h1>Check Results are Concordant with Those from <code>get_df</code>
 Except in Cases Where the EIN has a Discrepancy</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over each variable of interest </span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>endowment_recent <span class="ot">&lt;-</span> <span class="fu">map_df</span>(base_names,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>       <span class="sc">~</span><span class="fu">get_most_recent</span>(endowment, <span class="at">base_name =</span> .x))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>endowment_recent_long <span class="ot">&lt;-</span> endowment_recent <span class="sc">%&gt;%</span> </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;recent&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>source)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># check correspondence with data frame extracted *without* accounting for discrepancies</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>end_original <span class="ot">&lt;-</span> endowment <span class="sc">%&gt;%</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_names)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(fiscal_year,EIN)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">gsub</span>(<span class="st">&quot;CY&quot;</span>, <span class="st">&#39;&#39;</span>, name)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(<span class="fu">paste</span>(fiscal_year))) <span class="sc">%&gt;%</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;original&quot;</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># read vector of EINS that had discordant values</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>eins_discord <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;discordant_EINS.RDS&quot;</span>))</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># test that only eins where there is a difference is in those with discrepancies</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">expect_equal</span>( { endowment_recent_long <span class="sc">%&gt;%</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(end_original) <span class="sc">%&gt;%</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># group_by(EIN, fiscal_year, name, version) %&gt;%</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(n = dplyr::n(), .groups = &quot;drop&quot;) %&gt;%  </span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> version, <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(original)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(recent <span class="sc">!=</span> original) <span class="sc">%&gt;%</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>EIN <span class="sc">%in%</span> eins_discord)  <span class="sc">%&gt;%</span> <span class="fu">nrow</span>() }, <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>endowment_recent <span class="ot">&lt;-</span> <span class="fu">get_most_recent</span>(endowment)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>endowment_recent_long <span class="ot">&lt;-</span> endowment_recent <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(fiscal_year,EIN)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;recent&quot;</span>) </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># check correspondence with data frame extracted *without* accounting for discrepancies</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>end_original <span class="ot">&lt;-</span> endowment <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_names)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(fiscal_year,EIN)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">gsub</span>(<span class="st">&quot;CY&quot;</span>, <span class="st">&#39;&#39;</span>, name)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(<span class="fu">paste</span>(fiscal_year))) <span class="sc">%&gt;%</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;original&quot;</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># read vector of EINS that had discordant values</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>eins_discord <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;discordant_EINS.RDS&quot;</span>))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># test that only eins where there is a difference is in those with discrepancies</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">expect_equal</span>( { endowment_recent_long <span class="sc">%&gt;%</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(end_original) <span class="sc">%&gt;%</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># group_by(EIN, fiscal_year, name, version) %&gt;%</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(n = dplyr::n(), .groups = &quot;drop&quot;) %&gt;%  </span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> version, <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(original)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(recent <span class="sc">!=</span> original) <span class="sc">%&gt;%</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>EIN <span class="sc">%in%</span> eins_discord)  <span class="sc">%&gt;%</span> <span class="fu">nrow</span>() }, <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over each variable of interest </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>endowment_recent <span class="ot">&lt;-</span> <span class="fu">map_df</span>(base_names,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       <span class="sc">~</span><span class="fu">get_most_recent</span>(endowment, <span class="at">base_name =</span> .x))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>endowment_recent_long <span class="ot">&lt;-</span> endowment_recent <span class="sc">%&gt;%</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;recent&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>source)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># check correspondence with data frame extracted *without* accounting for discrepancies</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>end_original <span class="ot">&lt;-</span> endowment <span class="sc">%&gt;%</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fiscal_year, EIN, <span class="fu">paste0</span>(<span class="st">&quot;CY&quot;</span>, base_names)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(fiscal_year,EIN)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">gsub</span>(<span class="st">&quot;CY&quot;</span>, <span class="st">&#39;&#39;</span>, name)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fiscal_year =</span> <span class="fu">as.numeric</span>(<span class="fu">paste</span>(fiscal_year))) <span class="sc">%&gt;%</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">version =</span> <span class="st">&quot;original&quot;</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># read vector of EINS that had discordant values</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>eins_discord <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;discordant_EINS.RDS&quot;</span>))</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># test that only eins where there is a difference is in those with discrepancies</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">expect_equal</span>( { endowment_recent_long <span class="sc">%&gt;%</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(end_original) <span class="sc">%&gt;%</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># group_by(EIN, fiscal_year, name, version) %&gt;%</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dplyr::mutate(n = dplyr::n(), .groups = &quot;drop&quot;) %&gt;%  </span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> version, <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(original)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(recent <span class="sc">!=</span> original) <span class="sc">%&gt;%</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>EIN <span class="sc">%in%</span> eins_discord)  <span class="sc">%&gt;%</span> <span class="fu">nrow</span>() }, <span class="dv">0</span>)</span></code></pre></div>
 </div>
 <div id="save-results" class="section level1">
 <h1>Save Results</h1>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add variables that don&#39;t have values across multiple years</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a> endowment_recent_long <span class="sc">%&gt;%</span> </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>version) <span class="sc">%&gt;%</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> name,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(add_vars) <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;endowments_by_most_recent_filings.RDS&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add variables that don&#39;t have values across multiple years</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a> endowment_recent_long <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>version) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> name,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(add_vars) <span class="sc">%&gt;%</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;endowments_by_most_recent_filings.RDS&quot;</span>))</span></code></pre></div>
+</div>
+<div id="check-reported-versus-calculated-end-of-year-balance" class="section level1">
+<h1>Check Reported Versus Calculated End of Year Balance</h1>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>endowment_recent <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;Amt&quot;</span>), <span class="sc">~</span><span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="dv">0</span>,.x)))<span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">end_calc =</span> BeginningYearBalanceAmt <span class="sc">+</span> ContributionsAmt <span class="sc">-</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>           OtherExpendituresAmt <span class="sc">-</span> AdministrativeExpensesAmt <span class="sc">-</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>           GrantsOrScholarshipsAmt <span class="sc">+</span> InvestmentEarningsOrLossesAmt) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(end_calc <span class="sc">!=</span> EndYearBalanceAmt)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["EIN"],"name":[1],"type":["chr"],"align":["left"]},{"label":["fiscal_year"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["BeginningYearBalanceAmt"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["ContributionsAmt"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["InvestmentEarningsOrLossesAmt"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["OtherExpendituresAmt"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["AdministrativeExpensesAmt"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["EndYearBalanceAmt"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GrantsOrScholarshipsAmt"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["end_calc"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"132642091","2":"2018","3":"33505","4":"0","5":"13","6":"-13","7":"0","8":"33505","9":"0","10":"33531"},{"1":"132685755","2":"2016","3":"1316716","4":"38320","5":"8576","6":"-45172","7":"0","8":"1318440","9":"0","10":"1408784"},{"1":"132685755","2":"2017","3":"1318440","4":"0","5":"109106","6":"-45482","7":"0","8":"1382064","9":"0","10":"1473028"},{"1":"132685755","2":"2018","3":"1382064","4":"0","5":"91354","6":"-46419","7":"0","8":"1388679","9":"0","10":"1519837"},{"1":"132685755","2":"2019","3":"1388679","4":"0","5":"70536","6":"-49143","7":"0","8":"1410072","9":"0","10":"1508358"},{"1":"132685755","2":"2020","3":"1410072","4":"0","5":"47176","6":"-51296","7":"0","8":"1405952","9":"0","10":"1508544"},{"1":"237101094","2":"2021","3":"8946495","4":"5000","5":"2232993","6":"425000","7":"0","8":"10758728","9":"0","10":"10759488"},{"1":"237427817","2":"2016","3":"613186","4":"100000","5":"-2414","6":"165751","7":"1149","8":"338943","9":"4929","10":"538943"},{"1":"356006394","2":"2014","3":"60137","4":"1090500","5":"56481","6":"0","7":"6035","8":"1201082","9":"0","10":"1201083"},{"1":"356006394","2":"2016","3":"1291109","4":"26951","5":"84517","6":"0","7":"154","8":"1413780","9":"0","10":"1402423"},{"1":"356006394","2":"2017","3":"1413780","4":"290","5":"71148","6":"46383","7":"11722","8":"1427123","9":"0","10":"1427113"},{"1":"592578534","2":"2013","3":"1066493","4":"20000","5":"91090","6":"-62600","7":"0","8":"1114983","9":"0","10":"1240183"},{"1":"592578534","2":"2015","3":"1184610","4":"0","5":"33072","6":"-55897","7":"0","8":"1161785","9":"0","10":"1273579"},{"1":"592578534","2":"2016","3":"1161785","4":"0","5":"-42476","6":"-15380","7":"0","8":"1103929","9":"0","10":"1134689"},{"1":"592578534","2":"2017","3":"1103929","4":"0","5":"97974","6":"-16006","7":"0","8":"1185897","9":"0","10":"1217909"},{"1":"592578534","2":"2018","3":"1185897","4":"272037","5":"82684","6":"-34683","7":"0","8":"1505935","9":"0","10":"1575301"},{"1":"592578534","2":"2019","3":"1505935","4":"0","5":"74643","6":"-57098","7":"0","8":"1523480","9":"0","10":"1637676"},{"1":"592578534","2":"2020","3":"1523480","4":"50000","5":"-59190","6":"-64100","7":"0","8":"1450190","9":"0","10":"1578390"},{"1":"592578534","2":"2021","3":"1450190","4":"1000000","5":"549855","6":"-50653","7":"0","8":"2949392","9":"0","10":"3050698"},{"1":"621018942","2":"2015","3":"5335146","4":"0","5":"-76820","6":"197900","7":"0","8":"5060427","9":"0","10":"5060426"},{"1":"650135900","2":"2015","3":"600000","4":"19851","5":"48082","6":"145047","7":"0","8":"600000","9":"0","10":"522886"},{"1":"860367773","2":"2015","3":"0","4":"0","5":"0","6":"0","7":"0","8":"601399","9":"0","10":"0"},{"1":"860367773","2":"2020","3":"4670922","4":"0","5":"-32063","6":"0","7":"31888","8":"4606871","9":"0","10":"4606971"},{"1":"930765746","2":"2011","3":"45000","4":"0","5":"0","6":"0","7":"0","8":"0","9":"0","10":"45000"},{"1":"931009305","2":"2019","3":"60253","4":"2250","5":"0","6":"0","7":"0","8":"62773","9":"0","10":"62503"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 
