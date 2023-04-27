@@ -172,6 +172,7 @@ bring light to issues of data quality to consider when analyzing Form
 
 \usepackage{caption}
 \captionsetup[figure]{font=scriptsize}
+\usepackage{subfig}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -718,35 +719,43 @@ companies. Discrepancies range from \$1 (Ballet Memphis, 2015) to
 figure, differences in reported and calculated balance below a hundred
 thousand dollars are difficult to see.
 
-\[\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} + \text{Investment Earnings or Losses} - |\text{Administrative Expenditures}| - |\text{Other Expenditures}| - | \{Grants or Scholarships}| \]
+\[\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} + \text{Investment Earnings or Losses}\]
+\[- |\text{Administrative Expenditures}| - |\text{Other Expenditures}| - | \text{Grants or Scholarships}|\]
 
 For values related to expenses (Administrative expenditures, other
 expenditures, grants or scholarships), we took the absolute value to
 ensure all were positive numbers. Four companies (Ballet Hispánico,
-Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem). report
+Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem) report
 their other expenditures as a negative value; thus, when calculating end
 year balance, subtracting a negative value would result in an additive,
-not subtractive, effect. We reached out to the prior companies regarding
-their decision to report negative values, to ensure we did not
-misrepresent their decision. When utilizing absolute value expenses,
-only Atlanta Ballet and Ballet Hispánico find differences.
+not subtractive, effect\footnote{We reached out to the prior companies
+  regarding their decision to report negative values, to ensure we did
+  not misrepresent their decision. When utilizing absolute value
+  expenses, only Atlanta Ballet and Ballet Hispánico find differences.}
 
-Difference was calculated as
-\(\text{Reported End Balance} - \text{Calculated End Balance}\). Thus,
-negative values are representative of a larger calculated end balance,
-and positive values represent a larger reported end balance. The
-majority of calculated differences are negative; thus, either end year
-reported balance were misreported as smaller, or components used to
-calculate end year balance were misreported as larger.
+We calculate the difference by taking
+\(\text{Reported End Balance} - \text{Calculated End Balance}\). This
+means that negative values indicate the calculated end balance was
+larger than the reported, and positive values indicate the reported end
+balance was larger. The majority of calculated differences are negative;
+thus, either end year reported balance were misreported as smaller, or
+components used to calculate end year balance were misreported as
+larger.
 
 Atlanta Ballet has the highest discrepancies; however, these
 discrepancies could be due to their reporting of negative expenses.
+Indeed, if we don't take the absolute value and take the negatives as
+is, the values are concordant.
 
 Most companies only miscalculate once; however, Fort Wayne Ballet
-miscalculated their end year balance within the majority of our dataset.
+miscalculated their end year balance within the majority of years on
+file.
 
 Eugene Ballet does not report an end year balance for 2011, yet reports
 a beginning balance of \$45,000, hence the -\$45,000 difference.
+
+\includegraphics[width=0.5\linewidth,]{../images/diff_end_bal}
+\includegraphics[width=0.5\linewidth,]{../images/diff_end_bal_no_abs}
 
 \hypertarget{how-endowments-did-over-time}{%
 \subsubsection{How Endowments Did Over

@@ -211,13 +211,17 @@ testthat::expect_equal( { endowment_recent_long %>%
 
 ```{r}
 
+companies_to_ein <- readRDS(here("data","companies.RDS"))
+
 endowment_recent %>%
   mutate(across(contains("Amt"), ~ifelse(is.na(.x), 0,.x)))%>%
   mutate(end_calc = BeginningYearBalanceAmt + ContributionsAmt -
            OtherExpendituresAmt - AdministrativeExpensesAmt -
            GrantsOrScholarshipsAmt + InvestmentEarningsOrLossesAmt) %>%
   filter(end_calc != EndYearBalanceAmt) %>%
-  mutate(diff = end_calc - BeginningYearBalanceAmt)
+  mutate(diff = end_calc - EndYearBalanceAmt) %>%
+  left_join(companies_to_ein) %>%
+  select(diff, end_calc, EndYearBalanceAmt, organization_name, fiscal_year)
 
 
 

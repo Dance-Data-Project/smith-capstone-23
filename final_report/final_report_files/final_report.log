@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 09:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 09:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -735,10 +735,25 @@ Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
 Package: footnote 1997/01/28 1.13 Save footnotes around boxes
 \fn@notes=\box78
 \fn@width=\dimen322
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/subfig/subfig.sty
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+\c@KVtest=\count358
+\sf@farskip=\skip86
+\sf@captopadj=\dimen323
+\sf@capskip=\skip87
+\sf@nearskip=\skip88
+\c@subfigure=\count359
+\c@subfigure@save=\count360
+\c@lofdepth=\count361
+\c@subtable=\count362
+\c@subtable@save=\count363
+\c@lotdepth=\count364
+\sf@top=\skip89
+\sf@bottom=\skip90
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
-\wrapoverhang=\dimen323
-\WF@size=\dimen324
-\c@WF@wrappedlines=\count358
+\wrapoverhang=\dimen324
+\WF@size=\dimen325
+\c@WF@wrappedlines=\count365
 \WF@box=\box79
 \WF@everypar=\toks60
 Package: wrapfig 2003/01/31  v 3.6
@@ -753,32 +768,32 @@ Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty
 Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 \@vwid@box=\box80
-\sift@deathcycles=\count359
-\@vwid@loff=\dimen325
-\@vwid@roff=\dimen326
+\sift@deathcycles=\count366
+\@vwid@loff=\dimen326
+\@vwid@roff=\dimen327
 )
-\c@taburow=\count360
-\tabu@nbcols=\count361
-\tabu@cnt=\count362
-\tabu@Xcol=\count363
-\tabu@alloc=\count364
-\tabu@nested=\count365
-\tabu@target=\dimen327
-\tabu@spreadtarget=\dimen328
-\tabu@naturalX=\dimen329
-\tabucolX=\dimen330
-\tabu@Xsum=\dimen331
-\extrarowdepth=\dimen332
-\abovetabulinesep=\dimen333
-\belowtabulinesep=\dimen334
-\tabustrutrule=\dimen335
+\c@taburow=\count367
+\tabu@nbcols=\count368
+\tabu@cnt=\count369
+\tabu@Xcol=\count370
+\tabu@alloc=\count371
+\tabu@nested=\count372
+\tabu@target=\dimen328
+\tabu@spreadtarget=\dimen329
+\tabu@naturalX=\dimen330
+\tabucolX=\dimen331
+\tabu@Xsum=\dimen332
+\extrarowdepth=\dimen333
+\abovetabulinesep=\dimen334
+\belowtabulinesep=\dimen335
+\tabustrutrule=\dimen336
 \tabu@thebody=\toks61
 \tabu@footnotes=\toks62
 \tabu@box=\box81
 \tabu@arstrutbox=\box82
 \tabu@hleads=\box83
 \tabu@vleads=\box84
-\tabu@cellskip=\skip86
+\tabu@cellskip=\skip91
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
 Package: threeparttable 2003/06/13  v 3.0
 \@tempboxb=\box85
@@ -789,66 +804,65 @@ Package: environ 2014/05/04 v0.3 A new way to define environments
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
 Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 ))
-\TPTL@width=\skip87
+\TPTL@width=\skip92
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
 \UL@box=\box86
 \UL@hyphenbox=\box87
-\UL@skip=\skip88
+\UL@skip=\skip93
 \UL@hook=\toks63
-\UL@height=\dimen336
-\UL@pe=\count366
-\UL@pixel=\dimen337
+\UL@height=\dimen337
+\UL@pe=\count373
+\UL@pixel=\dimen338
 \ULC@box=\box88
 Package: ulem 2019/11/18
-\ULdepth=\dimen338
+\ULdepth=\dimen339
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/makecell/makecell.sty
 Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
-\rotheadsize=\dimen339
-\c@nlinenum=\count367
+\rotheadsize=\dimen340
+\c@nlinenum=\count374
 \TeXr@lab=\toks64
 )
-LaTeX Font Info:    Trying to load font information for T1+ppl on input line 190.
+LaTeX Font Info:    Trying to load font information for T1+ppl on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ppl.fd
 File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count368
+\l__color_backend_stack_int=\count375
 \l__pdf_internal_box=\box89
-)
-No file final_report.aux.
+) (./final_report.aux)
 \openout1 = `final_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 190.
-LaTeX Font Info:    ... okay on input line 190.
-LaTeX Info: Redefining \microtypecontext on input line 190.
-Package microtype Info: Applying patch `item' on input line 190.
-Package microtype Info: Applying patch `toc' on input line 190.
-Package microtype Info: Applying patch `eqnum' on input line 190.
-Package microtype Info: Applying patch `footnote' on input line 190.
-Package microtype Info: Applying patch `verbatim' on input line 190.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 191.
+LaTeX Font Info:    ... okay on input line 191.
+LaTeX Info: Redefining \microtypecontext on input line 191.
+Package microtype Info: Applying patch `item' on input line 191.
+Package microtype Info: Applying patch `toc' on input line 191.
+Package microtype Info: Applying patch `eqnum' on input line 191.
+Package microtype Info: Applying patch `footnote' on input line 191.
+Package microtype Info: Applying patch `verbatim' on input line 191.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 190.
+LaTeX Info: Redefining \showhyphens on input line 191.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -856,7 +870,8 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-ppl.cfg 2005/11/16 v1.6 microtype config. file: Palatino (RS)
 )
 \symAMSb=\mathgroup5
-Package hyperref Info: Link coloring ON on input line 190.
+Package hyperref Info: Link coloring ON on input line 191.
+(./final_report.out) (./final_report.out)
 \@outlinefile=\write4
 \openout4 = `final_report.out'.
 
@@ -897,6 +912,7 @@ Package newfloat Info: Trying Plan B...
 Package newfloat Info: `float' package detected.
 Package newfloat Info: `wrapfig' package detected.
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: longtable package is loaded.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/caption/ltcaption.sty
 Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
@@ -904,28 +920,28 @@ Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 Package caption Info: threeparttable package is loaded.
 Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
-<logo-mdpi.pdf, id=8, 86.3225pt x 57.21375pt>
+<logo-mdpi.pdf, id=96, 86.3225pt x 57.21375pt>
 File: logo-mdpi.pdf Graphic file (type pdf)
 <use logo-mdpi.pdf>
-Package pdftex.def Info: logo-mdpi.pdf  used on input line 190.
+Package pdftex.def Info: logo-mdpi.pdf  used on input line 191.
 (pdftex.def)             Requested size: 42.92798pt x 28.45274pt.
-LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 190.
+LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
 )
-LaTeX Font Info:    Trying to load font information for OML+zplm on input line 190.
+LaTeX Font Info:    Trying to load font information for OML+zplm on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 190.
+LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 190.
+LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 190.
+LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
@@ -934,39 +950,39 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 190.
+(Font)              scaled to size 10.42007pt on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 190.
+(Font)              scaled to size 7.91925pt on input line 191.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 190.
-<logo-orcid.pdf, id=10, 597.23125pt x 845.1575pt>
+(Font)              scaled to size 6.25204pt on input line 191.
+<logo-orcid.pdf, id=98, 597.23125pt x 845.1575pt>
 File: logo-orcid.pdf Graphic file (type pdf)
 <use logo-orcid.pdf>
-Package pdftex.def Info: logo-orcid.pdf  used on input line 190.
+Package pdftex.def Info: logo-orcid.pdf  used on input line 191.
 (pdftex.def)             Requested size: 9.10509pt x 12.88315pt.
 File: logo-orcid.pdf Graphic file (type pdf)
 <use logo-orcid.pdf>
-Package pdftex.def Info: logo-orcid.pdf  used on input line 190.
+Package pdftex.def Info: logo-orcid.pdf  used on input line 191.
 (pdftex.def)             Requested size: 9.10509pt x 12.88315pt.
 File: logo-orcid.pdf Graphic file (type pdf)
 <use logo-orcid.pdf>
-Package pdftex.def Info: logo-orcid.pdf  used on input line 190.
+Package pdftex.def Info: logo-orcid.pdf  used on input line 191.
 (pdftex.def)             Requested size: 9.10509pt x 12.88315pt.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 190.
+(Font)              scaled to size 9.37807pt on input line 191.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 190.
+(Font)              scaled to size 7.29405pt on input line 191.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 190.
-<logo-updates.pdf, id=15, 832.75539pt x 281.85541pt>
+(Font)              scaled to size 5.21004pt on input line 191.
+<logo-updates.pdf, id=103, 832.75539pt x 281.85541pt>
 File: logo-updates.pdf Graphic file (type pdf)
 <use logo-updates.pdf>
-Package pdftex.def Info: logo-updates.pdf  used on input line 190.
+Package pdftex.def Info: logo-updates.pdf  used on input line 191.
 (pdftex.def)             Requested size: 50.43332pt x 17.07182pt.
-LaTeX Font Info:    Trying to load font information for T1+cmss on input line 190.
+LaTeX Font Info:    Trying to load font information for T1+cmss on input line 191.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/base/t1cmss.fd
 File: t1cmss.fd 2022/07/10 v2.5l Standard LaTeX font definitions
 )
@@ -974,145 +990,137 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmss' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-
-LaTeX Warning: Reference `LastPage' on page 1 undefined on input line 234.
-
 [1
 
-{/Users/quinnwhite/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc} <./logo-mdpi.pdf> <./logo-orcid.pdf> <./logo-updates.pdf>]
-
-LaTeX Warning: Reference `LastPage' on page 2 undefined on input line 311.
-
-[2]
+{/Users/quinnwhite/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc} <./logo-mdpi.pdf> <./logo-orcid.pdf> <./logo-updates.pdf>] [2]
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 315.
-
-LaTeX Warning: Reference `LastPage' on page 3 undefined on input line 385.
-
+(Font)              scaled to size 8.33606pt on input line 316.
 [3]
-Overfull \hbox (57.85252pt too wide) in paragraph at lines 443--449
+Overfull \hbox (57.85252pt too wide) in paragraph at lines 444--450
 []$\T1/ppl/m/n/10 (-20) .|  
  []
 
-
-LaTeX Warning: Reference `LastPage' on page 4 undefined on input line 453.
-
 [4]
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 473.
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 474.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 )
-Underfull \hbox (badness 10000) in paragraph at lines 479--484
+Underfull \hbox (badness 10000) in paragraph at lines 480--485
 
  []
 
-
-LaTeX Warning: Reference `fig:endowment-type' on page 5 undefined on input line 494.
-
-
-LaTeX Warning: Reference `table:endowment-type-table' on page 5 undefined on input line 497.
-
-<../images/proportion_endowment_categories.pdf, id=100, 866.23625pt x 360.34625pt>
+<../images/proportion_endowment_categories.pdf, id=179, 866.23625pt x 360.34625pt>
 File: ../images/proportion_endowment_categories.pdf Graphic file (type pdf)
 <use ../images/proportion_endowment_categories.pdf>
-Package pdftex.def Info: ../images/proportion_endowment_categories.pdf  used on input line 534.
+Package pdftex.def Info: ../images/proportion_endowment_categories.pdf  used on input line 535.
 (pdftex.def)             Requested size: 443.86319pt x 184.6429pt.
-
-LaTeX Warning: Reference `LastPage' on page 5 undefined on input line 536.
-
 [5]
-
-LaTeX Warning: Reference `fig:prop-most-variable' on page 6 undefined on input line 542.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 547--552
+Underfull \hbox (badness 10000) in paragraph at lines 548--553
 []\T1/ppl/m/n/10 (+20) For Fort Wayne Bal-let, most of the en-dow-ment funds (86%) were board
  []
 
-<../images/prop_endowment_type_most_variable.pdf, id=111, 939.51pt x 468.75125pt>
+<../images/prop_endowment_type_most_variable.pdf, id=189, 939.51pt x 468.75125pt>
 File: ../images/prop_endowment_type_most_variable.pdf Graphic file (type pdf)
 <use ../images/prop_endowment_type_most_variable.pdf>
-Package pdftex.def Info: ../images/prop_endowment_type_most_variable.pdf  used on input line 571.
+Package pdftex.def Info: ../images/prop_endowment_type_most_variable.pdf  used on input line 572.
 (pdftex.def)             Requested size: 443.86319pt x 221.45752pt.
-
-LaTeX Warning: Reference `LastPage' on page 6 undefined on input line 573.
-
 [6 <../images/proportion_endowment_categories.pdf>]
 
-LaTeX Warning: Reference `table:filled-scheduled' on page 7 undefined on input line 583.
-
-
-LaTeX Warning: Reference `fig:rank-endowments' on page 7 undefined on input line 625.
-
-
-LaTeX Warning: Reference `LastPage' on page 7 undefined on input line 629.
+LaTeX Warning: Reference `table:filled-scheduled' on page 7 undefined on input line 584.
 
 [7 <../images/prop_endowment_type_most_variable.pdf>]
-<../images/rank_of_beginning_year_balance.pdf, id=149, 1083.04625pt x 794.97pt>
+<../images/rank_of_beginning_year_balance.pdf, id=225, 1083.04625pt x 794.97pt>
 File: ../images/rank_of_beginning_year_balance.pdf Graphic file (type pdf)
 <use ../images/rank_of_beginning_year_balance.pdf>
-Package pdftex.def Info: ../images/rank_of_beginning_year_balance.pdf  used on input line 655.
+Package pdftex.def Info: ../images/rank_of_beginning_year_balance.pdf  used on input line 656.
 (pdftex.def)             Requested size: 443.86319pt x 325.79425pt.
-
-LaTeX Warning: Reference `fig:rank-endowments-color-contribution' on page 8 undefined on input line 659.
-
-<../images/rank-endowments-color-contribution.pdf, id=150, 1083.04625pt x 721.69624pt>
+<../images/rank-endowments-color-contribution.pdf, id=227, 1083.04625pt x 721.69624pt>
 File: ../images/rank-endowments-color-contribution.pdf Graphic file (type pdf)
 <use ../images/rank-endowments-color-contribution.pdf>
-Package pdftex.def Info: ../images/rank-endowments-color-contribution.pdf  used on input line 666.
+Package pdftex.def Info: ../images/rank-endowments-color-contribution.pdf  used on input line 667.
 (pdftex.def)             Requested size: 443.86319pt x 295.76523pt.
-
-LaTeX Warning: Reference `LastPage' on page 8 undefined on input line 668.
-
 [8 <../images/rank_of_beginning_year_balance.pdf>]
-
-LaTeX Warning: Reference `fig:balancecont' on page 9 undefined on input line 670.
-
-
-LaTeX Warning: Reference `fig:balancecontbar' on page 9 undefined on input line 683.
-
-<../images/compare-rankings-balance-contributions.pdf, id=167, 1083.04625pt x 577.15625pt>
+<../images/compare-rankings-balance-contributions.pdf, id=246, 1083.04625pt x 577.15625pt>
 File: ../images/compare-rankings-balance-contributions.pdf Graphic file (type pdf)
 <use ../images/compare-rankings-balance-contributions.pdf>
-Package pdftex.def Info: ../images/compare-rankings-balance-contributions.pdf  used on input line 690.
+Package pdftex.def Info: ../images/compare-rankings-balance-contributions.pdf  used on input line 691.
 (pdftex.def)             Requested size: 332.89738pt x 177.40182pt.
-
-LaTeX Warning: Reference `LastPage' on page 9 undefined on input line 692.
-
 [9 <../images/rank-endowments-color-contribution.pdf>]
-<../images/compare-rankings-balance-contributions-barplot.pdf, id=180, 1083.04625pt x 721.69624pt>
+<../images/compare-rankings-balance-contributions-barplot.pdf, id=260, 1083.04625pt x 721.69624pt>
 File: ../images/compare-rankings-balance-contributions-barplot.pdf Graphic file (type pdf)
 <use ../images/compare-rankings-balance-contributions-barplot.pdf>
-Package pdftex.def Info: ../images/compare-rankings-balance-contributions-barplot.pdf  used on input line 694.
+Package pdftex.def Info: ../images/compare-rankings-balance-contributions-barplot.pdf  used on input line 695.
 (pdftex.def)             Requested size: 332.89738pt x 221.82942pt.
-
-LaTeX Warning: Reference `fig:rank-endowments-color-contribution' on page 10 undefined on input line 698.
-
-
-LaTeX Warning: Reference `fig:rank-endowments' on page 10 undefined on input line 699.
-
-
-LaTeX Warning: Reference `fig:rankings-contributions' on page 10 undefined on input line 700.
-
-<../images/ranking-contributions.pdf, id=181, 1010.77625pt x 504.88625pt>
+<../images/ranking-contributions.pdf, id=264, 1010.77625pt x 504.88625pt>
 File: ../images/ranking-contributions.pdf Graphic file (type pdf)
 <use ../images/ranking-contributions.pdf>
-Package pdftex.def Info: ../images/ranking-contributions.pdf  used on input line 704.
+Package pdftex.def Info: ../images/ranking-contributions.pdf  used on input line 705.
 (pdftex.def)             Requested size: 443.86319pt x 221.7115pt.
-
-LaTeX Warning: Reference `LastPage' on page 10 undefined on input line 706.
-
 [10 <../images/compare-rankings-balance-contributions.pdf> <../images/compare-rankings-balance-contributions-barplot.pdf>]
-! Extra }, or forgotten $.
-l.721 ...enditures}| - | \{Grants or Scholarships}
-                                                  | \] 
-Here is how much of TeX's memory you used:
- 28931 strings out of 477936
- 533340 string characters out of 5836209
- 1873074 words of memory out of 5000000
- 48254 multiletter control sequences out of 15000+600000
- 571408 words of font info for 308 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 99i,17n,94p,2398b,569s stack positions out of 10000i,1000n,20000p,200000b,200000s
+Overfull \hbox (19.76266pt too wide) detected at line 722
+[] \OT1/zplm/m/n/10 = [] + [] + []
+ []
 
-!  ==> Fatal error occurred, no output PDF file produced!
+[11 <../images/ranking-contributions.pdf>]
+<../images/diff_end_bal.png, id=305, 433.3791pt x 433.3791pt>
+File: ../images/diff_end_bal.png Graphic file (type png)
+<use ../images/diff_end_bal.png>
+Package pdftex.def Info: ../images/diff_end_bal.png  used on input line 757.
+(pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
+<../images/diff_end_bal_no_abs.png, id=306, 433.3791pt x 433.3791pt>
+File: ../images/diff_end_bal_no_abs.png Graphic file (type png)
+<use ../images/diff_end_bal_no_abs.png>
+Package pdftex.def Info: ../images/diff_end_bal_no_abs.png  used on input line 758.
+(pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
+
+Overfull \hbox (23.23958pt too wide) in paragraph at lines 757--759
+[][] [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 806--809
+
+ []
+
+[12 <../images/diff_end_bal.png> <../images/diff_end_bal_no_abs.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 856--856
+
+ []
+
+(./appendix.tex)
+No file final_report.bbl.
+
+Underfull \hbox (badness 1867) in paragraph at lines 900--900
+  \TS1/ppl/m/n/9 (+20) © \T1/ppl/m/n/9 (+20) 2023 by the au-thors. Sub-mit-ted to \T1/ppl/m/it/9 (+20) Jour-nal Not Spec-i-fied \T1/ppl/m/n/9 (+20) for pos-si-ble open ac-cess pub-li-ca-tion
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 900--900
+\T1/ppl/m/n/9 (+20) un-der the terms and con-di-tions of the Cre-ative Com-mons At-tri-bu-tion (CC BY) li-cense
+ []
+
+[13] 
+enddocument/afterlastpage: lastpage setting LastPage.
+(./final_report.aux)
+
+LaTeX Warning: There were undefined references.
+
+Package rerunfilecheck Info: File `final_report.out' has not changed.
+(rerunfilecheck)             Checksum: 6B233837FBD6F551642035EC59C20715;3269.
+ ) 
+Here is how much of TeX's memory you used:
+ 29241 strings out of 477936
+ 538932 string characters out of 5836209
+ 1873074 words of memory out of 5000000
+ 48496 multiletter control sequences out of 15000+600000
+ 574948 words of font info for 338 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 99i,17n,94p,2398b,614s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/quinnwhite/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0800.375pk></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on final_report.pdf (13 pages, 634792 bytes).
+PDF statistics:
+ 376 PDF objects out of 1000 (max. 8388607)
+ 307 compressed objects within 4 object streams
+ 65 named destinations out of 1000 (max. 500000)
+ 93433 words of extra memory for PDF output out of 106986 (max. 10000000)
+
