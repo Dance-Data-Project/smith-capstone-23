@@ -254,7 +254,7 @@ Organization Name & Number of Years on File\\
 \hspace{1em}2020 & 83 & 40\\
 \hspace{1em}2021 & 21 & 6\\
 \addlinespace[0.5em]
-\multicolumn{3}{l}{\textbf{\makecell[l]{Filled out Schedule D\\at Least Once}}}\\
+\multicolumn{3}{l}{\textbf{\makecell[l]{Reported an Endowment\\at Least Once}}}\\
 \hline
 \hspace{1em} & 122 & 47\\
 \bottomrule

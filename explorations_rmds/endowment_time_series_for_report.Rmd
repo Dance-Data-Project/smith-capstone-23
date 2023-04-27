@@ -2148,7 +2148,7 @@ plt1 <- emp_comp %>%
   theme_c() +
   theme(legend.position="none") +
   scale_color_manual(values=c(pal)) +
-  geom_text(x=2020.2, y = .1, label = "Median",color="darkred") +
+  annotate(geom="text",x=2020.2, y = .1, label = "Median",color="darkred") +
   scale_y_continuous(limits = c(0,.35), labels = scales::percent) +
   labs(x = "Fiscal Year", y= "Percent") 
 
