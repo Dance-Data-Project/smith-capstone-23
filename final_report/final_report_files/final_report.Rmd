@@ -358,8 +358,65 @@ include_graphics(here('final_report/images/compare-rankings-balance-contribution
 ```
 
 
-```{r compare-rankings-balance-contributions-barplot, fig.cap = "\\label{fig:balancecontbar} Comparing the proportion of years where a company ranked higher, lower, or the same in beginning of year balance compared to contributions received. A higher rank means a rank closer to 1, where 1 is the top possible rank.", out.width='60%'}
+
+```{r compare-rankings-balance-contributions-barplot, fig.cap = "\\label{fig:balancecontbar} Comparing the proportion of years where a company ranked higher, lower, or the same in beginning of year balance compared to contributions received. A higher rank means a rank closer to 1, where 1 is the top possible rank.", out.width='75%'}
 include_graphics(here('final_report/images/compare-rankings-balance-contributions-barplot.pdf'))
 ```
+
+
+
+In contrast to what we saw in the rankings of the beginning of year balance (Figures \ref{fig:rank-endowments-color-contribution} and \ref{fig:rank-endowments}, we see in Figure \ref{fig:rankings-contributions} that the rankings of contributions are much less consistent.
+
+```{r ranking-contributions,  fig.cap ="\\label{fig:rankings-contributions}The rankings of contributions over time, by organization."}
+
+include_graphics(here('final_report/images/ranking-contributions.pdf'))
+
+
+```
+
+
+### Reported Endowment Balances over time - Is the Math right?  
+
+Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  We calculated the end of year balance (see the equation below), and then compared our calculated balance to the reported end of year balance.  The majority of calculations are concordant; however, we noted discrepancies in thirteen companies.  Discrepancies range from $1 (Ballet Memphis, 2015) to $8,301,066 (Atlanta Ballet, 2017).  Due to the scaling of the below figure, differences in reported and calculated balance below a hundred thousand dollars are difficult to see.  
+
+$$\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} + \text{Investment Earnings or Losses} - |\text{Administrative Expenditures}| - |\text{Other Expenditures}| - | \{Grants or Scholarships}|$$
+
+For values related to expenses (Administrative expenditures, other expenditures, grants or scholarships), we took the absolute value to ensure all were positive numbers.  Four companies (Ballet Hispánico, Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem). report their other expenditures as a negative value; thus, when calculating end year balance, subtracting a negative value would result in an additive, not subtractive, effect.  We reached out to the prior companies regarding their decision to report negative values, to ensure we did not misrepresent their decision.  When utilizing absolute value expenses, only Atlanta Ballet and Ballet Hispánico find differences. 
+
+Difference was calculated as $\text{Reported End Balance} - \text{Calculated End Balance}$.  Thus, negative values are representative of a larger calculated end balance, and positive values represent a larger reported end balance.  The majority of calculated differences are negative; thus, either end year reported balance were misreported as smaller, or components used to calculate end year balance were misreported as larger.
+
+Atlanta Ballet has the highest discrepancies; however, these discrepancies could be due to their reporting of negative expenses. 
+
+Most companies only miscalculate once; however, Fort Wayne Ballet miscalculated their end year balance within the majority of our dataset.  
+
+Eugene Ballet does not report an end year balance for 2011, yet reports a beginning balance of $45,000, hence the -$45,000 difference.
+
+
+### How Endowments Did Over Time   
+
+Annual percent change is the percent change from one value to the next at the end of a year-long period. With regard to endowment balances, the annual percent change in endowment balance is a comparison between the endowment at the beginning of the fiscal year and the endowment of the end of the fiscal year, which allows us to interpret by what percent the endowment has grown or shrunk.  Charting percent change over time allows us to view endowment behavior over time; further, we can compare percent changes between companies to get a sense for trends in how different companies’ endowments change.  
+
+To provide some context on the interpretation of percent change, we first state a couple of standard definitions.
+
+The relative change, which represents how much a value has changed relative to its initial value, is 
+
+$$\text{Relative change} = \dfrac{\text{End Value} - \text{Start Value}}{ \text{Start Value}}.$$ 
+
+The effect of considering relative change means that we can more easily compare companies that have enormously different beginning of year balance sizes. For a company with a small endowment, a difference of 10,000 may be substantial, while the same difference would be minimal if the company has over a million in its endowment.
+
+The percent change, which is the relative change in percentage form, is simply $\text{Relative Change} \times 100$.
+
+
+When we are considering the percent change within a fiscal year, that is, from the beginning of year balance to the end of year balance, a couple of examples of the interpretation include^[For a relative change of value $R$, it can be more intuitive to interpret it by considering the expression $\text{End Value} = (R+1) \times \text{Start Value}.$ That is, if we have a relative change, we simply add 1 to it and multiply it by the starting value to acquire the end value.
+]:
+
+* If the percent change is $-50\%$, the endowment's value at the end of the fiscal year is half of what it was at the beginning. 
+* If the percent change is $100\%$, the endowment's value at the end of the fiscal year is twice that it was at the beginning.  
+* If the percent change is $-100\%$, the endowment's value dropped to zero throughout the fiscal year.  
+
+We calculated each company’s within-year percent change of endowment balance, as this allows us to compare the performance of different companies' endowments over time.  A positive percent change indicates growth within the fiscal year; a negative percent change indicates loss.  
+
+The percent change of most companies falls between -100% and 200%.  There are notable outliers, however, such as Joffrey Ballet in 2016 with a ~3,000% increase.  By focusing on lines between -100% and 200%, we can see a trend appearing, with many companies growing and shrinking at similar rates around similar times.  Thus, plotting the within-year percent change of the S&P 500, we can see that many companies' endowment balances reflect the performance of the stock market.  To assess companies’ “raw” performance, we adjusted all percent changes for investment earnings or losses, which flattened the stock market trend.  
+
 
 

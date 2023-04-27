@@ -1636,7 +1636,7 @@ ggsave(here('final_report/images/rank-endowments-color-contribution.pdf'))
 ```
 
 
-
+## Ranking of Contributions
 
 ```{r, fig.height=7, fig.width=14, fig.cap ="\\label{fig:rankings-contributions}The rankings of contributions over time, by organization."}
 
@@ -1757,7 +1757,8 @@ balance_ranks <- endowment_data_wide %>%
         y = "Rank of Contributions") 
 
  
- 
+ ggsave(here('final_report/images/ranking-contributions.pdf'))
+
 
  
 # balance_ranks %>%
