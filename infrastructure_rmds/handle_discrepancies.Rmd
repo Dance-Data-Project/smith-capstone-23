@@ -102,7 +102,7 @@ Update -- use the most recent year, but take all values from that year.
 
 # for a given base name of the variable, for each fiscal year, takes the most 
 # recently available value
-get_most_recent <- function(endowment_df, base_name) {
+get_most_recent <- function(endowment_df) {
   endowment_df %>%
    # select(EIN, fiscal_year, contains(base_name)) %>%
     # make sure each has every fiscal years with NAs for fiscal years that are missing

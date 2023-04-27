@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 09:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 11:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -829,7 +829,14 @@ File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count375
 \l__pdf_internal_box=\box89
-) (./final_report.aux)
+) (./final_report.aux
+
+LaTeX Warning: Label `fig:miscalc-by-comp' multiply defined.
+
+
+LaTeX Warning: Label `fig:flat' multiply defined.
+
+)
 \openout1 = `final_report.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 191.
@@ -1056,71 +1063,85 @@ File: ../images/ranking-contributions.pdf Graphic file (type pdf)
 <use ../images/ranking-contributions.pdf>
 Package pdftex.def Info: ../images/ranking-contributions.pdf  used on input line 705.
 (pdftex.def)             Requested size: 443.86319pt x 221.7115pt.
-[10 <../images/compare-rankings-balance-contributions.pdf> <../images/compare-rankings-balance-contributions-barplot.pdf>]
-Overfull \hbox (19.76266pt too wide) detected at line 722
-[] \OT1/zplm/m/n/10 = [] + [] + []
- []
-
-[11 <../images/ranking-contributions.pdf>]
-<../images/diff_end_bal.png, id=305, 433.3791pt x 433.3791pt>
+[10 <../images/compare-rankings-balance-contributions.pdf> <../images/compare-rankings-balance-contributions-barplot.pdf>] [11 <../images/ranking-contributions.pdf>]
+<../images/diff_end_bal.png, id=309, 433.3791pt x 433.3791pt>
 File: ../images/diff_end_bal.png Graphic file (type png)
 <use ../images/diff_end_bal.png>
-Package pdftex.def Info: ../images/diff_end_bal.png  used on input line 757.
+Package pdftex.def Info: ../images/diff_end_bal.png  used on input line 760.
 (pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
-<../images/diff_end_bal_no_abs.png, id=306, 433.3791pt x 433.3791pt>
+<../images/diff_end_bal_no_abs.png, id=310, 433.3791pt x 433.3791pt>
 File: ../images/diff_end_bal_no_abs.png Graphic file (type png)
 <use ../images/diff_end_bal_no_abs.png>
-Package pdftex.def Info: ../images/diff_end_bal_no_abs.png  used on input line 758.
+Package pdftex.def Info: ../images/diff_end_bal_no_abs.png  used on input line 760.
 (pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
 
-Overfull \hbox (23.23958pt too wide) in paragraph at lines 757--759
+Overfull \hbox (1.90002pt too wide) in paragraph at lines 760--760
 [][] [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 806--809
+LaTeX Warning: Reference `miscalc-by-comp' on page 12 undefined on input line 764.
+
+<../images/miscalc_end_bal.png, id=311, 433.3791pt x 433.3791pt>
+File: ../images/miscalc_end_bal.png Graphic file (type png)
+<use ../images/miscalc_end_bal.png>
+Package pdftex.def Info: ../images/miscalc_end_bal.png  used on input line 767.
+(pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
+[12 <../images/diff_end_bal.png> <../images/diff_end_bal_no_abs.png> <../images/miscalc_end_bal.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 816--819
 
  []
 
-[12 <../images/diff_end_bal.png> <../images/diff_end_bal_no_abs.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 856--856
-
- []
-
-(./appendix.tex)
+<../images/pc_endow.png, id=321, 498.663pt x 545.8794pt>
+File: ../images/pc_endow.png Graphic file (type png)
+<use ../images/pc_endow.png>
+Package pdftex.def Info: ../images/pc_endow.png  used on input line 841.
+(pdftex.def)             Requested size: 355.0919pt x 388.7182pt.
+[13]
+<../images/pc_endow_zoom.png, id=330, 498.663pt x 545.8794pt>
+File: ../images/pc_endow_zoom.png Graphic file (type png)
+<use ../images/pc_endow_zoom.png>
+Package pdftex.def Info: ../images/pc_endow_zoom.png  used on input line 845.
+(pdftex.def)             Requested size: 355.0919pt x 388.7182pt.
+[14 <../images/pc_endow.png>]
+<../images/pc_endow_flat.png, id=335, 498.663pt x 545.8794pt>
+File: ../images/pc_endow_flat.png Graphic file (type png)
+<use ../images/pc_endow_flat.png>
+Package pdftex.def Info: ../images/pc_endow_flat.png  used on input line 849.
+(pdftex.def)             Requested size: 355.0919pt x 388.7182pt.
+[15 <../images/pc_endow_zoom.png>]
+<../images/pc_below_40.png, id=341, 498.663pt x 545.8794pt>
+File: ../images/pc_below_40.png Graphic file (type png)
+<use ../images/pc_below_40.png>
+Package pdftex.def Info: ../images/pc_below_40.png  used on input line 861.
+(pdftex.def)             Requested size: 355.0919pt x 388.7182pt.
+[16 <../images/pc_endow_flat.png>] [17 <../images/pc_below_40.png>] (./appendix.tex)
 No file final_report.bbl.
-
-Underfull \hbox (badness 1867) in paragraph at lines 900--900
-  \TS1/ppl/m/n/9 (+20) © \T1/ppl/m/n/9 (+20) 2023 by the au-thors. Sub-mit-ted to \T1/ppl/m/it/9 (+20) Jour-nal Not Spec-i-fied \T1/ppl/m/n/9 (+20) for pos-si-ble open ac-cess pub-li-ca-tion
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 900--900
-\T1/ppl/m/n/9 (+20) un-der the terms and con-di-tions of the Cre-ative Com-mons At-tri-bu-tion (CC BY) li-cense
- []
-
-[13] 
+[18] 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./final_report.aux)
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
 Package rerunfilecheck Info: File `final_report.out' has not changed.
 (rerunfilecheck)             Checksum: 6B233837FBD6F551642035EC59C20715;3269.
  ) 
 Here is how much of TeX's memory you used:
- 29241 strings out of 477936
- 538932 string characters out of 5836209
+ 29328 strings out of 477936
+ 540980 string characters out of 5836209
  1873074 words of memory out of 5000000
- 48496 multiletter control sequences out of 15000+600000
- 574948 words of font info for 338 fonts, out of 8000000 for 9000
+ 48557 multiletter control sequences out of 15000+600000
+ 575262 words of font info for 343 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,17n,94p,2398b,614s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,17n,94p,2398b,569s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/quinnwhite/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0800.375pk></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on final_report.pdf (13 pages, 634792 bytes).
+Output written on final_report.pdf (18 pages, 3260093 bytes).
 PDF statistics:
- 376 PDF objects out of 1000 (max. 8388607)
- 307 compressed objects within 4 object streams
- 65 named destinations out of 1000 (max. 500000)
- 93433 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 417 PDF objects out of 1000 (max. 8388607)
+ 338 compressed objects within 4 object streams
+ 77 named destinations out of 1000 (max. 500000)
+ 93458 words of extra memory for PDF output out of 106986 (max. 10000000)
 

@@ -378,32 +378,43 @@ include_graphics(here('final_report/images/ranking-contributions.pdf'))
 
 ### Reported Endowment Balances over time - Is the Math right?  
 
-Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  We calculated the end of year balance (see the equation below), and then compared our calculated balance to the reported end of year balance.  The majority of calculations are concordant; however, we noted discrepancies in thirteen companies.  Discrepancies range from $1 (Ballet Memphis, 2015) to $8,301,066 (Atlanta Ballet, 2017).  Due to the scaling of the below figure, differences in reported and calculated balance below a hundred thousand dollars are difficult to see.  
+Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  We calculated the end of year balance (see the equation below), and then compared our calculated balance to the reported end of year balance.  The majority of calculations are concordant; however, we noted discrepancies in thirteen companies.  Discrepancies range from \$-20,000 (Orlando Ballet, 2016) to \$8,301,066 (Atlanta Ballet, 2017). Due to the scaling of the below figure, differences in reported and calculated balance below a hundred thousand dollars are difficult to see.  
 
-$$\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} + \text{Investment Earnings or Losses}$$
-$$- |\text{Administrative Expenditures}| - |\text{Other Expenditures}| - | \text{Grants or Scholarships}|$$
+$$\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} +$$
+$$ \text{Investment Earnings or Losses} - |\text{Administrative Expenditures}| -$$
+$$|\text{Other Expenditures}| - | \text{Grants or Scholarships}| \tag{1}$$
 
 
 
-For values related to expenses (Administrative expenditures, other expenditures, grants or scholarships), we took the absolute value to ensure all were positive numbers.  Four companies (Ballet Hispánico, Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem) report their other expenditures as a negative value; thus, when calculating end year balance, subtracting a negative value would result in an additive, not subtractive, effect^[We reached out to the prior companies regarding their decision to report negative values, to ensure we did not misrepresent their decision.  When utilizing absolute value expenses, only Atlanta Ballet and Ballet Hispánico find differences.]
+For values related to expenses (administrative expenditures, other expenditures, grants or scholarships), we took the absolute value to ensure all were positive numbers.  Four companies (Ballet Hispánico, Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem) report their other expenditures as a negative value; thus, when calculating end year balance, subtracting a negative value would result in an additive, not subtractive, effect^[We hope to reach out to the prior companies regarding their decision to report negative values, to ensure we do not misrepresent their decision.] 
 
-We calculate the difference by taking $\text{Reported End Balance} - \text{Calculated End Balance}$.  This means that negative values indicate the calculated end balance was larger than the reported, and positive values indicate the reported end balance was larger.  The majority of calculated differences are negative; thus, either end year reported balance were misreported as smaller, or components used to calculate end year balance were misreported as larger.
+We see the difference in the extent of discrepancies when we take the absolute value (Figure \ref{fig:miscalc} (a)), as in equation (1), versus when we do not  (Figure \ref{fig:miscalc} (b)). There are less discrepancies when we do take the absolute value.
 
-Atlanta Ballet has the highest discrepancies; however, these discrepancies could be due to their reporting of negative expenses. Indeed, if we don't take the absolute value and take the negatives as is, the values are concordant.
+Since we compute the difference by taking $\text{Reported End Balance} - \text{Calculated End Balance}$, negative values indicate the calculated end balance was larger than the reported, and positive values indicate the reported end balance was larger. The calculated differences are split between being negative or positive.
 
-Most companies only miscalculate once; however, Fort Wayne Ballet miscalculated their end year balance within the majority of years on file.  
+Atlanta Ballet has the largest discrepancy in (a); however, we see that if we don't take the absolute value and take the negatives as is (b), the values are concordant.
 
-Eugene Ballet does not report an end year balance for 2011, yet reports a beginning balance of \$45,000, hence the -\$45,000 difference.
+Considering panel (a), most companies only miscalculate once; however, there are multiple miscalculations for Fort Wayne Ballet, Atlanta Ballet, and Ballet Arizona. Of note, some of these differences were trivial (e.g., \$10). Eugene Ballet does not report an end year balance for 2011, yet reports a beginning balance of \$45,000, hence the -\$45,000 difference we see for this year.
 
-```{r, fig.show='hold',out.width='50%', fig.cap='Comparing the reported end of year balance to that we computed based on other reported variables. Calculation is done with the absolute value in (a) and without in (b)." }
+```{r, fig.show='hold',out.width='50%', fig.cap="\\label{fig:miscalc}Comparing the reported end of year balance to that we computed based on other reported variables. Calculation is done with the absolute value in (a) and without in (b). Each organization is in a different color." }
 
 include_graphics(here('final_report/images/diff_end_bal.png'))
 include_graphics(here('final_report/images/diff_end_bal_no_abs.png'))
 ```
 
+
+We summarize these discrepancies by company in Figure \ref{miscalc-by-comp}.
+
+```{r miscalc-by-comp, fig.cap="\\label{fig:miscalc-by-comp}Number of observations where there was a discrepancy between the calculated and reported end of year balance, using the absolute value equation given in equation (1).", out.width="50%"}
+
+include_graphics(here('final_report/images/miscalc_end_bal.png'))
+
+```
+
+
 ### How Endowments Did Over Time   
 
-Annual percent change is the percent change from one value to the next at the end of a year-long period. With regard to endowment balances, the annual percent change in endowment balance is a comparison between the endowment at the beginning of the fiscal year and the endowment of the end of the fiscal year, which allows us to interpret by what percent the endowment has grown or shrunk.  Charting percent change over time allows us to view endowment behavior over time; further, we can compare percent changes between companies to get a sense for trends in how different companies’ endowments change.  
+Annual percent change is the percent change from one value to the next at the end of a year-long period. With regard to endowment balances, the annual percent change in endowment balance is a comparison between the endowment at the beginning of the fiscal year and the endowment of the end of the fiscal year, which allows us to interpret by what percent the endowment has grown or shrunk.  Charting percent change over time allows us to view endowment behavior over time; further, we can compare percent changes between companies to get a sense for trends in how different companies' endowments change.  
 
 To provide some context on the interpretation of percent change, we first state a couple of standard definitions.
 
@@ -425,7 +436,67 @@ When we are considering the percent change within a fiscal year, that is, from t
 
 We calculated each company’s within-year percent change of endowment balance, as this allows us to compare the performance of different companies' endowments over time.  A positive percent change indicates growth within the fiscal year; a negative percent change indicates loss.  
 
-The percent change of most companies falls between -100% and 200%.  There are notable outliers, however, such as Joffrey Ballet in 2016 with a ~3,000% increase.  By focusing on lines between -100% and 200%, we can see a trend appearing, with many companies growing and shrinking at similar rates around similar times.  Thus, plotting the within-year percent change of the S&P 500, we can see that many companies' endowment balances reflect the performance of the stock market.  To assess companies’ “raw” performance, we adjusted all percent changes for investment earnings or losses, which flattened the stock market trend.  
+The percent change of most companies falls between -100% and 200% (Figure \ref{fig:perc-change-endow}).  There are notable outliers, however, such as Joffrey Ballet in 2016 with a ~3,000% increase (\ref{fig:perc-change-endow-all}).  By focusing on lines between -100% and 200%, we can see a trend appearing, with many companies growing and shrinking at similar rates around similar times.  Thus, plotting the within-year percent change of the S&P 500, we can see that many companies' endowment balances reflect the performance of the stock market.  To assess companies’ "raw" performance, we adjusted all percent changes for investment earnings or losses, which flattened the stock market trend (Figure \ref{fig:flat}).  
 
 
+```{r,  fig.cap="\\label{fig:perc-change-endow-all} Percent change in endowment balance over time, including the full range of percent changes, revealing several clear outliers." , out.width="80%"}
 
+include_graphics(here('final_report/images/pc_endow.png'))
+
+```
+
+```{r, fig.cap="\\label{fig:perc-change-endow} Percent change in endowment balance over time, restricting the range to -200 percent to 200 percent to remove outliers than reduce our ability to see trends for the majority of companies.", out.width="80%"}
+include_graphics(here('final_report/images/pc_endow_zoom.png'))
+
+```
+
+```{r flat, fig.cap="\\label{fig:flat} Adjusting for investment earnings or losses when computing the endowment percent changes flattens the trends we see when using the unadjusted endowment values.", out.width="80%"}
+
+include_graphics(here('final_report/images/pc_endow_flat.png'))
+
+```
+
+Examining particular companies (Figure \ref{fig:below-40}), we can see that eight companies reduce their endowment by over 40% (Percent Change lower than -40%) across multiple years.  There are eight companies that do so: Aspen Santa Fe Ballet, Atlanta Ballet, First State Ballet Theatre, Nashville Ballet, Orlando Ballet, San Francisco Ballet, and The Washington Ballet.  Some of these companies reduce their endowments by over 40% multiple times.  
+
+
+```{r, fig.cap = "\\label{fig:below-40} Companies that reduce their endowment by over 40 percent.", out.width="80%"}
+include_graphics(here('final_report/images/pc_below_40.png'))
+```
+\begin{table}[!h]
+
+\caption{Endowment Percent Change Dropping Below 40% Of Beginning Year balance}
+\centering
+\begin{tabular}[t]{lrrrr}
+\toprule
+Company Name & Percent Change & Beginning Balance & End Balance & Fiscal Year\\
+\midrule
+Aspen Santa Fe Ballet & -90.9 & 6065013 & 550000 & 2018\\
+\addlinespace
+Atlanta Ballet & -43.5 & 1706513 & 1046921 & 2014\\
+\addlinespace
+Atlanta Ballet & -44.6 & 2947203 & 1706513 & 2013\\
+\addlinespace
+Colorado Ballet & -45.6 & 182437 & 100000 & 2012\\
+\addlinespace
+First State Ballet Theatre & -72.7 & 36693 & 10000 & 2018\\
+\addlinespace
+First State Ballet Theatre & -49.5 & 35876 & 18107 & 2015\\
+\addlinespace
+First State Ballet Theatre & -53.0 & 76261 & 35876 & 2014\\
+\addlinespace
+Nashville Ballet & -94.2 & 1095624 & 61350 & 2019\\
+\addlinespace
+Orlando Ballet & -91.0 & 7732855 & 696082 & 2020\\
+\addlinespace
+Orlando Ballet & -44.3 & 613186 & 338943 & 2016\\
+\addlinespace
+San Francisco Ballet & -101.5 & 1035814 & 174 & 2012\\
+\addlinespace
+San Francisco Ballet & -58.7 & 2318646 & 1035814 & 2011\\
+\addlinespace
+The Washington Ballet & -51.9 & 621423 & 310000 & 2019\\
+\addlinespace
+The Washington Ballet & -57.6 & 1212247 & 621423 & 2017\\
+\bottomrule
+\end{tabular}
+\end{table}
