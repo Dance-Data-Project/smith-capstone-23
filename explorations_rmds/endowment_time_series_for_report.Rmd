@@ -1910,7 +1910,7 @@ did_not_at_least_once <- filed %>%
 last_row <-tibble(Yes = filled_out_at_least_once,
                   No = did_not_at_least_once,
                   fiscal_year = "",
-                  group="Filled out Schedule D\nat Least Once")
+                  group="Reported an Endowment\nat Least Once")
 
 filed_by_year <-filed_by_year %>%
   bind_rows(last_row) 
