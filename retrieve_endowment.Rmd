@@ -95,7 +95,7 @@ filed_schd_d %>%
   group_by(EIN) %>%
   summarize(num_times_fil_sche_D = n()) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
+  #select(-dance_styles) %>%
   arrange(desc(num_times_fil_sche_D)) %>%
   select(EIN, organization_name, num_times_fil_sche_D) %>%
   make_table(title = "EINs that filled out Schedule D at least once", col_names = c("EIN", "Organization Name", "# Times Schedule D was filled out")) %>%
@@ -302,7 +302,7 @@ filed_schd_d %>%
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
+  #select(-dance_styles) %>%
   select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
   make_table(title = "Schedule D Filing Gaps", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
@@ -321,7 +321,7 @@ filed_schd_d %>%
         gap = as.numeric(gap, "days")) %>%
   filter(gap > 1) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
+  #select(-dance_styles) %>%
   select(EIN, organization_name, gap, before, TaxPeriodBeginDt) %>%
   make_table(title = "990 Filing Gaps for EINs\nwhich once filed Schedule D", col_names = c("EIN", "Organization Name", "Gap Length", "Gap Start Date", "Gap End Date"))
 ```
@@ -396,7 +396,7 @@ filed_schd_d %>%
   mutate(num_dups = n()) %>%
   filter(num_dups < 2) %>%
   left_join(names, by = "EIN") %>%
-  select(-dance_styles) %>%
+  #select(-dance_styles) %>%
   group_by(EIN, organization_name) %>%
   summarize() %>%
   make_table(title = "EINS that filled out Schedule D sometimes,\nbut not always", col_names = c("EIN", "Organization Name"))

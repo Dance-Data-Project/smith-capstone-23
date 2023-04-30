@@ -241,7 +241,7 @@ all_data_filtered %>%
   mutate(sum_coverage = sum(time))%>%
   ggplot(aes(xmin = TaxPeriodBeginDt, 
              xmax = TaxPeriodEndDt, 
-             y = fct_reorder(EIN, sum_coverage))) +
+             y = sum_coverage)) +
   geom_linerange(size = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
@@ -286,7 +286,7 @@ all_data_filtered %>%
   left_join(ein_to_name) %>%
   ggplot(aes(xmin = TaxPeriodBeginDt, 
              xmax = TaxPeriodEndDt, 
-             y = fct_reorder(BusinessName, sum_coverage))) +
+             y = sum_coverage)) +
   geom_linerange(size = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 20, face = "bold", hjust = .5),
@@ -375,7 +375,7 @@ all_data_filtered %>%
   mutate(sum_coverage = sum(time))%>%
   ggplot(aes(xmin = TaxPeriodBeginDt, 
              xmax = TaxPeriodEndDt, 
-             y = fct_reorder(EIN, sum_coverage))) +
+             y = sum_coverage)) +
   geom_linerange(size = 1, alpha = .8) +
   theme_bw() +
   theme(plot.title = element_text(size = 16, face = "bold", hjust = .5),
