@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  27 APR 2023 16:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.21)  30 APR 2023 17:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -927,7 +927,7 @@ Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 Package caption Info: threeparttable package is loaded.
 Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
-<logo-mdpi.pdf, id=152, 86.3225pt x 57.21375pt>
+<logo-mdpi.pdf, id=156, 86.3225pt x 57.21375pt>
 File: logo-mdpi.pdf Graphic file (type pdf)
 <use logo-mdpi.pdf>
 Package pdftex.def Info: logo-mdpi.pdf  used on input line 191.
@@ -965,7 +965,7 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 7.91925pt on input line 191.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 6.25204pt on input line 191.
-<logo-orcid.pdf, id=154, 597.23125pt x 845.1575pt>
+<logo-orcid.pdf, id=158, 597.23125pt x 845.1575pt>
 File: logo-orcid.pdf Graphic file (type pdf)
 <use logo-orcid.pdf>
 Package pdftex.def Info: logo-orcid.pdf  used on input line 191.
@@ -984,7 +984,7 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 7.29405pt on input line 191.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 5.21004pt on input line 191.
-<logo-updates.pdf, id=159, 832.75539pt x 281.85541pt>
+<logo-updates.pdf, id=163, 832.75539pt x 281.85541pt>
 File: logo-updates.pdf Graphic file (type pdf)
 <use logo-updates.pdf>
 Package pdftex.def Info: logo-updates.pdf  used on input line 191.
@@ -1016,7 +1016,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 480--485
 
  []
 
-<../images/proportion_endowment_categories.pdf, id=235, 866.23625pt x 360.34625pt>
+<../images/proportion_endowment_categories.pdf, id=239, 866.23625pt x 360.34625pt>
 File: ../images/proportion_endowment_categories.pdf Graphic file (type pdf)
 <use ../images/proportion_endowment_categories.pdf>
 Package pdftex.def Info: ../images/proportion_endowment_categories.pdf  used on input line 535.
@@ -1026,7 +1026,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 548--553
 []\T1/ppl/m/n/10 (+20) For Fort Wayne Bal-let, most of the en-dow-ment funds (86%) were board
  []
 
-<../images/prop_endowment_type_most_variable.pdf, id=245, 939.51pt x 468.75125pt>
+<../images/prop_endowment_type_most_variable.pdf, id=249, 939.51pt x 468.75125pt>
 File: ../images/prop_endowment_type_most_variable.pdf Graphic file (type pdf)
 <use ../images/prop_endowment_type_most_variable.pdf>
 Package pdftex.def Info: ../images/prop_endowment_type_most_variable.pdf  used on input line 572.
@@ -1035,219 +1035,225 @@ Package pdftex.def Info: ../images/prop_endowment_type_most_variable.pdf  used o
 
 LaTeX Warning: Reference `table:filled-scheduled' on page 7 undefined on input line 584.
 
+<../images/gap_plot_endowment.png, id=269, 433.3791pt x 433.3791pt>
+File: ../images/gap_plot_endowment.png Graphic file (type png)
+<use ../images/gap_plot_endowment.png>
+Package pdftex.def Info: ../images/gap_plot_endowment.png  used on input line 626.
+(pdftex.def)             Requested size: 399.47415pt x 399.47409pt.
 [7 <../images/prop_endowment_type_most_variable.pdf>]
-<../images/rank_of_beginning_year_balance.pdf, id=281, 1083.04625pt x 794.97pt>
+<../images/rank_of_beginning_year_balance.pdf, id=287, 1083.04625pt x 794.97pt>
 File: ../images/rank_of_beginning_year_balance.pdf Graphic file (type pdf)
 <use ../images/rank_of_beginning_year_balance.pdf>
-Package pdftex.def Info: ../images/rank_of_beginning_year_balance.pdf  used on input line 656.
+Package pdftex.def Info: ../images/rank_of_beginning_year_balance.pdf  used on input line 672.
 (pdftex.def)             Requested size: 399.47415pt x 293.2124pt.
-<../images/rank-endowments-color-contribution.pdf, id=283, 1083.04625pt x 721.69624pt>
+[8 <../images/gap_plot_endowment.png>]
+<../images/rank-endowments-color-contribution.pdf, id=295, 1083.04625pt x 721.69624pt>
 File: ../images/rank-endowments-color-contribution.pdf Graphic file (type pdf)
 <use ../images/rank-endowments-color-contribution.pdf>
-Package pdftex.def Info: ../images/rank-endowments-color-contribution.pdf  used on input line 667.
+Package pdftex.def Info: ../images/rank-endowments-color-contribution.pdf  used on input line 683.
 (pdftex.def)             Requested size: 399.47415pt x 266.18651pt.
-[8 <../images/rank_of_beginning_year_balance.pdf>]
-<../images/compare-rankings-balance-contributions.pdf, id=303, 1083.04625pt x 577.15625pt>
+[9 <../images/rank_of_beginning_year_balance.pdf>]
+<../images/compare-rankings-balance-contributions.pdf, id=315, 1083.04625pt x 577.15625pt>
 File: ../images/compare-rankings-balance-contributions.pdf Graphic file (type pdf)
 <use ../images/compare-rankings-balance-contributions.pdf>
-Package pdftex.def Info: ../images/compare-rankings-balance-contributions.pdf  used on input line 691.
+Package pdftex.def Info: ../images/compare-rankings-balance-contributions.pdf  used on input line 707.
 (pdftex.def)             Requested size: 332.89738pt x 177.40182pt.
-[9 <../images/rank-endowments-color-contribution.pdf>]
-<../images/compare-rankings-balance-contributions-barplot.pdf, id=317, 1083.04625pt x 721.69624pt>
+[10 <../images/rank-endowments-color-contribution.pdf>]
+<../images/compare-rankings-balance-contributions-barplot.pdf, id=329, 1083.04625pt x 721.69624pt>
 File: ../images/compare-rankings-balance-contributions-barplot.pdf Graphic file (type pdf)
 <use ../images/compare-rankings-balance-contributions-barplot.pdf>
-Package pdftex.def Info: ../images/compare-rankings-balance-contributions-barplot.pdf  used on input line 695.
+Package pdftex.def Info: ../images/compare-rankings-balance-contributions-barplot.pdf  used on input line 711.
 (pdftex.def)             Requested size: 332.89738pt x 221.82942pt.
-<../images/ranking-contributions.pdf, id=321, 1010.77625pt x 504.88625pt>
+<../images/ranking-contributions.pdf, id=333, 1010.77625pt x 504.88625pt>
 File: ../images/ranking-contributions.pdf Graphic file (type pdf)
 <use ../images/ranking-contributions.pdf>
-Package pdftex.def Info: ../images/ranking-contributions.pdf  used on input line 705.
+Package pdftex.def Info: ../images/ranking-contributions.pdf  used on input line 721.
 (pdftex.def)             Requested size: 399.47415pt x 199.53958pt.
-[10 <../images/compare-rankings-balance-contributions.pdf> <../images/compare-rankings-balance-contributions-barplot.pdf>] [11 <../images/ranking-contributions.pdf>]
-<../images/diff_end_bal.png, id=365, 433.3791pt x 433.3791pt>
+[11 <../images/compare-rankings-balance-contributions.pdf> <../images/compare-rankings-balance-contributions-barplot.pdf>] [12 <../images/ranking-contributions.pdf>]
+<../images/diff_end_bal.png, id=377, 433.3791pt x 433.3791pt>
 File: ../images/diff_end_bal.png Graphic file (type png)
 <use ../images/diff_end_bal.png>
-Package pdftex.def Info: ../images/diff_end_bal.png  used on input line 760.
+Package pdftex.def Info: ../images/diff_end_bal.png  used on input line 776.
 (pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
-<../images/diff_end_bal_no_abs.png, id=366, 433.3791pt x 433.3791pt>
+<../images/diff_end_bal_no_abs.png, id=378, 433.3791pt x 433.3791pt>
 File: ../images/diff_end_bal_no_abs.png Graphic file (type png)
 <use ../images/diff_end_bal_no_abs.png>
-Package pdftex.def Info: ../images/diff_end_bal_no_abs.png  used on input line 760.
+Package pdftex.def Info: ../images/diff_end_bal_no_abs.png  used on input line 776.
 (pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
 
-Overfull \hbox (1.90002pt too wide) in paragraph at lines 760--760
+Overfull \hbox (1.90002pt too wide) in paragraph at lines 776--776
 [][] [] 
  []
 
 
-LaTeX Warning: Reference `miscalc-by-comp' on page 12 undefined on input line 764.
+LaTeX Warning: Reference `miscalc-by-comp' on page 13 undefined on input line 780.
 
-<../images/miscalc_end_bal.png, id=367, 433.3791pt x 433.3791pt>
+<../images/miscalc_end_bal.png, id=379, 433.3791pt x 433.3791pt>
 File: ../images/miscalc_end_bal.png Graphic file (type png)
 <use ../images/miscalc_end_bal.png>
-Package pdftex.def Info: ../images/miscalc_end_bal.png  used on input line 767.
+Package pdftex.def Info: ../images/miscalc_end_bal.png  used on input line 783.
 (pdftex.def)             Requested size: 221.9316pt x 221.93298pt.
-[12 <../images/diff_end_bal.png> <../images/diff_end_bal_no_abs.png> <../images/miscalc_end_bal.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 816--819
+[13 <../images/diff_end_bal.png> <../images/diff_end_bal_no_abs.png> <../images/miscalc_end_bal.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 832--835
 
  []
 
-<../images/pc_endow.png, id=377, 469.755pt x 324.9741pt>
+<../images/pc_endow.png, id=390, 469.755pt x 324.9741pt>
 File: ../images/pc_endow.png Graphic file (type png)
 <use ../images/pc_endow.png>
-Package pdftex.def Info: ../images/pc_endow.png  used on input line 841.
+Package pdftex.def Info: ../images/pc_endow.png  used on input line 857.
 (pdftex.def)             Requested size: 355.0919pt x 245.64899pt.
-[13]
-<../images/pc_endow_zoom.png, id=386, 469.755pt x 324.9741pt>
+[14]
+<../images/pc_endow_zoom.png, id=398, 469.755pt x 324.9741pt>
 File: ../images/pc_endow_zoom.png Graphic file (type png)
 <use ../images/pc_endow_zoom.png>
-Package pdftex.def Info: ../images/pc_endow_zoom.png  used on input line 845.
+Package pdftex.def Info: ../images/pc_endow_zoom.png  used on input line 861.
 (pdftex.def)             Requested size: 355.0919pt x 245.64899pt.
-<../images/pc_endow_flat.png, id=387, 469.755pt x 324.9741pt>
+<../images/pc_endow_flat.png, id=399, 469.755pt x 324.9741pt>
 File: ../images/pc_endow_flat.png Graphic file (type png)
 <use ../images/pc_endow_flat.png>
-Package pdftex.def Info: ../images/pc_endow_flat.png  used on input line 849.
+Package pdftex.def Info: ../images/pc_endow_flat.png  used on input line 865.
 (pdftex.def)             Requested size: 355.0919pt x 245.64899pt.
-[14 <../images/pc_endow.png> <../images/pc_endow_zoom.png>]
-<../images/pc_below_40.png, id=393, 469.755pt x 324.9741pt>
+[15 <../images/pc_endow.png> <../images/pc_endow_zoom.png>]
+<../images/pc_below_40.png, id=405, 469.755pt x 324.9741pt>
 File: ../images/pc_below_40.png Graphic file (type png)
 <use ../images/pc_below_40.png>
-Package pdftex.def Info: ../images/pc_below_40.png  used on input line 861.
+Package pdftex.def Info: ../images/pc_below_40.png  used on input line 877.
 (pdftex.def)             Requested size: 355.0919pt x 245.64899pt.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[15 <../images/pc_endow_flat.png> <../images/pc_below_40.png>]
-<../images/pc_above_200.png, id=401, 469.755pt x 324.9741pt>
+[16 <../images/pc_endow_flat.png> <../images/pc_below_40.png>]
+<../images/pc_above_200.png, id=413, 469.755pt x 324.9741pt>
 File: ../images/pc_above_200.png Graphic file (type png)
 <use ../images/pc_above_200.png>
-Package pdftex.def Info: ../images/pc_above_200.png  used on input line 911.
+Package pdftex.def Info: ../images/pc_above_200.png  used on input line 927.
 (pdftex.def)             Requested size: 399.47415pt x 276.35326pt.
-[16 <../images/pc_above_200.png>]
-<../images/pc_consist.png, id=409, 469.755pt x 324.9741pt>
+[17 <../images/pc_above_200.png>]
+<../images/pc_consist.png, id=421, 469.755pt x 324.9741pt>
 File: ../images/pc_consist.png Graphic file (type png)
 <use ../images/pc_consist.png>
-Package pdftex.def Info: ../images/pc_consist.png  used on input line 959.
+Package pdftex.def Info: ../images/pc_consist.png  used on input line 975.
 (pdftex.def)             Requested size: 399.47415pt x 276.35326pt.
-<../images/consist_by_endo_size.png, id=410, 289.08pt x 433.62pt>
+<../images/consist_by_endo_size.png, id=422, 289.08pt x 433.62pt>
 File: ../images/consist_by_endo_size.png Graphic file (type png)
 <use ../images/consist_by_endo_size.png>
-Package pdftex.def Info: ../images/consist_by_endo_size.png  used on input line 963.
+Package pdftex.def Info: ../images/consist_by_endo_size.png  used on input line 979.
 (pdftex.def)             Requested size: 221.9316pt x 332.89595pt.
-<../images/consist_by_employ_count.png, id=411, 289.08pt x 433.62pt>
+<../images/consist_by_employ_count.png, id=423, 289.08pt x 433.62pt>
 File: ../images/consist_by_employ_count.png Graphic file (type png)
 <use ../images/consist_by_employ_count.png>
-Package pdftex.def Info: ../images/consist_by_employ_count.png  used on input line 963.
+Package pdftex.def Info: ../images/consist_by_employ_count.png  used on input line 979.
 (pdftex.def)             Requested size: 221.9316pt x 332.89595pt.
 
-Overfull \hbox (1.90002pt too wide) in paragraph at lines 963--963
+Overfull \hbox (1.90002pt too wide) in paragraph at lines 979--979
 [][] [] 
  []
 
-[17 <../images/pc_consist.png>]
+[18 <../images/pc_consist.png>]
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 992.
+LaTeX Font Warning: Command \small invalid in math mode on input line 1008.
 
 
-Overfull \hbox (36.04196pt too wide) detected at line 992
+Overfull \hbox (36.04196pt too wide) detected at line 1008
 []\OT1/ppl/m/n/10 .
  []
 
-[18 <../images/consist_by_endo_size.png> <../images/consist_by_employ_count.png>]
-<../images/compound-growth.pdf, id=427, 1083.04625pt x 1299.85625pt>
+[19 <../images/consist_by_endo_size.png> <../images/consist_by_employ_count.png>]
+<../images/compound-growth.pdf, id=441, 1083.04625pt x 1299.85625pt>
 File: ../images/compound-growth.pdf Graphic file (type pdf)
 <use ../images/compound-growth.pdf>
-Package pdftex.def Info: ../images/compound-growth.pdf  used on input line 1023.
+Package pdftex.def Info: ../images/compound-growth.pdf  used on input line 1039.
 (pdftex.def)             Requested size: 399.47415pt x 479.43188pt.
-[19]
-<../images/annual-growth.pdf, id=436, 1083.04625pt x 1228.59pt>
+[20]
+<../images/annual-growth.pdf, id=448, 1083.04625pt x 1228.59pt>
 File: ../images/annual-growth.pdf Graphic file (type pdf)
 <use ../images/annual-growth.pdf>
-Package pdftex.def Info: ../images/annual-growth.pdf  used on input line 1027.
+Package pdftex.def Info: ../images/annual-growth.pdf  used on input line 1043.
 (pdftex.def)             Requested size: 399.47415pt x 453.14644pt.
-[20 <../images/compound-growth.pdf>]
-<../images/type_region_bar.png, id=448, 433.62pt x 289.08pt>
+[21 <../images/compound-growth.pdf>]
+<../images/type_region_bar.png, id=460, 433.62pt x 289.08pt>
 File: ../images/type_region_bar.png Graphic file (type png)
 <use ../images/type_region_bar.png>
-Package pdftex.def Info: ../images/type_region_bar.png  used on input line 1043.
+Package pdftex.def Info: ../images/type_region_bar.png  used on input line 1059.
 (pdftex.def)             Requested size: 399.47415pt x 266.32735pt.
-[21 <../images/annual-growth.pdf>]
-<../images/ratio_bar_region.png, id=467, 433.62pt x 289.08pt>
+[22 <../images/annual-growth.pdf>]
+<../images/ratio_bar_region.png, id=479, 433.62pt x 289.08pt>
 File: ../images/ratio_bar_region.png Graphic file (type png)
 <use ../images/ratio_bar_region.png>
-Package pdftex.def Info: ../images/ratio_bar_region.png  used on input line 1052.
+Package pdftex.def Info: ../images/ratio_bar_region.png  used on input line 1068.
 (pdftex.def)             Requested size: 399.47415pt x 266.32735pt.
-<../images/vol_map.png, id=469, 433.62pt x 289.08pt>
+<../images/vol_map.png, id=481, 433.62pt x 289.08pt>
 File: ../images/vol_map.png Graphic file (type png)
 <use ../images/vol_map.png>
-Package pdftex.def Info: ../images/vol_map.png  used on input line 1059.
+Package pdftex.def Info: ../images/vol_map.png  used on input line 1075.
 (pdftex.def)             Requested size: 399.47415pt x 266.32735pt.
-[22 <../images/type_region_bar.png> <../images/ratio_bar_region.png>]
-<../images/frac-comp.pdf, id=478, 866.23625pt x 614.295pt>
+[23 <../images/type_region_bar.png> <../images/ratio_bar_region.png>]
+<../images/frac-comp.pdf, id=490, 866.23625pt x 614.295pt>
 File: ../images/frac-comp.pdf Graphic file (type pdf)
 <use ../images/frac-comp.pdf>
-Package pdftex.def Info: ../images/frac-comp.pdf  used on input line 1096.
+Package pdftex.def Info: ../images/frac-comp.pdf  used on input line 1112.
 (pdftex.def)             Requested size: 399.47415pt x 283.2915pt.
-[23 <../images/vol_map.png>]
-<../images/csuite-comp-bar.pdf, id=486, 722.7pt x 397.485pt>
+[24 <../images/vol_map.png>]
+<../images/csuite-comp-bar.pdf, id=498, 722.7pt x 397.485pt>
 File: ../images/csuite-comp-bar.pdf Graphic file (type pdf)
 <use ../images/csuite-comp-bar.pdf>
-Package pdftex.def Info: ../images/csuite-comp-bar.pdf  used on input line 1100.
+Package pdftex.def Info: ../images/csuite-comp-bar.pdf  used on input line 1116.
 (pdftex.def)             Requested size: 399.47415pt x 219.70914pt.
-[24 <../images/frac-comp.pdf> <../images/csuite-comp-bar.pdf>]
-<../images/high.png, id=509, 779.91376pt x 497.86pt>
+[25 <../images/frac-comp.pdf> <../images/csuite-comp-bar.pdf>]
+<../images/high.png, id=522, 779.91376pt x 497.86pt>
 File: ../images/high.png Graphic file (type png)
 <use ../images/high.png>
-Package pdftex.def Info: ../images/high.png  used on input line 1126.
+Package pdftex.def Info: ../images/high.png  used on input line 1142.
 (pdftex.def)             Requested size: 355.0919pt x 226.67099pt.
-<../images/medium.png, id=511, 759.83875pt x 483.8075pt>
+<../images/medium.png, id=524, 759.83875pt x 483.8075pt>
 File: ../images/medium.png Graphic file (type png)
 <use ../images/medium.png>
-Package pdftex.def Info: ../images/medium.png  used on input line 1130.
+Package pdftex.def Info: ../images/medium.png  used on input line 1146.
 (pdftex.def)             Requested size: 355.0919pt x 226.09766pt.
-<../images/low.png, id=512, 772.8875pt x 475.7775pt>
+<../images/low.png, id=525, 772.8875pt x 475.7775pt>
 File: ../images/low.png Graphic file (type png)
 <use ../images/low.png>
-Package pdftex.def Info: ../images/low.png  used on input line 1134.
+Package pdftex.def Info: ../images/low.png  used on input line 1150.
 (pdftex.def)             Requested size: 355.0919pt x 218.59169pt.
-[25 <../images/high.png> <../images/medium.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 1147--1149
+[26 <../images/high.png> <../images/medium.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 1163--1165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1149--1151
+Underfull \hbox (badness 10000) in paragraph at lines 1165--1167
 
  []
 
-<../images/percentage_building.png, id=526, 757.83125pt x 483.8075pt>
+<../images/percentage_building.png, id=538, 757.83125pt x 483.8075pt>
 File: ../images/percentage_building.png Graphic file (type png)
 <use ../images/percentage_building.png>
-Package pdftex.def Info: ../images/percentage_building.png  used on input line 1159.
+Package pdftex.def Info: ../images/percentage_building.png  used on input line 1175.
 (pdftex.def)             Requested size: 399.47415pt x 255.02888pt.
-[26 <../images/low.png> <../images/percentage_building.png>]
-<../images/percent_change_ranking.png, id=535, 605.26125pt x 473.77pt>
+[27 <../images/low.png> <../images/percentage_building.png>]
+<../images/percent_change_ranking.png, id=547, 605.26125pt x 473.77pt>
 File: ../images/percent_change_ranking.png Graphic file (type png)
 <use ../images/percent_change_ranking.png>
-Package pdftex.def Info: ../images/percent_change_ranking.png  used on input line 1171.
+Package pdftex.def Info: ../images/percent_change_ranking.png  used on input line 1187.
 (pdftex.def)             Requested size: 266.32062pt x 208.45944pt.
-[27 <../images/percent_change_ranking.png>] [28]
-Underfull \hbox (badness 10000) in paragraph at lines 1343--1343
+[28 <../images/percent_change_ranking.png>] [29]
+Underfull \hbox (badness 10000) in paragraph at lines 1359--1359
 
  []
 
 No file final_report.bbl.
 
-Underfull \hbox (badness 1867) in paragraph at lines 1386--1386
+Underfull \hbox (badness 1867) in paragraph at lines 1402--1402
   \TS1/ppl/m/n/9 (+20) © \T1/ppl/m/n/9 (+20) 2023 by the au-thors. Sub-mit-ted to \T1/ppl/m/it/9 (+20) Jour-nal Not Spec-i-fied \T1/ppl/m/n/9 (+20) for pos-si-ble open ac-cess pub-li-ca-tion
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1386--1386
+Underfull \hbox (badness 10000) in paragraph at lines 1402--1402
 \T1/ppl/m/n/9 (+20) un-der the terms and con-di-tions of the Cre-ative Com-mons At-tri-bu-tion (CC BY) li-cense
  []
 
-[29] 
+[30] 
 enddocument/afterlastpage: lastpage setting LastPage.
 (./final_report.aux)
 
@@ -1257,21 +1263,21 @@ LaTeX Warning: There were undefined references.
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `final_report.out' has not changed.
-(rerunfilecheck)             Checksum: D000D3F4D6B11677D64A1522280D1C4B;6515.
+(rerunfilecheck)             Checksum: 8779F21C3D130B365C4385E2221A2B82;6761.
  ) 
 Here is how much of TeX's memory you used:
- 29646 strings out of 477936
- 548625 string characters out of 5836209
+ 29659 strings out of 477936
+ 549130 string characters out of 5836209
  1873074 words of memory out of 5000000
- 48762 multiletter control sequences out of 15000+600000
- 579566 words of font info for 374 fonts, out of 8000000 for 9000
+ 48776 multiletter control sequences out of 15000+600000
+ 579322 words of font info for 370 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,17n,94p,2398b,604s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,17n,94p,2398b,569s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/quinnwhite/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecss0800.375pk></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on final_report.pdf (29 pages, 4450480 bytes).
+Output written on final_report.pdf (30 pages, 4636416 bytes).
 PDF statistics:
- 637 PDF objects out of 1000 (max. 8388607)
- 518 compressed objects within 6 object streams
- 134 named destinations out of 1000 (max. 500000)
- 93650 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 649 PDF objects out of 1000 (max. 8388607)
+ 528 compressed objects within 6 object streams
+ 138 named destinations out of 1000 (max. 500000)
+ 93663 words of extra memory for PDF output out of 106986 (max. 10000000)
 

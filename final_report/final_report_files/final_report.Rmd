@@ -285,6 +285,17 @@ filed_by_year %>%
 ```
 
 
+### Consistency of Endowment Reporting
+
+In investigating frequency of reporting endowments, we can see that most companies who report an endowment continue to consistently do so across their 990 filings (Figure \ref{fig:gap-plot}).  Some, however, including Oregon Ballet Theater and Ballet Des Moines, begin reporting an endowment well after their first filed 990.  Other companies such as The Charleston Ballet, Colorado Ballet, and American Repertory Ballet stop reporting endowments.  
+
+
+```{r fig.cap = "\\label{fig:gap-plot}Continuity of filings among dance companies; gaps in a companies' filings correspond to missing fiscal years."}
+
+include_graphics(here('final_report/images/gap_plot_endowment.png'))
+
+```
+
 ### Ranking Companies’ Endowments
 
 Ranking companies can be useful to see how endomwents did relative to each other rather than looking at the raw values, which are on immensely different scales.
