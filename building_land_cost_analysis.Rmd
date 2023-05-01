@@ -4,8 +4,26 @@ author: "Zhen"
 date: "`r Sys.Date()`"
 output: html_document
 ---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(here)
+```
+
 ## Importing datasets
 ```{r}
+source("GET_VARS.R")
+companies <- read.csv(here::here("data","companies.csv"))
+```
 
+```{r}
+# get schedule D
+schedule_d <- map_df(files, ~get_df(filename = .x , 
+                              schedule = 'd')) %>%
+  filter_ein() %>% 
+  left_join(companies, by = as.character("EIN"))
 ```
 
