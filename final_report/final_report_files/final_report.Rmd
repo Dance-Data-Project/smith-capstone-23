@@ -450,7 +450,7 @@ include_graphics(here('final_report/images/diff_end_bal.png'))
 include_graphics(here('final_report/images/diff_end_bal_no_abs.png'))
 ```
 
-We summarize the discrepancies found by taking the absolute value (e.g. panel (a) of the above figure) in Figure \ref{miscalc-by-comp}.  When taking the absolute value, the company who misreports the most is Fort Wayne Ballet with three miscalculations. 
+We summarize the discrepancies found by taking the absolute value (e.g. panel (a) of the above figure) in Figure \ref{fig:miscalc-by-comp}.  When taking the absolute value, the company who misreports the most is Fort Wayne Ballet with three miscalculations. 
 
 In future work involving end balance, we chose to utilize the reported end year balance, as we are still uncertain how to handle negative expenses.  Thus, we could potentially be utilizing values which are incorrectly reported.  End balance is involved in calculations for two examinations in particular: 4.1.5 with Annual Percent Change and 4.1.6 Compound Growth Rate.  Any erroneous end year balances will thus produce inaccurate figures.  Thus, for companies whereby an incongruence was identified (either with or without absolute value), we cannot be certain whether our calculated Compound Growth Rate or Annual Percent Change accurately reflect those companies’ endowment growth or behavior.
 
@@ -640,7 +640,7 @@ include_graphics(here('final_report/images/compound-growth.pdf'))
 ```
 
 
-```{r,fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period."}
+```{r,fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.height=14}
 include_graphics(here('final_report/images/annual-growth.pdf'))
 
 ```
