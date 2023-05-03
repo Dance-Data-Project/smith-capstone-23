@@ -13,7 +13,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8, fig.pos = "H", out.extra = "")
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8, fig.pos = "H", out.extra = "", eval=FALSE)
 ```
 
 <style>
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15,
   font-size: small;
 }
 </style>
+
 
 # Notes on Percent Change
 
@@ -44,7 +45,7 @@ A couple of examples include:
 
 
 
-```{r packages and theme}
+```{r packages and theme,eval=TRUE}
 library(tidyverse)
 library(kableExtra)
 library(scales)
@@ -169,6 +170,50 @@ saveRDS(dates, here('data', 'dates.RDS'))
 ```
 
 
+
+
+
+
+# Table of Company Communications 
+
+```{r,eval=TRUE}
+
+
+
+
+ tribble(
+   ~Company, ~Discrepancy,
+  "Aspen Santa Fe",
+"The current year value for other expenditures for fiscal year 2018 is $6,906,449, but in 2019 the prior year value for other expenditures is $6,356,449 and, in accordance with the 2019 report, in 2020 the two years back value is $6,356,449.",
+
+"BalletMet", 
+"In 2015, the current year beginning of year balance is reported as $262,509, but then in 2016, the prior year beginning year balance is said to be $235,225; future year filings are in accordance with the $235,225 value.",
+
+
+"Ballet Arizona",
+"In the 2016 and 2017 filings, the beginning of year balance corresponding to fiscal years 2016 and 2017 were reported as $101,399. However, in the 2018 filing the value for 2016 was reported to be $601,399, and the value corresponding to 2017 was reported as $4,126,424.",
+
+"The Alabama Ballet",
+"In the filings for fiscal years 2016, 2017, and 2018,  the beginning and end of year balances are marked as $250,000 for all included years. However, in 2019, the value reported for the prior year (2018)  is $477,040, and in the filing for fiscal year 2020, the values are not concordant with the $250,000 value.",
+
+
+"Fort Wayne Ballet",
+"In the 2017 filing, the beginning of year balance is $1,264,981. However, in the 2018 filing, the beginning of year balance for the prior year is reported as $1,291,109 (second image below, and then the 2019 and 2020 filings both report the value corresponding to 2017 as $1,413,780. There are similar discrepancies for the end of year balances.",
+
+"Joffrey Ballet",
+"First, in the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. The reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years."
+
+) %>%
+  kbl(caption = "Companies We Reached Out to Regarding Discrepancies",
+       format="latex",
+       booktabs=TRUE,
+       escape=TRUE,
+       linesep = "\\addlinespace")  %>%
+  column_spec(2, width ="25em")
+
+
+
+```
 
 
 
@@ -1872,7 +1917,7 @@ emp_comp <- employees %>%
 Only included companies with more than 5 observations.
 
 
-```{r, eval=TRUE, fig.width = 12, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included."}
+```{r, fig.width = 12, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included."}
 
 
 emp_comp <-emp_comp %>%
@@ -2312,9 +2357,6 @@ cowplot::plot_grid(title_gg,
 
 
 ```
-
-
-
 
 
 
