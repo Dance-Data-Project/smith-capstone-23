@@ -469,9 +469,7 @@
 			\fancyhead[L]{
 				\footnotesize %
 				\ifthenelse{\equal{\@status}{submit}}{%
-					Version {\@ \today} submitted to {\em\journalname}%
 					}{%
-					{\em \journalname} %
 					{\bfseries \@pubyear}, %
 					{\em \@pubvolume}, %
 					\ifthenelse{\equal{\@continuouspages}{\@empty}}{%
@@ -491,8 +489,6 @@
 			\fancyfoot[L]{
 				\footnotesize%
  	 				\ifthenelse{\equal{\@status}{submit}}{%
-					Submitted to {\em\journalname}, %
-					pages \thepage \ -- \color{black}{\pageref*{LastPage}}%
 					}{
 					{\em \journalname}\ %
 					{\bfseries \@pubyear}, %
@@ -510,8 +506,7 @@
 			\fancyfoot[R]{
  				\footnotesize%
 				{\changeurlcolor{black}%
-				\href{http://www.mdpi.com/journal/\@journal}%
-				{www.mdpi.com/journal/\@journal}}%
+				}%
 				}%
 			\fancyhead{}
 		 	\renewcommand{\headrulewidth}{0.0pt}%
@@ -657,7 +652,6 @@
         		\ifthenelse{\equal{\@LSID}{\@empty}}{}{\@LSID}
         		\par
         		\ifthenelse{\equal{\@status}{submit}}{
-        			Version {\@ \today} submitted to \journalname
         			}{
         			\mbox{\@history}
 			}
@@ -668,7 +662,6 @@
         		\ifthenelse{\equal{\@LSID}{\@empty}}{}{\@LSID}
         		\par
         		\ifthenelse{\equal{\@status}{submit}}{
-        			Version {\@ \today} submitted to \journalname
         			}{
         			\mbox{\@history}
 			}
@@ -1027,7 +1020,6 @@
 		}{%
 		\fontsize{8}{8}\selectfont%
 		\ifthenelse{\equal{\@status}{submit}}{%
-			Version {\@ \today} submitted to {\em \journalname}%
 			}{%
 			\ifthenelse{\equal{\@arttype}{Supfile}}{%
 			{\em \journalname} {\bfseries \@pubyear}, {\em \@pubvolume} %
@@ -1124,19 +1116,10 @@
 		\fontsize{9}{9}\selectfont 
 		\ifthenelse{\equal{\@status}{submit}}{
 			\noindent \copyright{} {\@ \the\year} by the \@authornum. %
-			Submitted to {\em \journalname} for %
-			possible open access publication %
-			under the terms and conditions of the Creative Commons Attribution %
-			\ifthenelse{\equal{\@journal}{ijtpp}}{NonCommercial NoDerivatives (CC BY-NC-ND)}{(CC BY)} %
-			license %
+			\ifthenelse{\equal{\@journal}{ijtpp}}{} %
 			\ifthenelse{\equal{\@journal}{ijtpp}}{
-			(\changeurlcolor{black}%
-			\href{https://creativecommons.org/licenses/by-nc-nd/4.0/.}%
-			{https://creativecommons.org/licenses/by-nc-nd/4.0/}).%
 			}{%
-			(\changeurlcolor{black}%
-			\href{http://creativecommons.org/licenses/by/4.0/.}%
-			{http://creativecommons.org/licenses/by/4.0/}).}
+			}
 			}{
 			\begin{minipage}{.2\textwidth}
 				\hspace{-1.2mm}%
