@@ -201,15 +201,23 @@ saveRDS(dates, here('data', 'dates.RDS'))
 "In the 2017 filing, the beginning of year balance is $1,264,981. However, in the 2018 filing, the beginning of year balance for the prior year is reported as $1,291,109 (second image below, and then the 2019 and 2020 filings both report the value corresponding to 2017 as $1,413,780. There are similar discrepancies for the end of year balances.",
 
 "Joffrey Ballet",
-"First, in the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. The reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years."
+"First, in the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. Additionally, the reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years.",
+
+"The San Francisco Ballet",
+"In San the tax filings corresponding to fiscal year 2015, the beginning of year balance for 2013, 2014, and 2015 are reported as $174.  These values are in accordance with the fiscal year 2016 filing, and the beginning of year balance for 2016 is also reported as $174.  However, in the filing for the 2017 fiscal year, the reported beginning of year balance for the prior year (2016) was $107,033,575, for two years back (2015) it was  105,867,946, for three years back (2014) it was 92,513,161, and for four years back (2013) it was $79,137,681.",
+
+"Pittsburgh Ballet Theatre",
+"In the filing for fiscal year 2018, the current year net investment earnings/losses/gains is $475,508, but in the filing for fiscal year 2019, the value $556,273 is reported for the prior year (2018), and in the 2020 filing again we see the value $556,273 for 2 years back (2018). Also, in the filing corresponding to fiscal year 2020, the reported investment earnings/losses/gains is $147,166, but in the 2021 filing the prior year value is reported as $172,248."
 
 ) %>%
-  kbl(caption = "Companies We Reached Out to Regarding Discrepancies",
+  kbl(caption = "Companies Reached Out to Regarding Discrepancies",
        format="latex",
        booktabs=TRUE,
        escape=TRUE,
        linesep = "\\addlinespace")  %>%
-  column_spec(2, width ="25em")
+  column_spec(2, width ="35em") %>%
+  kable_styling(
+      latex_options="hold_position" )
 
 
 
