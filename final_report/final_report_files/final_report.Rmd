@@ -109,18 +109,63 @@ Form 990 can be completed in three different formats: Form 990, Form 900-EZ, and
 ## Company Communication  
 Because companies report data across years, a useful data quality check can be if the year they reported for the previous years in a filing correspond to the values they actually reported in those years.
 
-For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, we can check whether the value they reported for 2016 in 2020 was indeed what they reported in 2016. Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When we identified these discrepancies, we reached out to the companies to clarify which values were correct. We received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct. 
+For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, we can check whether the value they reported for 2016 in 2020 was indeed what they reported in 2016. Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When we identified these discrepancies, we reached out to the companies to clarify which values were correct (Table \ref{table:discrep}). We received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct. 
 
 Because discrepancies were typically in earlier years, and our communications with the companies who did respond noted their most recently reported values were correct, in our analyses we took the most recent data available. For example, we took values for 2016-2020 from the 2020 filing instead of taking the current year values for the filing from each year separately. 
 
 Another result of this approach is that we can look back through 2010 in some cases, since although we only have filings that go back to 2014, each filing has data going back four years.
+
+
+```{r, fig.cap="\\label{table:discrep}"}
+
+
+ tribble(
+   ~Company, ~Discrepancy,
+  "Aspen Santa Fe",
+"The current year value for other expenditures for fiscal year 2018 is $6,906,449, but in 2019 the prior year value for other expenditures is $6,356,449 and, in accordance with the 2019 report, in 2020 the two years back value is $6,356,449.",
+
+"BalletMet", 
+"In 2015, the current year beginning of year balance is reported as $262,509, but then in 2016, the prior year beginning year balance is said to be $235,225; future year filings are in accordance with the $235,225 value.",
+
+
+"Ballet Arizona",
+"In the 2016 and 2017 filings, the beginning of year balance corresponding to fiscal years 2016 and 2017 were reported as $101,399. However, in the 2018 filing the value for 2016 was reported to be $601,399, and the value corresponding to 2017 was reported as $4,126,424.",
+
+"The Alabama Ballet",
+"In the filings for fiscal years 2016, 2017, and 2018,  the beginning and end of year balances are marked as $250,000 for all included years. However, in 2019, the value reported for the prior year (2018)  is $477,040, and in the filing for fiscal year 2020, the values are not concordant with the $250,000 value.",
+
+
+"Fort Wayne Ballet",
+"In the 2017 filing, the beginning of year balance is $1,264,981. However, in the 2018 filing, the beginning of year balance for the prior year is reported as $1,291,109 (second image below, and then the 2019 and 2020 filings both report the value corresponding to 2017 as $1,413,780. There are similar discrepancies for the end of year balances.",
+
+"Joffrey Ballet",
+"First, in the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. Additionally, the reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years.",
+
+"The San Francisco Ballet",
+"In San the tax filings corresponding to fiscal year 2015, the beginning of year balance for 2013, 2014, and 2015 are reported as $174.  These values are in accordance with the fiscal year 2016 filing, and the beginning of year balance for 2016 is also reported as $174.  However, in the filing for the 2017 fiscal year, the reported beginning of year balance for the prior year (2016) was $107,033,575, for two years back (2015) it was  105,867,946, for three years back (2014) it was 92,513,161, and for four years back (2013) it was $79,137,681.",
+
+"Pittsburgh Ballet Theatre",
+"In the filing for fiscal year 2018, the current year net investment earnings/losses/gains is $475,508, but in the filing for fiscal year 2019, the value $556,273 is reported for the prior year (2018), and in the 2020 filing again we see the value $556,273 for 2 years back (2018). Also, in the filing corresponding to fiscal year 2020, the reported investment earnings/losses/gains is $147,166, but in the 2021 filing the prior year value is reported as $172,248."
+
+) %>%
+  kbl(caption = "\\label{table:discrep}Companies Reached Out to Regarding Discrepancies",
+       format="latex",
+       booktabs=TRUE,
+       escape=TRUE,
+       linesep = "\\addlinespace")  %>%
+  column_spec(2, width ="35em") %>%
+  kable_styling(
+      latex_options="hold_position" )
+
+```
+
 
 ## Standard Definitions 
 
 | Term | Definition | 
 |:------|:----------|
 | Endowment |  The form 990 uses the definition of the endowment (and types of endowments) from the [Financial Accounting Standards Board](https://asc.fasb.org/MasterGlossary), which defines an endowment fund as “An established fund of cash, securities, or other assets to provide income for the maintenance of a not-for-profit entity (NFP). The use of the assets of the fund may be with or without donor-imposed restrictions.”
-| Rank | | When ranking by a numeric variable, we defined the rank of 1 to be the highest rank among all companies, with subsequent ranks indicating a lower rank relative to other companies. When two companies had identical rankings, their ranking was taken as the average was taken. For example, the ranking of (1,2,3) would be (1,2.5,2.5). In this work, the precise values of the rankings are less relevant than their orderings.
+| Rank | When ranking by a numeric variable, we defined the rank of 1 to be the highest rank among all companies, with subsequent ranks indicating a lower rank relative to other companies. When two companies had identical rankings, their ranking was taken as the average was taken. For example, the ranking of (1,2,3) would be (1,2.5,2.5). In this work, the precise values of the rankings are less relevant than their orderings.
 | Percent Change |The percent change is $\frac{\text{End Value} - \text{Beginning Value}}{\text{Beginning Value}} \times 100.$   | 
 | S&P 500 | The Standard and Poor's 500 Index is a standard index used as a benchmark to describe the behavior of the stock market overall. The index includes 500 top publicly traded companies and is weighted by the market value of stocks currently held by stakeholders, where companies with higher market value receive higher weight.  | 
 | Compound Annual Growth Rate | The compound growth rate (CAGR) describes a company’s average growth over multiple years.  It is useful as a smoothed metric to look over growth over a set of years and compare companies in the same time period. For a time period of $t$ years, we compute the annual growth rate as ${\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{\text{End Year} - \text{Beginning Year}}}-1}$. | 
@@ -137,9 +182,11 @@ Another result of this approach is that we can look back through 2010 in some ca
 
 There are [three categories](https://www.irs.gov/instructions/i990sd) of endowment funds as defined by the IRS. 
 
-*  **Term endowments**(temporarily restricted endowments) are funds that are donor-restricted, which means they are meant to be used for a certain amount of time or until a particular event. 
-* **Permanent endowments** are endowment funds from donor-restricted gifts where the initial fund must be invested; however gains or losses from these investments can be used by the organization.  
-* **Board-designated or quasi-endowment** are funds that were internally designated for specific use but are not donor-restricted.  Investment gains and losses are typically utilized; however, the principal funds can be expended at any time.
+\begin{itemize}
+\item \textbf{Term endowments} (temporarily restricted endowments) are funds that are donor-restricted, which means they are meant to be used for a certain amount of time or until a particular event. 
+\item \textbf{Permanent endowments} are endowment funds from donor-restricted gifts where the initial fund must be invested; however gains or losses from these investments can be used by the organization.  
+\item \textbf{Board-designated or quasi-endowment} are funds that were internally designated for specific use but are not donor-restricted.  Investment gains and losses are typically utilized; however, the principal funds can be expended at any time.
+\end{itemize}
 
 Most dance companies have their endowment funds primarily in the permanent endowment category, whereas the proportion held as a board designated/quasi-endowment is typically less than 25%, as is the proportion held as a temporarily restricted endowment (\ref{fig:endowment-type}). For the majority of companies, the proportions held in each category are fairly consistent across the years. In fact, some companies held their endowment in a single category across all years on file (Table \ref{table:endowment-type-table}).
 
@@ -188,12 +235,13 @@ include_graphics(here('final_report', 'images', 'proportion_endowment_categories
 
 However, there are several notable exceptions to the general  trend of consistency across years. Defining variability as the maximum standard deviation of the proportions for each category, the most variable 5 companies were Fort Wayne Ballet, San Francisco Ballet, Nashville Ballet, Atlanta Ballet, and the Washington Ballet (Figure \ref{fig:prop-most-variable}).
 
-- For Fort Wayne Ballet, most of the endowment funds (86%) were board designated/quasi-endowment in 2017, but this dropped to a mere 7% in 2018. The percentage of the endowment funds in the permanent endowment category increased accordingly. 
-- 100% of San Francisco Ballet’s endowment was in the board designated/quasi-endowment category up until 2018, when the percentage in  board designated/quasi-endowment  dropped to 33% and most (61%) was a permanent endowment.
-- The trends in Nashville Ballet’s endowment went the opposite direction, with a large increase in the percentage in the  board designated/quasi-endowment  category (17% to 74%) and decrease in the percentage in the permanent category.
-- For Atlanta Ballet, there is a dramatic shift in 2017 where the percentage held as temporarily restricted goes from 0% to 64%.
-- The Washington Ballet had a high proportion of its endowment in the temporarily restricted category (52%) but by 2017 all their endowment funds were in the permanent endowment category. 
-
+\begin{itemize}
+\item For Fort Wayne Ballet, most of the endowment funds (86\%) were board designated/quasi-endowment in 2017, but this dropped to a mere 7\% in 2018. The percentage of the endowment funds in the permanent endowment category increased accordingly. 
+\item 100\% of San Francisco Ballet’s endowment was in the board designated/quasi-endowment category up until 2018, when the percentage in  board designated/quasi-endowment  dropped to 33\% and most (61\%) was a permanent endowment.
+\item  The trends in Nashville Ballet’s endowment went the opposite direction, with a large increase in the percentage in the  board designated/quasi-endowment  category (17\% to 74\%) and decrease in the percentage in the permanent category.
+\item For Atlanta Ballet, there is a dramatic shift in 2017 where the percentage held as temporarily restricted goes from 0\% to 64\%.
+\item The Washington Ballet had a high proportion of its endowment in the temporarily restricted category (52\%) but by 2017 all their endowment funds were in the permanent endowment category. 
+\end{itemize}
 
 
 ```{r proportion-endowment-categories-most-variable, fig.cap = "\\label{fig:prop-most-variable} Proportions of endowments in each designated category over time for the 5 companies with the most variability. We defined the most variable companies by considering the maximum standard deviation in the proportion in any one category."}
@@ -270,7 +318,7 @@ filed_by_year <-filed_by_year %>%
 filed_by_year %>%
   select(-group) %>%
   kbl(col.names=c("", "Reported an Endowment", "Did Not Report an Endowment"),
-      caption = "Number of Companies that Reported an Endowment",
+      caption = "\\label{table:filled-scheduled}Number of Companies that Reported an Endowment",
        format="latex",
        booktabs=TRUE,
        escape=FALSE,
@@ -304,13 +352,16 @@ When we look at the rankings of the beginning of year balance of companies' endo
 
 Below the top 7, there are more shifts in the rankings across time, with some notable companies changing dramatically in ranking. This includes:
 
-* A dramatic decrease in Aspen Santa Fe Ballet’s ranking from 2018 through 2020
-* A marked increase in: 
-  * Joffrey Ballet’s ranking
-  * Orlando Ballet’s ranking
-  * Fort Wayne Ballet’s ranking
-  * Ballet Arizona’s ranking
-* A decrease in Atlanta Ballet’s ranking from 2013 to 2015 that then recovered.
+\begin{itemize}
+\item A dramatic decrease in Aspen Santa Fe Ballet’s ranking from 2018 through 2020
+\item A marked increase in: 
+\subitem - Joffrey Ballet’s ranking
+\subitem - Orlando Ballet’s ranking
+\subitem - Fort Wayne Ballet’s ranking
+\subitem - Ballet Arizona’s ranking
+\item A decrease in Atlanta Ballet’s ranking from 2013 to 2015 that then recovered.
+\end{itemize}
+
 
 ```{r rank-og-beginning-year-balance, fig.cap="\\label{fig:rank-endowments}Rank of the endowment beginning of year balance over time. The 15 companies with the most variability in ranking, defined as the mean difference in rankings between fiscal years, are shown in color. Names of all companies are on the right."}
 
