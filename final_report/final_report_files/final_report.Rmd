@@ -27,6 +27,7 @@ journal: Dance Data Project
 type: article
 status: submit
 bibliography: DDPCitations.bib
+csl: ieee.cls
 abstract: | 
    To understand how we can advance equity in dance, it is crucial to understand existing financial structures and incentives that shape these companies' success. Assessment of publicly available tax documents on dance companies over the past decade can provide important insights into how different companies fared financially over this time period. Additionally, this work can provide an important basis of understanding for future analyses on the impact of  the pandemic on existing trends on the financial performance. By analyzing publicly available  Form 990 documents on 169 dance companies across the United States, we present information on companies' endowments, investments, compensation of employees, and sources of labor. In the process, we also bring light to issues of data quality to consider when analyzing Form 990 documents.
 keywords: |
@@ -37,8 +38,8 @@ conflictsofinterest: |
   The authors declare no conflict of 
   interest. 
 abbreviations:
-  - short: DDP ®
-    long: Dance Data Project ®
+  - short: DDP  ®
+    long: Dance Data Project  ®
   - short: IRS
     long: Internal Revenue Service
 output: rticles::mdpi_article
@@ -64,17 +65,17 @@ library(kableExtra)
 
 ## Scope 
 
-As a matter of transparency and public accountability, tax documents filed by nonprofit corporations in the United States have always theoretically been available to the public, but it wasn’t until the development of electronic tax filing systems through the IRS that these tax documents became easily accessible for analysis. Online tax filing systems have been available since the late 1990’s, but the 2019 Taxpayer First Act required all nonprofits to electronically file their tax returns @ely_research_2023. This legislation changed the landscape for public accessibility of the financial information of nonprofits as well as presented novel research opportunities for data activism. Incorrect reporting, inequitable wealth distribution, and tax fraud by nonprofit organizations has always happened, but mandatory online reporting allows data analysts to identify suspected cases and draw attention to them @ely_research_2023.
+As a matter of transparency and public accountability, tax documents filed by nonprofit corporations in the United States have always theoretically been available to the public, but it wasn’t until the development of electronic tax filing systems through the IRS that these tax documents became easily accessible for analysis. Online tax filing systems have been available since the late 1990’s, but the 2019 Taxpayer First Act required all nonprofits to electronically file their tax returns [@ely_research_2023]. This legislation changed the landscape for public accessibility of the financial information of nonprofits as well as presented novel research opportunities for data activism. Incorrect reporting, inequitable wealth distribution, and tax fraud by nonprofit organizations has always happened, but mandatory online reporting allows data analysts to identify suspected cases and draw attention to them [@ely_research_2023].
 
 ## Inequality in the Arts  
 
-Financial discrepancies by nonprofits commonly impact those already at social and economic disadvantage, such as women and girls. The study of women and gender has consistently drawn focus to inequitable distribution of wealth between men and women. One of the most heavily researched phenomena regarding wealth inequality is the wage gap between men and women that persists even when they have the same education, experience, skills, and job titles @jikar_gender_2022. Contrary to the popular opinion that the gender wage gap is narrowing, Weichselbaumer & Winter-Ebmer @weichselbaumer_meta-analysis_2005  showed that financial returns in relation to skills and education are increasingly higher for men than for women. Even less research has been done on the wage gap for transgender or non-binary individuals. Additionally, compounding factors such as lack of corporate oversight and socially-imposed gender roles further entrench the gender pay gap into everyday life @noauthor_handbook_2013. Further understanding the wage gap in female-dominated fields, such as in dance, can inform future solutions to lessen the inequitable distribution of wealth between men and women.   
+Financial discrepancies by nonprofits commonly impact those already at social and economic disadvantage, such as women and girls. The study of women and gender has consistently drawn focus to inequitable distribution of wealth between men and women. One of the most heavily researched phenomena regarding wealth inequality is the wage gap between men and women that persists even when they have the same education, experience, skills, and job titles [@jikar_gender_2022]. Contrary to the popular opinion that the gender wage gap is narrowing, Weichselbaumer & Winter-Ebmer [@weichselbaumer_meta-analysis_2005] showed that financial returns in relation to skills and education are increasingly higher for men than for women. Even less research has been done on the wage gap for transgender or non-binary individuals. Additionally, compounding factors such as lack of corporate oversight and socially-imposed gender roles further entrench the gender pay gap into everyday life [@noauthor_handbook_2013]. Further understanding the wage gap in female-dominated fields, such as in dance, can inform future solutions to lessen the inequitable distribution of wealth between men and women.   
 
-The wage gap has long been exacerbated by disproportionate pay in the arts, and especially dance, in part because the vast majority of entry-level dancers are women and girls @jikar_gender_2022. Additionally, unpaid labor in dance is much more commonplace than in other industries @noauthor_handbook_2013. Because dance is a performing art, many companies that employ dancers are entitled to government subsidies and tax breaks; however, there are no current regulations to ensure that this governmental assistance is used to lessen unpaid and underpaid labor by dancers @fuchs_where_2021. Unrestricted financial assistance may worsen existing inequalities in the field of dance by enabling company owners and executives to profit while retaining unpaid and underpaid labor, so further understanding how this assistance is used is essential in combating the problem.   
+The wage gap has long been exacerbated by disproportionate pay in the arts, and especially dance, in part because the vast majority of entry-level dancers are women and girls [@jikar_gender_2022]. Additionally, unpaid labor in dance is much more commonplace than in other industries [@noauthor_handbook_2013]. Because dance is a performing art, many companies that employ dancers are entitled to government subsidies and tax breaks; however, there are no current regulations to ensure that this governmental assistance is used to lessen unpaid and underpaid labor by dancers [@fuchs_where_2021]. Unrestricted financial assistance may worsen existing inequalities in the field of dance by enabling company owners and executives to profit while retaining unpaid and underpaid labor, so further understanding how this assistance is used is essential in combating the problem.   
 
 ## Dance and Tax Returns
 
-In the United States, nonprofit organizations file either a Form 900 or a Form 990 EZ with the IRS each year. These documents include, but are not limited to, information on the organization’s geographic location, number of employees and volunteers, operating costs, income, compensation, and net assets. Additionally, some nonprofits are required to fill out Schedule D forms alongside their 990 filings if they have certain additional assets. This information is more accessible than ever now that the government has required nonprofit organizations to electronically file them. Yet, much of the public does not understand the terms on publicly available tax forms nor does the average person possess the skills to readily analyze hundreds of tax forms every year @lamothe_examining_2023. Thus, data scientists can play a very important role in analyzing these forms filed by dance companies and presenting findings to the public. Further elucidating the financial practices of nonprofit organizations 1)  in the field of dance, 2) in pandemic-related economic shifts and 3) through geographical analysis can help inform proper solutions to a wide range of issues, including the gender pay gap in dance. 
+In the United States, nonprofit organizations file either a Form 900 or a Form 990 EZ with the IRS each year. These documents include, but are not limited to, information on the organization’s geographic location, number of employees and volunteers, operating costs, income, compensation, and net assets. Additionally, some nonprofits are required to fill out Schedule D forms alongside their 990 filings if they have certain additional assets. This information is more accessible than ever now that the government has required nonprofit organizations to electronically file them. Yet, much of the public does not understand the terms on publicly available tax forms nor does the average person possess the skills to readily analyze hundreds of tax forms every year [@lamothe_examining_2023]. Thus, data scientists can play a very important role in analyzing these forms filed by dance companies and presenting findings to the public. Further elucidating the financial practices of nonprofit organizations 1)  in the field of dance, 2) in pandemic-related economic shifts and 3) through geographical analysis can help inform proper solutions to a wide range of issues, including the gender pay gap in dance. 
 
 ## The Dance Data Project
 
@@ -163,9 +164,11 @@ Because discrepancies were typically in earlier years, and our communications wi
 
 Another result of this approach is that we can look back through 2010 in some cases, since although we only have filings that go back to 2014, each filing has data going back four years.
 
-Before going into our findings, below we provide a set of standard definitions on fundamental concepts we use throughout our analyses. 
 
 ## Standard Definitions 
+
+Before going into our findings, below we provide a set of standard definitions on fundamental concepts we use throughout our analyses. 
+
 
 | Term | Definition | 
 |:------|:----------|
@@ -640,7 +643,7 @@ include_graphics(here('final_report/images/compound-growth.pdf'))
 ```
 
 
-```{r,fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.height=14}
+```{r,fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period."}
 include_graphics(here('final_report/images/annual-growth.pdf'))
 
 ```

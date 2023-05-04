@@ -13,7 +13,7 @@ header-includes:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8, fig.pos = "H", out.extra = "", eval=FALSE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8)
 ```
 
 <style>
@@ -210,7 +210,7 @@ saveRDS(dates, here('data', 'dates.RDS'))
 "In the filing for fiscal year 2018, the current year net investment earnings/losses/gains is $475,508, but in the filing for fiscal year 2019, the value $556,273 is reported for the prior year (2018), and in the 2020 filing again we see the value $556,273 for 2 years back (2018). Also, in the filing corresponding to fiscal year 2020, the reported investment earnings/losses/gains is $147,166, but in the 2021 filing the prior year value is reported as $172,248."
 
 ) %>%
-  kbl(caption = "Companies Reached Out to Regarding Discrepancies",
+  kbl(caption = "\\label{table:discrep}Companies Reached Out to Regarding Discrepancies",
        format="latex",
        booktabs=TRUE,
        escape=TRUE,
@@ -350,7 +350,7 @@ $$\small{\text{Annual Growth Rate} = \frac{ ( \text{End Value} + \text{Other Exp
 This adjustment is important because we want to see how much of the change from the beginning of year balance to the end of year balance is due to the investments, not, for example, a large contribution.
 
 
-```{r, fig.height = 17, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period."}
+```{r, fig.height = 17, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.pos="h"}
 
 # top_20 <- end_sp %>%
 #   group_by(organization_name) %>%
