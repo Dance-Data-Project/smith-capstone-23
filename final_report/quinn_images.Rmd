@@ -340,7 +340,7 @@ We can compute this for the S&P 500 for the same time interval. Here, we use mea
 
 To account for withdrawals and contributions, we add back withdrawals and subtract contributions, so we calculate the annual growth rate as
 
-$$\small{\text{Annual Growth Rate} = \frac{ ( \text{End Value} + \text{Other Expenditures} + \text{Grants and Scholarships} + \text{Administrative Expenses} - \text{Contributions} ) -\text{Beginning Value}}{\text{Beginning Value}}}$$ 
+$$\scriptsize{\text{Annual Growth Rate} = \frac{ ( \text{End Value} + \text{Other Expenditures} + \text{Grants and Scholarships} + \text{Administrative Expenses} - \text{Contributions} ) -\text{Beginning Value}}{\text{Beginning Value}}}$$ 
 This adjustment is important because we want to see how much of the change from the beginning of year balance to the end of year balance is due to the investments, not, for example, a large contribution.
 
 
@@ -412,7 +412,7 @@ ggsave(here('final_report/images/annual-growth.pdf'))
 ## Compound Growth Rate
 
 Letting $t$ denote the number of years considered, 
-$$\tiny{\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{t}}-1}$$
+$$\small{\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{t}}-1}$$
 
 Now, we note that we can compute the withdrawals using other variables reported in the 990:
 $$\small{\text{Withdrawals} = \text{Other Expenditures} +\text{Administrative Expenses} +\text{Administrative Expenses} + \text{Grants and Scholarships}}.$$
@@ -532,8 +532,6 @@ plot_cagr <- function(df, title = "") {
           legend.position="top",
           axis.title = element_text(size = 18),
           plot.title = element_text(size = 25)) +
-   # theme_c(legend.spacing.y = unit(.5, 'cm')) +
-   #  theme(legend.text=element_text(size = 14)) +
     guides(fill = guide_legend(byrow=TRUE)) +
     theme(axis.text.y  =element_text(size = 14),
           legend.text=element_text(size = 14)) +
@@ -643,13 +641,10 @@ plot_ranks <- function(var1, var2, data) {
 
 plot_ranks_by_consistency <- function(var1, var2, data) {
 
-  
    plt <- data %>%
      filter(fiscal_year > 2010 & fiscal_year < 2021) %>%
     group_by(fiscal_year) %>%
-   # arrange(var1) %>%
     mutate("{var1}_rank" := rank(-!!sym(var1)), na.last = "keep") %>%
-#    arrange(var2) %>%
     mutate("{var2}_rank"  := rank(-!!sym(var2)),  na.last = "keep")  %>%
      mutate(rank_diff = !!sym(glue("{var2}_rank")) - !!sym(glue("{var1}_rank" ))) %>%
    group_by(EIN) %>%
@@ -701,7 +696,6 @@ vars <-  unique(endowment_data$variable_name)[!grepl("EOY|Admin|Grants", unique(
 variable_combinations <- t(combn(vars, 2)) %>%
   as.data.frame()
 
-if (!all_plots) variable_combinations <- variable_combinations[1:4,]
 
 
 ```
@@ -826,9 +820,6 @@ endowment_data_wide_filt <- endowment_data_wide %>%
 set.seed(999)
 all_eins <- unique(endowment_data_wide_filt$EIN)
 all_eins <- endowment_data_wide_filt %>% 
-  # arrange(desc(BeginningYearBalanceAmt)) %>%
-  # select(EIN, organization_name) %>%
-  # distinct() %>%
   pull(EIN) %>%
   unique()
 
@@ -1746,6 +1737,10 @@ balance_ranks <- endowment_data_wide %>%
 
 ```{r, results='asis', fig.cap="\\label{table:filled-scheduled}"}
 
+
+###################################################
+# table of how many companies reported endowments
+###################################################
 endowment_data <- read_rds(here("data", "endowment_filter_data_990.RDS"))
 names <- read_csv(here("data", "companies.csv")) %>% 
   mutate(EIN = as.character(ein)) %>%
@@ -1781,6 +1776,7 @@ filled_out_at_least_once <- filed %>%
   unique() %>%
   length()
 
+# did not fill out schedule D at least once
 did_not_at_least_once <- filed %>%
   group_by(EIN, has_schedule_d) %>%
   summarize(n=n()) %>%
@@ -1843,19 +1839,6 @@ employees <- readRDS(here("data", "employees.RDS")) %>%
 
 ```{r, eval=TRUE}
 
-top <- schedule_j %>% 
-  group_by(EIN,fiscal_year,organization_name) %>% 
-  mutate(not_deferred = TotalCompensationFilingOrgAmt -DeferredCompensationFlngOrgAmt) %>%
-  summarize(num_top_employees = n(),
-            compensation_top_total = sum(TotalCompensationFilingOrgAmt),
-            compensation_top_base = sum(BaseCompensationFilingOrgAmt),
-            compensation_top_not_def = sum(not_deferred)) %>%
-  ungroup()
-
-# emp_comp <- employees %>% 
-#   left_join(companies_to_ein) %>%
-#   left_join(top) 
-
 
 emp_comp <- employees %>% 
    left_join(companies_to_ein) %>%
@@ -1868,9 +1851,9 @@ emp_comp <- employees %>%
 Only included companies with more than 5 observations.
 
 
-```{r, fig.width = 12, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included."}
+```{r, fig.width = 12, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with a mean of more than 25 employees across the years on file and that reported complete data for more than 5 years are included."}
 
-
+# fraction of compenstation to top employees
 emp_comp <-emp_comp %>%
   mutate(frac = OffDirCompAmt/(CYSalariesCompEmpBnftPaidAmt)) %>%
   group_by(organization_name) %>%
@@ -1878,20 +1861,8 @@ emp_comp <-emp_comp %>%
          mean_emp = mean(TotalEmployeeCnt, na.rm=TRUE)) %>%
   filter(n>5) 
 
-
-# emp_comp %>%
-#   group_by(organization_name) %>%
-#   mutate(reported_offcomp = ifelse(is.na(OffDirCompAmt) | OffDirCompAmt == 0, "No", "Yes")) %>%
-#   group_by(organization_name,reported_offcomp) %>%
-#   summarize(n=n()) %>%
-#   pivot_wider(values_from=n, names_from=reported_offcomp) %>%
-#   filter(is.na(Yes))
-
-
-# emp_comp <- emp_comp %>% 
-#   filter(mean_emp > 50)
-
-
+# get top by the largest percent change from the minimum year 
+# on file to the maximum year on file
  top <- emp_comp %>%
   group_by(organization_name) %>%
   summarize(variability = sd(frac, na.rm=TRUE),
@@ -1901,40 +1872,11 @@ emp_comp <-emp_comp %>%
   ungroup() %>%
   mutate(diff = abs((value_last -value_first) / value_first)) %>%
   arrange(desc(diff)) %>%
-   filter(diff!=Inf) %>%
-  # filter(n>5) %>%
+   # remove those with 0 in denominator
+  filter(diff!=Inf) %>%
   slice_max(n=10,order_by=diff)
  
  
- 
- 
-
-# mini pal
-
-pal1 <-viridis_pal(option="mako", end = .8, begin=.2)(4)
-pal2 <- viridis_pal(option="inferno", end = .8, begin=.2)(3)
-pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(3)
-
-
-pal <- c(pal1, pal2, pal3)
-indexes <- sample.int(length(pal), replace=FALSE)
-pal <- pal[indexes]
-
-
-
-title_gg <- ggplot() + 
-  labs(title = "Percent of Total Compensation Paid to C-Suite Employees") + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 22, margin =margin(5,0,2,0)))
-
-
-pal1 <-viridis_pal(option="mako", end = .8, begin=.2)(5)
-pal2 <- viridis_pal(option="inferno", end = .8, begin=.2)(5)
-pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(5)
-
-pal <- c(pal1, pal2, pal3)
-indexes <- sample.int(length(pal), replace=FALSE)
-pal <- pal[indexes]
-
 
 employee_counts_vector <- emp_comp %>%
   group_by(organization_name) %>%
@@ -1962,13 +1904,93 @@ emp_comp <- emp_comp %>%
      mean_emp > quantile_employees[2] ~ paste("Greater than", round(quantile_employees[2]), "Employees"))) 
 
 
+# order by size
+levs <- emp_comp$org_size %>% unique()
+lev1 <- levs[grepl('Less than',levs)]
+lev2 <- levs[grepl('Between',levs)]
+lev3 <- levs[grepl('Greater than',levs)]
+
+
+emp_comp <- emp_comp %>%
+  mutate(org_size = factor(org_size, levels = c(lev1, lev2,lev3)), ordered=TRUE)
+
+
+meds <- emp_comp %>%
+  filter(fiscal_year >2014 & fiscal_year <2021) %>%
+  group_by(fiscal_year, org_size) %>%
+  summarize(m=median(frac,na.rm=TRUE))
+
+# big pal
+pal1 <-viridis_pal(option="mako", end = .8, begin=.2)(12)
+pal2 <- viridis_pal(option="inferno", end = .8, begin=.2)(12)
+pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(12)
+pal4 <- viridis_pal(option="plasma", end = .8, begin=.2)(12)
+pal5 <- viridis_pal(option="rocket", end = .8, begin=.2)(12)
+pal6 <- viridis_pal(option="cividis", end = .8, begin=.2)(12)
+
+pal <- c(pal1, pal2, pal3,pal4,pal5,pal6)
+
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+
+
+emp_comp %>%
+  filter(!is.na(frac)) %>%
+  group_by(organization_name) %>%
+   ggplot(aes(x=fiscal_year,
+             y = frac,
+             group= organization_name,
+             color = organization_name)) +
+  geom_point(size =.6, alpha=.5) +
+  geom_line(show.legend=FALSE,
+            alpha = .2,
+            linewidth=.7)+
+  geom_line(color='darkred',aes(x=fiscal_year,
+                                y = m, 
+                                group='Median',
+                                color='Median'), 
+            linewidth=2, data=meds) +
+     facet_wrap(~org_size) +
+  theme_c() +
+  theme(legend.position="none") +
+  scale_color_manual(values=c(pal)) +
+  annotate(geom="text",x=2020.2, y = .1, label = "Median",color="darkred") +
+  scale_y_continuous(limits = c(0,.35), labels = scales::percent) +
+  labs(x = "Fiscal Year", y= "Percent")  +
+  facet_wrap(~factor(org_size))
+
+
+
+
+###############################################################
+# PLOTS W/ TOP 10 AND THE REST SEPARATE
+# MEDIANS IN RED
+# ONLYCOMPANIES ABOVE FIRST QUANTILE IN MEAN EMPLOYEE COUNT
+###############################################################
+
+# mini pal
+pal1 <-viridis_pal(option="mako", end = .8, begin=.2)(5)
+pal2 <- viridis_pal(option="inferno", end = .8, begin=.2)(5)
+pal3 <- viridis_pal(option="magma", end = .8, begin=.2)(5)
+
+pal <- c(pal1, pal2, pal3)
+indexes <- sample.int(length(pal), replace=FALSE)
+pal <- pal[indexes]
+
+
+title_gg <- ggplot() + 
+  labs(title = "Percent of Total Compensation Paid to C-Suite Employees") + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 22, margin =margin(5,0,2,0)))
+
+
+
 emp_comp <- emp_comp %>%
    # exclude smallest group
     filter(mean_emp > quantile_employees[1])
 
+
+# extract top 10 by greatest (absolute value of) difference from first percent to last percent
  top <- emp_comp %>%
-   # exclude smallest group
-    # filter(mean_emp > quantile_employees[1]) %>%
    group_by(organization_name) %>%
    mutate(mean_size = mean(TotalEmployeeCnt, na.rm=TRUE)) %>%
    group_by(organization_name) %>%
@@ -1982,7 +2004,6 @@ emp_comp <- emp_comp %>%
    slice_max(n=10,diff)
  
 
- 
 
 pal1 <-viridis_pal(option="mako", end = .8, begin=.2)(12)
 pal2 <- viridis_pal(option="inferno", end = .8, begin=.2)(12)
@@ -2015,7 +2036,6 @@ meds <- emp_comp %>%
 # median in red
 ##################################
 plt1 <- emp_comp %>%
-  # filter(org_size != "Less than 45 Employees") %>%
   filter(is_top == "Other Companies") %>%
   group_by(fiscal_year) %>%
   ungroup() %>%
@@ -2050,9 +2070,9 @@ indexes <- sample.int(length(pal), replace=FALSE)
 pal <- pal[indexes]
 
 
-###############################
-# plot with top-top companies
-###############################
+##########################################################################
+# plot with fraction paid to C-suite for companies with greatest change
+##########################################################################
 
 plt2 <- emp_comp %>%
   ungroup() %>%
@@ -2085,13 +2105,12 @@ ggsave(here('final_report/images/frac-comp.pdf'))
 ```
 
 
-```{r, fig.width=10,fig.height=5.5, fig.cap = "\\label{fig:csuite-comp-bar}"}
+```{r, fig.width=10,fig.height=6.5, fig.cap = "\\label{fig:csuite-comp-bar}"}
 
-
-
+############################################################################################
+# bar plot showing difference in percent compensation to C-suite in 2020 to 2015
+############################################################################################
 emp_comp %>%
-   # exclude smallest group
-    # filter(mean_emp > quantile_employees[1]) %>%
    group_by(organization_name) %>%
    mutate(mean_size = mean(TotalEmployeeCnt, na.rm=TRUE)) %>%
   filter(fiscal_year >=2015 & fiscal_year <=2020) %>%
@@ -2116,198 +2135,10 @@ emp_comp %>%
   scale_x_continuous(n.breaks = 10, labels=scales::percent,limits=c(-.13,.13))
 
 
-ggsave(here('final_report/images/csuite-comp-bar.pdf'))
+ggsave(here('final_report/images/csuite-comp-bar.pdf'), dpi=400)
 
 ```
 
-```{r,eval=FALSE}
-
-
-emp_comp %>%
-  filter(!is.na(org_size)) %>%
-  mutate(is_top = ifelse(organization_name %in% top$organization_name,
-                         "Top 10 By Greatest Change",
-                         "Other Companies"),
-         top_org= ifelse(organization_name %in% top$organization_name,
-                         organization_name,
-                         NA)) %>%
-  filter(org_size != "Less than 45 Employees") %>%
-  group_by(organization_name) %>%
-   ggplot(aes(x=fiscal_year,
-             y = frac,
-             group= organization_name,
-             color = organization_name)) +
-  geom_point(size =.6, alpha=.5) +
-  geom_line(show.legend=FALSE, alpha = .5)+
-     facet_wrap(~is_top) +
-  theme_c() 
-
-
-
-
-plt1 <- emp_comp %>%
-  mutate(top = ifelse(organization_name %in% top$organization_name,
-         organization_name, NA),
-         is_top = ifelse(
-           !is.na(top), 
-           "5 Companies with Greatest Change\nin Fraction Paid to C-Suite",
-           "Other Companies")) %>%
-  filter(!is.na(top)) %>%
-  ggplot(aes(x=fiscal_year,
-             y = frac,
-          
-             group= EIN)) +
-  geom_point(size =.6, alpha=.5) +
-  geom_line(show.legend=FALSE, alpha = .5)+
-  geom_line(aes(color=top), linewidth=1.2)  +
-  theme_bw() +
-  labs(
-    # y="percent of Total Compensation Paid",
-    #   title = "percent of Total Compensation Paid to C-Suite Employees",
-       x="Fiscal Year",
-       y="percent",
-       color = "") +
-   # scale_y_continuous(n.breaks = 6, limits = c(.04,.3), labels=scales::percent)+
-    theme(plot.title = element_text(size = 14,
-                                      hjust = .5, face="bold",),
-            plot.subtitle = element_text(hjust = .5,
-                                         face="italic",
-                                         size = 12),
-            axis.title = element_text(size = 13,
-                                      face = "bold")) +
-  scale_color_manual(values=pal,na.value = NA, breaks = top$organization_name,
-                     labels = top$organization_name) +
-  scale_x_continuous(breaks=2014:2021) +
-  facet_wrap(~is_top) +
-  theme_c()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-pal1 <-viridis_pal(option="mako", end = .8, begin=.3)(8)
-pal2 <- viridis_pal(option="inferno", end = .8, begin=.3)(6)
-pal3 <- viridis_pal(option="magma", end = .8, begin=.1)(6)
-
-
-pal <- c(pal1, pal2, pal3)
-indexes <- sample.int(length(pal), replace=FALSE)
-pal <- pal[indexes]
-
-
-
-  
-plt1 <- emp_comp %>%
-  mutate(top = ifelse(organization_name %in% top$organization_name,
-         organization_name, NA),
-         is_top = ifelse(
-           !is.na(top), 
-           "5 Companies with Greatest Change\nin Fraction Paid to C-Suite",
-           "Other Companies")) %>%
-  filter(!is.na(top)) %>%
-  ggplot(aes(x=fiscal_year,
-             y = compensation_top_total/CYSalariesCompEmpBnftPaidAmt,
-          
-             group= EIN)) +
-  geom_point(size =.6, alpha=.5) +
-  geom_line(show.legend=FALSE, alpha = .5)+
-  geom_line(aes(color=top), linewidth=1.2)  +
-  theme_bw() +
-  labs(
-    # y="percent of Total Compensation Paid",
-    #   title = "percent of Total Compensation Paid to C-Suite Employees",
-       x="Fiscal Year",
-       y="percente",
-       color = "") +
-    scale_y_continuous(n.breaks = 6, limits = c(.04,.3), labels=scales::percent)+
-    theme(plot.title = element_text(size = 14,
-                                      hjust = .5, face="bold",),
-            plot.subtitle = element_text(hjust = .5,
-                                         face="italic",
-                                         size = 12),
-            axis.title = element_text(size = 13,
-                                      face = "bold")) +
-  scale_color_manual(values=pal,na.value = NA, breaks = top$organization_name,
-                     labels = top$organization_name) +
-  scale_x_continuous(breaks=2014:2021) +
-  facet_wrap(~is_top) +
-  theme_c()
-
-
-pal1 <-viridis_pal(option="mako", end = .8, begin=.3)(8)
-pal2 <- viridis_pal(option="inferno", end = .8, begin=.3)(6)
-pal3 <- viridis_pal(option="magma", end = .8, begin=.1)(6)
-
-
-pal <- c(pal1, pal2, pal3)
-indexes <- sample.int(length(pal), replace=FALSE)
-pal <- pal[indexes]
-
-
-
-
-plt2 <- emp_comp %>%
-  group_by(organization_name) %>%
-  mutate(has_data = any(!is.na(frac))) %>%
-  filter(has_data) %>%
-  ungroup() %>%
-  mutate(top = ifelse(organization_name %in% top$organization_name,
-         organization_name, NA),
-         is_top = ifelse(
-           !is.na(top), 
-           "5 Companies with Greatest Change\nin Percent Paid to C-Suite",
-           "Other Companies")) %>%
-  filter(is.na(top)) %>%
-  ggplot(aes(x=fiscal_year,
-             y = compensation_top_total/CYSalariesCompEmpBnftPaidAmt,
-             group= organization_name,
-             color = organization_name)) +
-  geom_point(size =.6, alpha=.5, show.legend=FALSE) +
-  geom_line(show.legend=FALSE)+
-  facet_wrap(~is_top) +
-  theme_bw() +
-  labs(
-    y = "percent",
-    # y="percent of Total Compensation Paid",
-    #   title = "percent of Total Compensation Paid to C-Suite Employees",
-       x="Fiscal Year",
-       color = "") +
-  scale_y_continuous(n.breaks = 6, limits = c(.04,.3),  labels=scales::percent)+
-    theme(plot.title = element_text(size = 14,
-                                      hjust = .5, face="bold",),
-            plot.subtitle = element_text(hjust = .5,
-                                         face="italic",
-                                         size = 12),
-            axis.title = element_text(size = 13,
-                                      face = "bold"),
-          legend.position="none") +
-  scale_color_manual(values=pal) +
-  scale_x_continuous(breaks=2014:2021) +
-  theme_c() 
-
-
-cowplot::plot_grid(title_gg,
-                   plt1,
-                   plt2, 
-                   nrow=3,
-                   rel_heights =c(.05,.5,.5)
-                   )
-
-
-
-
-```
 
 
 

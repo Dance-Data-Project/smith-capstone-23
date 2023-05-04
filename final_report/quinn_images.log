@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.4.21)  3 MAY 2023 19:53
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.4.21)  3 MAY 2023 20:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -960,26 +960,26 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 LaTeX Font Info:    Font shape `TU/Helvetica(0)/b/n' will be
 (Font)              scaled to size 12.0pt on input line 144.
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 156.
+LaTeX Font Warning: Command \scriptsize invalid in math mode on input line 156.
 
-LaTeX Font Info:    Font shape `TU/Helvetica(0)/m/n' will be
-(Font)              scaled to size 9.0pt on input line 156.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 10.87921pt on input line 156.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.88031pt on input line 156.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 10.87811pt on input line 156.
 
-Overfull \hbox (146.52489pt too wide) detected at line 156
+Overfull \hbox (32.19872pt too wide) detected at line 156
 []
  []
 
 File: quinn_images_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 <use quinn_images_files/figure-latex/unnamed-chunk-2-1.pdf>
 
-LaTeX Font Warning: Command \tiny invalid in math mode on input line 174.
+LaTeX Font Warning: Command \small invalid in math mode on input line 174.
 
+LaTeX Font Info:    Font shape `TU/Helvetica(0)/m/n' will be
+(Font)              scaled to size 9.0pt on input line 174.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 10.87921pt on input line 174.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 10.88031pt on input line 174.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 10.87811pt on input line 174.
 
 LaTeX Font Warning: Command \small invalid in math mode on input line 178.
 
@@ -1021,16 +1021,19 @@ Overfull \hbox (17.10764pt too wide) in paragraph at lines 398--401
 
 File: quinn_images_files/figure-latex/unnamed-chunk-19-1.pdf Graphic file (type pdf)
 <use quinn_images_files/figure-latex/unnamed-chunk-19-1.pdf>
+File: quinn_images_files/figure-latex/unnamed-chunk-19-2.pdf Graphic file (type pdf)
+<use quinn_images_files/figure-latex/unnamed-chunk-19-2.pdf>
+[8] [9] [10] [11] [12]
 File: quinn_images_files/figure-latex/unnamed-chunk-20-1.pdf Graphic file (type pdf)
 <use quinn_images_files/figure-latex/unnamed-chunk-20-1.pdf>
-[8] [9] [10] [11] [12] [13] [14] (./quinn_images.aux) ) 
+[13] [14] [15] (./quinn_images.aux) ) 
 Here is how much of TeX's memory you used:
- 20374 strings out of 478634
- 378679 string characters out of 5845874
+ 20381 strings out of 478634
+ 379115 string characters out of 5845874
  1866704 words of memory out of 5000000
- 40202 multiletter control sequences out of 15000+600000
+ 40208 multiletter control sequences out of 15000+600000
  519877 words of font info for 101 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,17n,122p,1009b,369s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on quinn_images.pdf (14 pages).
+Output written on quinn_images.pdf (15 pages).
