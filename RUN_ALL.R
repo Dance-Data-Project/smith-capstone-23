@@ -7,6 +7,7 @@
 library(rmarkdown)
 library(here)
 library(tibble)
+library(dplyr)
 
 # Infrastructure folder 
 files <- tibble(full = dir(here("infrastructure_rmds"),

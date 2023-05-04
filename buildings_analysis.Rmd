@@ -1,0 +1,34 @@
+---
+title: "test"
+author: "Zhen"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r}
+source("GET_VARS.R")
+library(rmarkdown)
+library(here)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+
+schedule_d %>%
+  # remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared
+  # across all columns
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
+  
+companies<-read.csv(here("data","companies.csv")) %>% mutate(EIN=as.character(EIN))
+
+buildings<-schedule_d[,c(1,2,5,86,87,124,159,160)] %>% 
+  left_join(companies, by = "EIN") %>% 
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
+
+
+```
+
+ˆ
+
