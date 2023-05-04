@@ -12,6 +12,7 @@ library(here)
 library(tibble)
 library(dplyr)
 library(ggplot2)
+library(viridis)
 ```
 
 ```{r}
@@ -21,14 +22,28 @@ schedule_d %>%
   # across all columns
   rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
   
-companies<-read.csv(here("data","companies.csv")) %>% mutate(EIN=as.character(EIN))
+companies<-read.csv(here("data","companies.csv")) %>% select(organization_name, EIN) %>% mutate(EIN=as.character(EIN))
 
-buildings<-schedule_d[,c(1,2,5,86,87,124,159,160)] %>% 
+buildings<-schedule_d[,c(1,35,2,5,86,87,124,159,160)] %>% 
   left_join(companies, by = "EIN") %>% 
-  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .))
+  rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .)) %>% 
+  filter(!is.na(organization_name))
 
-
+saveRDS(buildings, "data/buildings.RDS")
 ```
 
-ˆ
+
+```{r}
+ggplotly(
+  ggplot(buildings, aes(x = as.character(fiscal_year), y = as.numeric(TotalBookValueLandBuildingsAmt), color = as.factor(organization_name)))+
+    geom_point()+
+    theme_bw()+
+    viridis::scale_fill_viridis(discrete=TRUE,begin=.2,end=.8)+
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+)
+```
+
+```{r}
+
+```
 
