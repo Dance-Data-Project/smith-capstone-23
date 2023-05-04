@@ -14,6 +14,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, fig.width =15, fig.height=8)
+
 ```
 
 <style>
@@ -54,18 +55,11 @@ library(glue)
 library(here)
 library(viridis)
 library(ggrepel)
-
-all_plots <- FALSE
-
-m <- list(
-    l = 50,
-    r = 50,
-    b = 200,
-    t = 150,
-    pad = 0.5
-)
+library(cowplot)
 
 
+
+# create standard theme for all plots
 theme_c <- function(...){ 
    # font <- "Helvetica"   #assign font family up front
     theme_bw() %+replace%    #replace elements we want to change
@@ -118,7 +112,7 @@ theme_c <- function(...){
 
 ```
 
-```{r load data, eval=TRUE}
+```{r load data}
 
 # load companies file of EIN to name and endowment data
 
@@ -151,6 +145,11 @@ endowment_data <- read_rds(here("data",
 ```
 
 ```{r extract dates,eval=FALSE}
+
+#########################################################
+# this chunk only needs to be run once to get dates.RDS
+#########################################################
+
 # extract return dates
 source(here("GET_VARS.R"))
 
@@ -176,10 +175,11 @@ saveRDS(dates, here('data', 'dates.RDS'))
 
 # Table of Company Communications 
 
-```{r,eval=TRUE}
+```{r}
 
-
-
+################################################
+# table with each company we reached out to
+################################################
 
  tribble(
    ~Company, ~Discrepancy,
@@ -226,7 +226,13 @@ saveRDS(dates, here('data', 'dates.RDS'))
 
 
 
-```{r sp500, eval=TRUE}
+```{r sp500}
+
+
+####################################################
+# JOIN TO S&P 500 BY PREVIOUS WEEK OF THE S&P 500 
+####################################################
+
 
 dates <- readRDS( here('data', 'dates.RDS')) %>%
   select(EIN, TaxPeriodEndDt, TaxPeriodBeginDt, fiscal_year) 
@@ -256,9 +262,6 @@ years_52 <- c(2011, 2017)
 # fill week, month from previous years
 # adjust year depending on whether the fiscal year is across years or not
 endowment_data_wide <- endowment_data_wide %>%
-  # select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt,
-  #        fiscal_year, contains("month"), 
-  #        contains("year"), contains("week")) %>%
   group_by(EIN) %>%
   arrange(fiscal_year) %>%
   mutate(diffyears = any(begin_year != end_year, na.rm=TRUE)) %>%
@@ -275,7 +278,7 @@ endowment_data_wide <- endowment_data_wide %>%
 sp <- read_csv(here('data','SP500_historical.csv'))
 
 
-
+# read S&P 500 data
 sp <- sp %>%
   rename_with(tolower) %>%
   select( sp500 = open, date) %>%
@@ -292,7 +295,7 @@ sp <- sp %>%
   mutate(maxweek = max(week))
 
 
-# shift up 1 by one week so we are joining by lagged week
+# shift up 1 by one week so we are joining by lagged week (i.e. the previous week)
 sp <- sp %>% 
   mutate(week_new = ifelse(week ==maxweek, 1, week+1),
          year_new = ifelse(week == maxweek, year+1, year)) %>%
@@ -301,9 +304,6 @@ sp <- sp %>%
 
 
 endowment_data_wide <- endowment_data_wide %>%
-  # select(EIN, TaxPeriodBeginDt, TaxPeriodEndDt,
-  #        fiscal_year, contains("month"), 
-  #        contains("year"), contains("week")) %>%
   group_by(EIN) %>%
   arrange(fiscal_year) %>%
   mutate(diffyears = any(begin_year != end_year, na.rm=TRUE)) %>%
@@ -324,13 +324,7 @@ end_sp <- endowment_data_wide %>%
   left_join(sp_end,  by = c('end_week' = 'week',
                              'end_year' = 'year'))
 
-# end_sp %>% filter(is.na(sp500_begin) | is.na(sp500_end)) %>% 
-#   select(EIN, TaxPeriodEndDt, 
-#          TaxPeriodBeginDt, 
-#          begin_week, 
-#          begin_year,
-#          sp500_begin,
-#          sp500_end)
+
 
 ```
 
@@ -352,11 +346,6 @@ This adjustment is important because we want to see how much of the change from 
 
 ```{r, fig.height = 17, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.pos="h"}
 
-# top_20 <- end_sp %>%
-#   group_by(organization_name) %>%
-#   summarize(mean_balance = mean(BeginningYearBalanceAmt, na.rm=TRUE)) %>%
-#   slice_max(mean_balance, n = 20)
-
 # replace NAs with 0's
 end_sp <-  end_sp %>%
   mutate(across(c(AdministrativeExpensesAmt, OtherExpendituresAmt,
@@ -370,6 +359,9 @@ with_mean <- end_sp %>%
   summarize(mean_balance = mean(BeginningYearBalanceAmt, na.rm=TRUE)) 
 
 
+#######################################################
+# annual growth over time, faceted by company
+#######################################################
 end_sp %>%
   inner_join(with_mean) %>%
   mutate(pct_change_adjusted = (EndYearBalanceAmt + OtherExpendituresAmt + 
@@ -436,6 +428,9 @@ We visualize the compound growth rates for all companies in Figure \ref{fig:comp
 
 ```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500 for three time periods. Not all companies are present in each plot, since not all companies have data going back the same number of years. Of note, year to year differences in the compound annual growth rate of the S\\&P 500 are due to differences in companies' fiscal years.", fig.width = 15, fig.height=18}
 
+##################################################################
+# computing compound annual growth for different time intervals
+##################################################################
 
 
 cagr_2011_2020 <- end_sp %>%
@@ -576,9 +571,7 @@ plt3 <- cagr_2017_2020 %>%
   theme(legend.text=element_text(size=16))
 
 
-library(cowplot)
 
-#row <- plot_grid(plt1, plt2)
 legend <- get_legend(plt3) 
 
 plt3 <- plt3 + theme(legend.position='none')
@@ -1047,7 +1040,6 @@ ggsave(here('final_report/images/prop_endowment_type_most_variable.pdf'))
     strip.text = element_text(margin =margin(6,0,6,0),
                                     size =4,
                                     lineheight=.5),
-        #  strip.text.y = element_text(angle=-90, color="white", size =18),
           legend.position="none",
         axis.title = element_text(size =16),
     axis.text.x = element_text(angle = 30),
@@ -1506,7 +1498,6 @@ balance_ranks <- balance_ranks %>%
    mutate(minyear = min(fiscal_year,na.rm=TRUE),
           maxyear = max(fiscal_year, na.rm=TRUE)) %>%
    mutate(organization_name = ifelse(maxyear == 2020, organization_name, NA)) %>%
- #  filter(!is.na(color_org)) %>%
    filter(fiscal_year == maxyear) %>%
    select(organization_name, minyear, rank,cont_rank) %>%
    distinct()
@@ -1540,7 +1531,6 @@ balance_ranks <- balance_ranks %>%
               data=labels) +
    geom_label(aes(x = minyear,
                   label = organization_name,
-              #  color=organization_name,
                  y =rank),
               nudge_x = -.3,
               color = "black",
@@ -1585,21 +1575,16 @@ balance_ranks %>%
 ```{r, fig.height =10, fig.cap="\\label{fig:rank-endowments-color-contribution}Rank of the endowment beginning of year balance over time, where the color indicates the ranking of the mean contributions received over all years on file for the company."}
 
 
-
-
-##############################
-# COLOR BY CONTRIBUTIONS
-##############################
+############################################################
+# RANK PLOT OVER TIME, LINES COLORED BY CONTRIBUTIONS
+############################################################
 
 
  balance_ranks %>%
    mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, 
                              organization_name, NA),
           alph =is.na(color_org)
-        #  cont_rank = factor(cont_rank)
           ) %>%
-   # mutate(minyear = min(fiscal_year,na.rm=TRUE)
-   #        contsum = sum(ContributionsAmt, )) %>%
     ggplot(aes(x=fiscal_year,
                y = rank, 
                color = cont_rank, 
@@ -1607,17 +1592,12 @@ balance_ranks %>%
                fill=cont_rank)) +
    geom_line(aes(linewidth=1/cont_rank, group=organization_name)) +
    scale_linewidth_continuous(range = c(.1,1.6), guide="none") +
-#   scale_color_steps2(high="#091F74", low="#CB1C1C", mid="lightgray", n.breaks=13, midpoint=5) +
-    # geom_point(alpha = .3, size =.5) +
    scale_color_viridis(option="mako",
                        direction = -1,
                        trans="reverse",
                        breaks = c(1,20,40),
-                     #  breaks = c(5,40),
-                     #  labels = c("Ranked Higher", "Ranked Lower"),
                        end=.9,
                     begin=.2) +
- #   scale_color_manual(values=pal, na.value=NA, breaks =top_ranks$organization_name) +
     theme_c() +
     scale_y_reverse(n.breaks = 10) +
     scale_x_continuous(breaks=2010:2020,limits=c(2010,2022)) +
@@ -1642,15 +1622,6 @@ balance_ranks %>%
     
 ggsave(here('final_report/images/rank-endowments-color-contribution.pdf'))
     
- # 
- # 
- # plt <- balance_ranks %>%
- #   mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
- #          alph =is.na(color_org)) %>%
- #   group_by(organization_name) %>%
- #   mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
- #    ggplot(aes(x=fiscal_year, y = rank)) +
- #       geom_line(aes(group=organization_name)) 
 
 ```
 
@@ -1707,7 +1678,7 @@ balance_ranks <- endowment_data_wide %>%
    arrange(desc(abs(mean_diff))) %>%
    slice_head(n=15)
  
- 
+ # rank for minimum year on file (top companies)
  labels <- balance_ranks %>%
    mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
           alph =is.na(color_org)) %>%
@@ -1720,7 +1691,7 @@ balance_ranks <- endowment_data_wide %>%
    distinct()
  
  
- 
+# rank for minimum year on file (all companies)
  labels_all <- balance_ranks %>%
    mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
           alph =is.na(color_org)) %>%
@@ -1728,7 +1699,6 @@ balance_ranks <- endowment_data_wide %>%
    mutate(minyear = min(fiscal_year,na.rm=TRUE),
           maxyear = max(fiscal_year, na.rm=TRUE)) %>%
    mutate(organization_name = ifelse(maxyear == 2020, organization_name, NA)) %>%
- #  filter(!is.na(color_org)) %>%
    filter(fiscal_year == maxyear) %>%
    select(organization_name, minyear, rank) %>%
    distinct()
@@ -1738,7 +1708,6 @@ balance_ranks <- endowment_data_wide %>%
    mutate(minyear = min(fiscal_year,na.rm=TRUE)) %>%
     ggplot(aes(x=fiscal_year, y = rank, color = organization_name, group = organization_name)) +
        geom_line() +
-   # scale_alpha_manual(values =c('TRUE' = 1, 'FALSE'=.01), guide="none") +
     geom_point(alpha = .3, size =.5) +
     scale_color_manual(values=pal, na.value=NA) +
     theme_c() +
@@ -1747,22 +1716,12 @@ balance_ranks <- endowment_data_wide %>%
     labs(y = paste("Rank of ", var),
          x = "Fiscal Year",
          title = paste0("Rank over time for ", var)) +
-   # geom_label(aes(x=minyear, y =rank,
-   #                label=organization_name,
-   #                color=organization_name), 
-   #            nudge_x = -.3,
-   #            alpha = 1,
-   #            label.size=1.5,
-   #            data=labels) +
    geom_text_repel(aes(x = 2020,
                   label = organization_name,
                   color=organization_name,
-              #  color=organization_name,
                  y =rank),
               direction="y",
               nudge_x = .1,
-        #      color = "black",
-           #  label.size = NA,
              hjust = 0,
              min.segment.length = .7,
              size =3.4,
@@ -1777,22 +1736,6 @@ balance_ranks <- endowment_data_wide %>%
 
  
  ggsave(here('final_report/images/ranking-contributions.pdf'))
-
-
- 
-# balance_ranks %>%
-#    mutate(color_org = ifelse(organization_name %in% top_ranks$organization_name, organization_name, NA),
-#           alph =is.na(color_org)) %>%
-#    group_by(organization_name) %>%
-#    mutate(minyear = min(fiscal_year,na.rm=TRUE),
-#           maxyear = max(fiscal_year, na.rm=TRUE)) %>%
-#   filter(fiscal_year == minyear | fiscal_year == maxyear) %>% 
-#   mutate(year = ifelse(fiscal_year == minyear, "min", "max")) %>%
-#   select(organization_name, rank, year) %>%
-#   pivot_wider(names_from=year, values_from= rank) %>%
-#   mutate(difference = max - min) %>%
-#   arrange(desc(abs(difference)))
-
 
 
  
