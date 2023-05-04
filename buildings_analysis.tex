@@ -1,0 +1,1375 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={test},
+  pdfauthor={Zhen Nie},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{test}
+\author{Zhen Nie}
+\date{2023-05-04}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{source}\NormalTok{(}\StringTok{"GET\_VARS.R"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## here() starts at /Users/niezhen/Desktop/Spring 2023/SDS 410/DDP-re
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.2     v readr     2.1.4
+## v forcats   1.0.0     v stringr   1.5.0
+## v ggplot2   3.4.2     v tibble    3.2.1
+## v lubridate 1.9.2     v tidyr     1.3.0
+## v purrr     1.0.1     
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## i Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(rmarkdown)}
+\FunctionTok{library}\NormalTok{(here)}
+\FunctionTok{library}\NormalTok{(tibble)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(viridis)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: viridisLite
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{schedule\_d }\OtherTok{\textless{}{-}} \FunctionTok{map\_df}\NormalTok{(files, }\SpecialCharTok{\textasciitilde{}}\FunctionTok{get\_df}\NormalTok{(}\AttributeTok{filename =}\NormalTok{ .x , }
+                              \AttributeTok{schedule =} \StringTok{\textquotesingle{}d\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter\_ein}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+## Schedule D contains endowment variables, which need to be obtained from endowments_by_most_recent_filings.RDS to handle discrepancies in filings.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{schedule\_d }\SpecialCharTok{\%\textgreater{}\%}
+  \CommentTok{\# remove /Return/ReturnData/IRS990ScheduleD/ from columns since this is shared}
+  \CommentTok{\# across all columns}
+  \FunctionTok{rename\_with}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\FunctionTok{gsub}\NormalTok{(}\StringTok{"/Return/ReturnData/IRS990ScheduleD/"}\NormalTok{, }\StringTok{""}\NormalTok{, .))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 785 x 223
+##    ReturnTs          EIN   filename OtherLandBuildingsGrp TotalBookValueLandBu~1
+##    <chr>             <chr> <chr>    <chr>                 <chr>                 
+##  1 2015-12-11T15:34~ 0103~ 2015034~ 697585779511963       164549                
+##  2 2019-06-13T11:59~ 0103~ 2019216~ 6946969469            144697                
+##  3 2019-12-16T12:40~ 0103~ 2019135~ 788066644312363       146683                
+##  4 2021-06-14T11:42~ 0103~ 2021116~ 788066872310083       139505                
+##  5 2016-07-14T13:45~ 0104~ 2016419~ 54997947581274167     1565506               
+##  6 2017-07-17T12:49~ 0104~ 2017119~ 56288147581287069     1530210               
+##  7 2018-07-12T14:55~ 0104~ 2018019~ 589642475812113830    1513466               
+##  8 2019-07-11T15:02~ 0104~ 2019219~ 595756475812119944    1454046               
+##  9 2020-07-15T11:19~ 0104~ 2020019~ 614704475812138892    1407898               
+## 10 2021-07-15T13:45~ 0104~ 2021019~ 629696475812153884    1359813               
+## # i 775 more rows
+## # i abbreviated name: 1: TotalBookValueLandBuildingsAmt
+## # i 218 more variables: TotalBookValueSecuritiesAmt <chr>,
+## #   FootnoteTextInd <chr>, TotalRevEtcAuditedFinclStmtAmt <chr>,
+## #   OtherRevenueAmt <chr>, RevenueNotReportedAmt <chr>,
+## #   RevenueSubtotalAmt <chr>, OtherRevenuesNotIncludedAmt <chr>,
+## #   RevenueNotReportedFinclStmtAmt <chr>, TotalRevenuePerForm990Amt <chr>, ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{companies}\OtherTok{\textless{}{-}}\FunctionTok{read.csv}\NormalTok{(}\FunctionTok{here}\NormalTok{(}\StringTok{"data"}\NormalTok{,}\StringTok{"companies.csv"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(organization\_name, EIN) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{EIN=}\FunctionTok{as.character}\NormalTok{(EIN))}
+
+\NormalTok{buildings}\OtherTok{\textless{}{-}}\NormalTok{schedule\_d[,}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{35}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{86}\NormalTok{,}\DecValTok{87}\NormalTok{,}\DecValTok{124}\NormalTok{,}\DecValTok{159}\NormalTok{,}\DecValTok{160}\NormalTok{)] }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(companies, }\AttributeTok{by =} \StringTok{"EIN"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename\_with}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\FunctionTok{gsub}\NormalTok{(}\StringTok{"/Return/ReturnData/IRS990ScheduleD/"}\NormalTok{, }\StringTok{""}\NormalTok{, .)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(organization\_name))}
+
+\FunctionTok{saveRDS}\NormalTok{(buildings, }\StringTok{"data/buildings.RDS"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(buildings, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(TotalBookValueLandBuildingsAmt)), }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \CommentTok{\#geom\_line()+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{, }\AttributeTok{option=} \StringTok{"A"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 139 rows containing missing values (`geom_point()`).
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{high }\OtherTok{\textless{}{-}}\NormalTok{ buildings }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{quantile =} \FunctionTok{ntile}\NormalTok{(TotalBookValueLandBuildingsAmt, }\DecValTok{12}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(quantile }\SpecialCharTok{\textgreater{}=} \DecValTok{9}\NormalTok{)}
+
+\NormalTok{medium }\OtherTok{\textless{}{-}}\NormalTok{ buildings }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{quantile =} \FunctionTok{ntile}\NormalTok{(TotalBookValueLandBuildingsAmt, }\DecValTok{12}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(quantile }\SpecialCharTok{\textgreater{}} \DecValTok{4} \SpecialCharTok{\&}\NormalTok{ quantile }\SpecialCharTok{\textless{}} \DecValTok{9}\NormalTok{)}
+
+\NormalTok{low }\OtherTok{\textless{}{-}}\NormalTok{ buildings }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{quantile =} \FunctionTok{ntile}\NormalTok{(TotalBookValueLandBuildingsAmt, }\DecValTok{12}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(quantile }\SpecialCharTok{\textless{}=} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(high,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ fiscal\_year, }\AttributeTok{y=}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt), }\AttributeTok{color=}\NormalTok{organization\_name))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option=}\StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(medium, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(TotalBookValueLandBuildingsAmt)), }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option=}\StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(low, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(TotalBookValueLandBuildingsAmt)), }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \CommentTok{\#geom\_line()+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{make\_table }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, }\AttributeTok{title =} \StringTok{""}\NormalTok{, ...) \{}
+\NormalTok{  title }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"\textless{}center\textgreater{}\textless{}span style = \textquotesingle{}font{-}size:160\%;color:black\textquotesingle{}\textgreater{}\textless{}b\textgreater{}"}\NormalTok{,}
+\NormalTok{                  title,}
+                  \StringTok{"\textless{}/span\textgreater{}\textless{}/b\textgreater{}\textless{}center\textgreater{}"}\NormalTok{)}
+   \FunctionTok{as\_tibble}\NormalTok{(df) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{kbl}\NormalTok{(}\AttributeTok{caption =}\NormalTok{ title, ... ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{kable\_material}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{row\_spec}\NormalTok{(}\AttributeTok{row=}\DecValTok{0}\NormalTok{, }\AttributeTok{background =} \StringTok{"\#43494C"}\NormalTok{ , }\AttributeTok{color =} \StringTok{"white"}\NormalTok{, }\AttributeTok{bold =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{buildings }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(fiscal\_year) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}
+    \StringTok{\textasciigrave{}}\AttributeTok{Reporting companies number}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{n}\NormalTok{(),}
+    \AttributeTok{Mean =} \FunctionTok{mean}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt), }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Median =} \FunctionTok{median}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt),}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Max =} \FunctionTok{max}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt),}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Min =} \FunctionTok{min}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt),}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  ) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 6
+##   fiscal_year `Reporting companies number`     Mean  Median      Max    Min
+##   <fct>                              <int>    <dbl>   <dbl>    <dbl>  <dbl>
+## 1 2015                                  97 3755546. 236837  46879739   -253
+## 2 2014                                   5 1582426. 214774.  5899849    307
+## 3 2016                                 108 3567395. 196561  48032592      0
+## 4 2017                                 116 3872468. 201612. 53775688      0
+## 5 2018                                 126 4577051. 201787  78776944      0
+## 6 2019                                 133 4367077. 187498. 73465785 -97925
+## 7 2020                                 115 4317708. 186398  69565645      0
+## 8 2021                                  26 1359522. 101898   9856170      0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{options}\NormalTok{(}\AttributeTok{scipen =} \DecValTok{999}\NormalTok{, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{)}
+\NormalTok{changes}\OtherTok{\textless{}{-}}\NormalTok{buildings }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(organization\_name) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{change =}\NormalTok{ (}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt) }\SpecialCharTok{{-}} \FunctionTok{lag}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt))) }\SpecialCharTok{/} \FunctionTok{lag}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(TotalBookValueLandBuildingsAmt)) }\SpecialCharTok{*} \DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{change\_abs =} \FunctionTok{abs}\NormalTok{(change))}
+\NormalTok{changes }\OtherTok{\textless{}{-}}\NormalTok{ changes[,}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{12}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(changes, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =}\NormalTok{ change, }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 274 rows containing missing values (`geom_point()`).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 274 rows containing missing values (`geom_line()`).
+\end{verbatim}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smaller}\OtherTok{\textless{}{-}}\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change\_abs }\SpecialCharTok{\textless{}=} \DecValTok{100}\NormalTok{)}
+
+\NormalTok{bigger}\OtherTok{\textless{}{-}}\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change\_abs }\SpecialCharTok{\textgreater{}} \DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(smaller, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =}\NormalTok{ change, }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(bigger, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =}\NormalTok{ change, }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{negative }\OtherTok{\textless{}{-}}\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change }\SpecialCharTok{\textless{}}\DecValTok{0}\NormalTok{)}
+\NormalTok{positive }\OtherTok{\textless{}{-}}\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change }\SpecialCharTok{\textgreater{}}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(negative, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =}\NormalTok{ change, }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(positive, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.character}\NormalTok{(fiscal\_year), }\AttributeTok{y =}\NormalTok{ change, }\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(organization\_name)))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{stat =} \StringTok{"identity"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{begin=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\AttributeTok{end=}\NormalTok{.}\DecValTok{8}\NormalTok{,}\AttributeTok{option =} \StringTok{"A"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Fiscal Year"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Book Value Land Buildings Amount"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_line()`: Each group consists of only one observation.
+## i Do you need to adjust the group aesthetic?
+\end{verbatim}
+
+\includegraphics{buildings_analysis_files/figure-latex/unnamed-chunk-17-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change }\SpecialCharTok{!=} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(fiscal\_year) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{Mean =} \FunctionTok{mean}\NormalTok{(change, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Median =} \FunctionTok{median}\NormalTok{(change,}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Max =} \FunctionTok{max}\NormalTok{(change,}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Min =} \FunctionTok{min}\NormalTok{(change,}\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 7 x 5
+##   fiscal_year    Mean Median    Max      Min
+##   <fct>         <dbl>  <dbl>  <dbl>    <dbl>
+## 1 2015         -24.2   -7.36   17.8   -100  
+## 2 2016        -430.    -2.90  935.  -33909. 
+## 3 2017          56.8   -2.40 1471.     -89.7
+## 4 2018         144.    -3.47 4709.     -94.0
+## 5 2019          -6.31  -4.03  422.    -928. 
+## 6 2020         313.    -4.90 9567.     -92.3
+## 7 2021          63.8  -11.3  1413.    -106.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change }\SpecialCharTok{\textgreater{}} \DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(organization\_name, fiscal\_year, change) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(change))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 35 x 3
+## # Groups:   organization_name [29]
+##    organization_name           fiscal_year change
+##    <chr>                       <fct>        <dbl>
+##  1 Island Moving Company       2016          Inf 
+##  2 Collage Dance Collective    2020         9567.
+##  3 Smuin Ballet                2020         7188.
+##  4 Florida Ballet Jacksonville 2020         5812.
+##  5 Verb Ballets                2018         4709.
+##  6 BalletX                     2018         4190.
+##  7 Cleveland Ballet            2020         2001.
+##  8 Ballet San Antonio          2020         1764.
+##  9 New Ballet - San Jose       2017         1471.
+## 10 Ballet Sun Valley           2021         1413.
+## # i 25 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(change)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{na.omit}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change}\SpecialCharTok{\textgreater{}}\DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(fiscal\_year, organization\_name,change)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 35 x 3
+## # Groups:   organization_name [29]
+##    fiscal_year organization_name           change
+##    <fct>       <chr>                        <dbl>
+##  1 2016        Island Moving Company         Inf 
+##  2 2020        Collage Dance Collective     9567.
+##  3 2020        Smuin Ballet                 7188.
+##  4 2020        Florida Ballet Jacksonville  5812.
+##  5 2018        Verb Ballets                 4709.
+##  6 2018        BalletX                      4190.
+##  7 2020        Cleveland Ballet             2001.
+##  8 2020        Ballet San Antonio           1764.
+##  9 2017        New Ballet - San Jose        1471.
+## 10 2021        Ballet Sun Valley            1413.
+## # i 25 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{changes }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(change)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{na.omit}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(change}\SpecialCharTok{\textless{}}\DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(fiscal\_year, organization\_name,change)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 417 x 3
+## # Groups:   organization_name [107]
+##    fiscal_year organization_name         change
+##    <fct>       <chr>                      <dbl>
+##  1 2018        Utah Metropolitan Ballet    98.0
+##  2 2018        Kentucky Ballet Theatre     96.8
+##  3 2019        Ballet San Antonio          90.8
+##  4 2019        Ballet Idaho                89.4
+##  5 2018        Ballet Idaho                87.6
+##  6 2016        Pittsburgh Ballet Theatre   86.5
+##  7 2017        Pacific Northwest Ballet    80.4
+##  8 2016        Kansas City Ballet          75.6
+##  9 2021        Cleveland Ballet            75.4
+## 10 2016        Smuin Ballet                62.8
+## # i 407 more rows
+\end{verbatim}
+
+\end{document}
