@@ -125,11 +125,15 @@ companies_to_ein <- companies_to_ein %>%
     "Ballet Hispánico",
     organization_name))
 
-
-endowment_data <- read_rds(here("data", 
-                                "endowments_by_most_recent_filings.RDS")) %>%
-  mutate(across(c(AdministrativeExpensesAmt,ContributionsAmt,OtherExpendituresAmt ), abs)) %>%
-  select(-c(EndowmentsHeldUnrelatedOrgInd, EndowmentsHeldRelatedOrgInd)) %>%
+endowment_data <- read_rds(here(
+  "data", 
+  "endowments_by_most_recent_filings.RDS")) %>%
+# taking the absolute value to handle (most) described discrepancies 
+# where calculated end of year balance does not match the reported
+  mutate(across(c(AdministrativeExpensesAmt,
+                  ContributionsAmt,OtherExpendituresAmt ), abs)) %>%
+  select(-c(EndowmentsHeldUnrelatedOrgInd, 
+            EndowmentsHeldRelatedOrgInd)) %>%
   pivot_longer(-c(EIN, fiscal_year),
                names_to = "variable_name") %>%
   left_join(companies_to_ein) %>%
