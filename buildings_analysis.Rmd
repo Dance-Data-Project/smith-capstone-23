@@ -15,7 +15,21 @@ library(ggplot2)
 library(viridis)
 ```
 
+## Infrastructure
+
 ```{r}
+make_table <- function(df, title = "", ...) {
+  title <- paste0("<center><span style = 'font-size:160%;color:black'><b>",
+                  title,
+                  "</span></b><center>")
+   as_tibble(df) %>%
+    kbl(caption = title, ... ) %>%
+    kable_material() %>%
+    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
+}
+```
+
+```{r,eval=FALSE}
 schedule_d <- map_df(files, ~get_df(filename = .x , 
                               schedule = 'd')) %>%
   filter_ein()
@@ -30,20 +44,24 @@ companies<-read.csv(here("data","companies.csv")) %>% select(organization_name, 
 buildings<-schedule_d[,c(1,35,2,5,86,87,124,159,160)] %>% 
   left_join(companies, by = "EIN") %>% 
   rename_with(~gsub("/Return/ReturnData/IRS990ScheduleD/", "", .)) %>% 
-  filter(!is.na(organization_name))
+  filter(!is.na(organization_name)) %>% 
+  mutate(fiscal_year = as.numeric(as.character(fiscal_year)))
 
 saveRDS(buildings, "data/buildings.RDS")
 ```
 
-
+## Overall Visualizations
 ```{r}
-
-  ggplot(buildings, aes(x = as.character(fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(organization_name)))+
-    #geom_line()+
-    geom_point()+
-    theme_bw()+
-    scale_color_viridis(discrete=TRUE, option= "A") +
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+ggplot(buildings, aes(x = fiscal_year, y = as.numeric(TotalBookValueLandBuildingsAmt), color = as.factor(organization_name)))+
+  theme_bw()+
+  geom_line()+
+  #geom_point()+
+  scale_color_viridis(discrete=TRUE, option="A")+
+  theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))+
+  labs(x = "Fiscal Year",
+       y = "Total Book Values of Land and Buildings",
+       color = "Company Name")
 
 ```
 
@@ -69,44 +87,42 @@ low <- buildings %>%
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option="A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount", 
+         color = "Company Name")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
 ```{r}
 
-  ggplot(medium, aes(x = as.character(fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(organization_name)))+
+ggplot(medium, aes(x = fiscal_year, 
+                   y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), 
+                   color = as.factor(organization_name)))+
     geom_line()+
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option="A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount", 
+         color = "Company Name")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
 ```{r}
 
-  ggplot(low, aes(x = as.character(fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(organization_name)))+
+  ggplot(low, aes(x = (fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(organization_name)))+
     #geom_line()+
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
     labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")+
-  theme(legend.key.size = unit(0.5, "cm"))
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
-```{r}
-make_table <- function(df, title = "", ...) {
-  title <- paste0("<center><span style = 'font-size:160%;color:black'><b>",
-                  title,
-                  "</span></b><center>")
-   as_tibble(df) %>%
-    kbl(caption = title, ... ) %>%
-    kable_material() %>%
-    row_spec(row=0, background = "#43494C" , color = "white", bold = TRUE)
-}
-```
 
 ```{r}
 buildings %>% 
@@ -119,7 +135,7 @@ buildings %>%
     Min = min(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE)
   ) 
 ```
-
+## Percentage Change
 ```{r}
 options(scipen = 999, digits = 3)
 changes<-buildings %>% 
@@ -131,13 +147,16 @@ changes <- changes[,c(1,2,3,10,11,12)]
 ```
 
 ```{r}
-
-  ggplot(changes, aes(x = as.character(fiscal_year), y = change, color = as.factor(organization_name)))+
+# change overall
+  ggplot(changes, aes(x = fiscal_year, y = change, color = as.factor(organization_name)))+
     geom_point()+
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount",
+         color = "Company Name")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
@@ -150,24 +169,29 @@ bigger<-changes %>%
 ```
 
 ```{r}
-
-  ggplot(smaller, aes(x = as.character(fiscal_year), y = change, color = as.factor(organization_name)))+
+#change smaller than 100%
+  ggplot(smaller, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
     geom_point()+
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Book Value Land Buildings Amount % Change", 
+         color = "Company Name")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
 ```{r}
-
-  ggplot(bigger, aes(x = as.character(fiscal_year), y = change, color = as.factor(organization_name)))+
+# changes larger than 100%
+  ggplot(bigger, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
     geom_point()+
-    geom_line(stat = "identity")+
+    geom_line()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 
 ```
 
@@ -175,28 +199,40 @@ bigger<-changes %>%
 ```{r}
 negative <-changes %>% 
   filter(change <0)
+
+
 positive <-changes %>% 
   filter(change >0)
 ```
 
 ```{r}
-
-  ggplot(negative, aes(x = as.character(fiscal_year), y = change, color = as.factor(organization_name)))+
+# negative changes
+  ggplot(negative, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
     geom_point()+
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Companies with Negative % Change in Book Value Land Buildings Amount",
+         color = "Company Name")+
+    theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
 ```
 
 ```{r}
 
-  ggplot(positive, aes(x = as.character(fiscal_year), y = change, color = as.factor(organization_name)))+
+  ggplot(positive, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
     geom_point()+
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")
+    labs(x = "Fiscal Year", y = "Companies with Postivie Change in Book Value Land Buildings Amount")+
+   theme(legend.key.size = unit(1, "mm"),
+        legend.text = element_text(size = 2))
+```
+```{r}
+positive %>% 
+  select(fiscal_year, organization_name) %>% 
+  unique()
 ```
 
 ```{r}
@@ -234,4 +270,67 @@ changes %>%
   select(fiscal_year, organization_name,change)
 ```
 
+## Regional Analysis
+
+```{r}
+state<-readRDS(here("data","ein_to_state_update.RDS"))
+buildings<-buildings %>% 
+  left_join(state, by = "EIN")
+```
+
+```{r}
+buildings %>% 
+  group_by(state, fiscal_year) %>% 
+  summarise(
+    mean = mean(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    median = median(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    max = max(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    min = min(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE)
+  ) %>% 
+  arrange(desc(median)) %>% 
+  ggplot(aes(x = fiscal_year, y = median, color = state))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  scale_color_viridis(discrete=TRUE, option = "A")+
+  labs(x = "Fiscal Year", y = "Median of Building Book Values",color = "State")
+```
+```{r}
+buildings %>% 
+  group_by(state, fiscal_year) %>% 
+  summarise(
+    mean = mean(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    median = median(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    max = max(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    min = min(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    sum = sum(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE)
+  ) %>% 
+  arrange(desc(sum)) %>% 
+  ggplot(aes(x = fiscal_year, y = sum, color = state))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  scale_color_viridis(discrete = TRUE, option="A")+
+  labs()
+```
+```{r}
+buildings %>% 
+  group_by(state, fiscal_year) %>% 
+  summarise(
+    Number = n()
+  ) %>% 
+  unique() %>% 
+  ggplot(aes(x = fiscal_year, y = Number, color = state))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  scale_color_viridis(discrete = TRUE, option="A")+
+  labs(x = "Fiscal Year", 
+       y = "Number",
+       color = "State",
+       title = "Companies reporting Total Building and Land Book Values")
+```
+```{r}
+
+```
 
