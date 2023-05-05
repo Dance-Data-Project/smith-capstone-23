@@ -23,18 +23,21 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r}
-
 library(tidyverse)
 library(xml2)
 library(kableExtra)
 library(lubridate)
 library(forcats)
 library(here)
+
+
+source(here('GET_VARS.R'))
+
 ```
 
 
 # Generate Metadata Table for All Files  
-```{r get_df function for extracting data from xml files,eval=TRUE, class.source = "fold-show" }
+```{r get_df function for extracting data from xml files,eval=FALSE, class.source = "fold-show" }
 
 
 ##########################################################
@@ -182,6 +185,7 @@ saveRDS(all_data, here("data", "data_990.RDS"))
 
 
 # Filtering the metadata table 
+
 
 ```{r, filtering}
 ## Filtering for most recent version, 
@@ -392,11 +396,11 @@ saveRDS(endowment_data_filtered, here("data", "endowment_filter_data_990.RDS"))
 ```{r}
 
 read_csv(here('data', 'companies.csv')) %>%
-  mutate(EIN = as.character(ein)) %>%
-  select(organization_name, EIN, ein) %>%
+  mutate(EIN = as.character(ein),
+         EIN = ifelse(nchar(EIN) == 8, paste("0", EIN, sep=""), EIN)) %>%
+  select(organization_name, EIN) %>%
   distinct() %>%
-  write_csv(here('data', 'companies.csv'))
-
+  saveRDS(here('data', 'companies.RDS'))
 
 ```
 
