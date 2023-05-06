@@ -125,7 +125,20 @@ ggplot(medium, aes(x = fiscal_year,
 
 
 ```{r}
-buildings %>% 
+building_summary_state<-buildings %>% 
+  group_by(state,fiscal_year) %>% 
+  summarise(
+    `Reporting companies number` = n(),
+    Mean = mean(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
+    Median = median(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE),
+    Max = max(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE),
+    Min = min(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE)
+  ) 
+building_summary_state
+```
+
+```{r}
+building_summary<-buildings %>% 
   group_by(fiscal_year) %>% 
   summarise(
     `Reporting companies number` = n(),
@@ -134,7 +147,55 @@ buildings %>%
     Max = max(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE),
     Min = min(as.numeric(TotalBookValueLandBuildingsAmt),na.rm=TRUE)
   ) 
+building_summary
 ```
+
+
+```{r}
+# ranking
+
+data2014<-buildings %>% filter(fiscal_year==2014) %>% unique()
+data2015<-buildings %>% filter(fiscal_year==2015) %>% unique()
+data2016<-buildings %>% filter(fiscal_year==2016) %>% unique()
+data2017<-buildings %>% filter(fiscal_year==2017) %>% unique()
+data2018<-buildings %>% filter(fiscal_year==2018) %>% unique()
+data2019<-buildings %>% filter(fiscal_year==2019) %>% unique()
+data2020<-buildings %>% filter(fiscal_year==2020) %>% unique()
+data2021<-buildings %>% filter(fiscal_year==2021) %>% unique()
+
+
+data2014$rank = rank(data2014$TotalBookValueLandBuildingsAmt)
+data2015$rank = rank(data2015$TotalBookValueLandBuildingsAmt)
+data2016$rank = rank(data2016$TotalBookValueLandBuildingsAmt)
+data2017$rank = rank(data2017$TotalBookValueLandBuildingsAmt)
+data2018$rank = rank(data2018$TotalBookValueLandBuildingsAmt)
+data2019$rank = rank(data2019$TotalBookValueLandBuildingsAmt)
+data2020$rank = rank(data2020$TotalBookValueLandBuildingsAmt)
+data2021$rank = rank(data2021$TotalBookValueLandBuildingsAmt)
+
+rankings <- rbind(data2014,data2015,data2016,data2017,data2018,data2019,data2020,data2021)
+```
+
+```{r}
+# ranking vis
+
+ggplot(rankings, aes(x = fiscal_year, y = rank, color = organization_name.x))+
+  geom_line()+
+  theme_bw()+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=2))+
+  scale_y_reverse()+
+  labs(x = "Fiscal Year",
+      y = "Ranking of Book Values",
+      color = "Company Names")
+```
+
+
 ## Percentage Change
 ```{r}
 options(scipen = 999, digits = 3)
@@ -212,10 +273,15 @@ positive <-changes %>%
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Companies with Negative % Change in Book Value Land Buildings Amount",
+    labs(x = "Fiscal Year", y = "Companies with Negative % Change in Book Value",
          color = "Company Name")+
-    theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))
+    theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 7, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 7, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=2))
 ```
 
 ```{r}
@@ -225,9 +291,14 @@ positive <-changes %>%
     geom_line(stat = "identity")+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Companies with Postivie Change in Book Value Land Buildings Amount")+
-   theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))
+    labs(x = "Fiscal Year", y = "Companies with Postivie Change in Book Values", color = "Company Name")+
+   theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 8, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=2))
 ```
 ```{r}
 positive %>% 
@@ -279,6 +350,7 @@ buildings<-buildings %>%
 ```
 
 ```{r}
+# median
 buildings %>% 
   group_by(state, fiscal_year) %>% 
   summarise(
@@ -293,9 +365,17 @@ buildings %>%
   geom_line()+
   theme_bw()+
   scale_color_viridis(discrete=TRUE, option = "A")+
-  labs(x = "Fiscal Year", y = "Median of Building Book Values",color = "State")
+  labs(x = "Fiscal Year", y = "Median of Building Book Values",color = "State")+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))
 ```
 ```{r}
+# sum 
 buildings %>% 
   group_by(state, fiscal_year) %>% 
   summarise(
@@ -311,9 +391,17 @@ buildings %>%
   geom_line()+
   theme_bw()+
   scale_color_viridis(discrete = TRUE, option="A")+
-  labs()
+  labs(x = "Fiscal Year", y = "Sum of Total Book Values", color = "State")+
+ theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))
 ```
 ```{r}
+# company reporting
 buildings %>% 
   group_by(state, fiscal_year) %>% 
   summarise(
@@ -328,9 +416,90 @@ buildings %>%
   labs(x = "Fiscal Year", 
        y = "Number",
        color = "State",
-       title = "Companies reporting Total Building and Land Book Values")
+       title = "Companies reporting Total Building and Land Book Values")+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=7))
 ```
-```{r}
 
+
+```{r}
+# rank of regions
+
+rank2014<-data2014 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt))) %>% 
+  mutate(Year = 2014)
+rank2015<-data2015 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2015)
+rank2016<-data2016 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2016)
+rank2017<-data2017 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2017)
+rank2018<-data2018 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2018)
+rank2019<-data2019 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2019)
+rank2020<-data2020 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2020)
+rank2021<-data2021 %>% 
+  group_by(state) %>% 
+  summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
+  mutate(Year = 2021)
+
+ranking_state<-rbind(rank2014,rank2015,rank2016,rank2017,rank2018,rank2019,rank2020,rank2021) %>% 
+  
 ```
+
+```{r}
+# rank by absolute sum 
+ggplot(ranking_state, aes(x = Year, y = sum, color = state))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  scale_color_viridis(discrete=TRUE, option="A")+
+  labs(x = "Fiscal Year", 
+       y = "Sum",
+       color = "State",
+       title = "Sum of Book Values by State")+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=4))
+  
+```
+
+```{r}
+ggplot(building_summary,aes(x = fiscal_year, y = `Reporting companies number`))+
+  geom_col()+
+  theme_bw()+
+  labs(x = "Fiscal Year")+
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=4))
+```
+
 
