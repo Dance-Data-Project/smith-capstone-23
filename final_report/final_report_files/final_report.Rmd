@@ -164,6 +164,7 @@ Another result of this approach is that we can look back through 2010 in some ca
 
 ```
 
+\newpage
 
 ## Standard Definitions 
 
