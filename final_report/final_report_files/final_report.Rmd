@@ -112,13 +112,13 @@ Form 990 can be completed in three different formats: Form 990, Form 900-EZ, and
 
 Because in a single filing, a company reports years for several endowment variables not only for the current year but for the prior year, two years back, three years back, and four years back, we can check if filings across years are concordant.
 
-For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, we can check whether the value they reported for 2016 in the 2020 filing (in the four years back column) was indeed what they reported in 2016 (in the current year column). Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When we identified these discrepancies, we reached out to the companies to clarify which values were correct. We received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct (Table \ref{table:discrep}). 
+For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, we can check whether the value they reported for 2016 in the 2020 filing (in the four years back column) was indeed what they reported in 2016 (in the current year column). Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When we identified these discrepancies, we reached out to the companies to clarify which values were correct  (Table \ref{table:discrep}). We received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct. 
 
 Because discrepancies were typically in earlier years, and our communications with the companies who did respond noted their most recently reported values were correct, in our analyses we took the most recent data available. For example, we took values for 2016-2020 from the 2020 filing instead of taking the current year values for the filing from each year separately. 
 
 
 
-```{r, fig.cap="\\label{table:discrep}"}
+```{r, fig.cap="\\label{table:discrep}",results='asis', fig.pos="h",out.extra=""}
 
 
  tribble(
@@ -244,15 +244,15 @@ include_graphics(here('final_report', 'images', 'proportion_endowment_categories
 
 ```
 
-However, there are several notable exceptions to the general  trend of consistency across years. Defining variability as the maximum standard deviation of the proportions for each category, the most variable 5 companies were Fort Wayne Ballet, San Francisco Ballet, Nashville Ballet, Atlanta Ballet, and the Washington Ballet (Figure \ref{fig:prop-most-variable}).
+However, there are several notable exceptions to the general trend of consistency across years. Defining variability as the maximum standard deviation of the proportions for each category, the most variable 5 companies were Fort Wayne Ballet, San Francisco Ballet, Nashville Ballet, Atlanta Ballet, and the Washington Ballet (Figure \ref{fig:prop-most-variable}).
 
 
 \begin{itemize}
-\item For Fort Wayne Ballet, most of the endowment funds (86%) were board designated/quasi-endowment in 2017, but this dropped to a mere 7% in 2018. The percentage of the endowment funds in the permanent endowment category increased accordingly. 
-\item 100% of San Francisco Ballet’s endowment was in the board designated/quasi-endowment category up until 2018, when the percentage in  board designated/quasi-endowment  dropped to 33% and most (61%) was a permanent endowment.
-\item  The trends in Nashville Ballet’s endowment went the opposite direction, with a large increase in the percentage in the  board designated/quasi-endowment  category (17% to 74%) and decrease in the percentage in the permanent category.
-\item For Atlanta Ballet, there is a dramatic shift in 2017 where the percentage held as temporarily restricted goes from 0% to 64%.
-\item The Washington Ballet had a high proportion of its endowment in the temporarily restricted category (52%) but by 2017 all their endowment funds were in the permanent endowment category. 
+\item For Fort Wayne Ballet, most of the endowment funds (86\%) were board designated/quasi-endowment in 2017, but this dropped to a mere 7\% in 2018. The percentage of the endowment funds in the permanent endowment category increased accordingly. 
+\item 100\% of San Francisco Ballet’s endowment was in the board designated/quasi-endowment category up until 2018, when the percentage in  board designated/quasi-endowment  dropped to 33\% and most (61\%) was a permanent endowment.
+\item  The trends in Nashville Ballet’s endowment went the opposite direction, with a large increase in the percentage in the  board designated/quasi-endowment  category (17\% to 74\%) and decrease in the percentage in the permanent category.
+\item For Atlanta Ballet, there is a dramatic shift in 2017 where the percentage held as temporarily restricted goes from 0\% to 64\%.
+\item The Washington Ballet had a high proportion of its endowment in the temporarily restricted category (52\%) but by 2017 all their endowment funds were in the permanent endowment category. 
 \end{itemize}
 
 
