@@ -52,10 +52,10 @@ saveRDS(buildings, "data/buildings.RDS")
 
 ## Overall Visualizations
 ```{r}
-ggplot(buildings, aes(x = fiscal_year, y = as.numeric(TotalBookValueLandBuildingsAmt), color = as.factor(organization_name)))+
+ggplot(buildings, aes(x = fiscal_year, y = as.numeric(TotalBookValueLandBuildingsAmt), color = as.factor(name)))+
   theme_bw()+
   geom_line()+
-  #geom_point()+
+  geom_point()+
   scale_color_viridis(discrete=TRUE, option="A")+
   theme(legend.key.size = unit(1, "mm"),
         legend.text = element_text(size = 2))+
@@ -82,12 +82,12 @@ low <- buildings %>%
 
 ```{r}
 
-  ggplot(high,aes(x = fiscal_year, y=as.numeric(TotalBookValueLandBuildingsAmt), color=organization_name))+
+  ggplot(high,aes(x = fiscal_year, y=as.numeric(TotalBookValueLandBuildingsAmt), color=name))+
     geom_line()+
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option="A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount", 
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount (High)", 
          color = "Company Name")+
     theme(legend.key.size = unit(1, "mm"),
         legend.text = element_text(size = 2))
@@ -98,12 +98,12 @@ low <- buildings %>%
 
 ggplot(medium, aes(x = fiscal_year, 
                    y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), 
-                   color = as.factor(organization_name)))+
+                   color = as.factor(name)))+
     geom_line()+
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option="A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount", 
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount (Medium)", 
          color = "Company Name")+
     theme(legend.key.size = unit(1, "mm"),
         legend.text = element_text(size = 2))
@@ -112,14 +112,19 @@ ggplot(medium, aes(x = fiscal_year,
 
 ```{r}
 
-  ggplot(low, aes(x = (fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(organization_name)))+
-    #geom_line()+
+  ggplot(low, aes(x = (fiscal_year), y = as.numeric(as.character(TotalBookValueLandBuildingsAmt)), color = as.factor(name)))+
+    geom_line()+
     geom_point()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")+
-    theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount (Low)", color = "Company Name")+
+   theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
+        axis.title = element_text(size = 8, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=2))
 
 ```
 
@@ -189,6 +194,7 @@ ggplot(rankings, aes(x = fiscal_year, y = rank, color = organization_name.x))+
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=2))+
+  scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
   scale_y_reverse()+
   labs(x = "Fiscal Year",
       y = "Ranking of Book Values",
@@ -200,7 +206,7 @@ ggplot(rankings, aes(x = fiscal_year, y = rank, color = organization_name.x))+
 ```{r}
 options(scipen = 999, digits = 3)
 changes<-buildings %>% 
-  group_by(organization_name) %>% 
+  group_by(name) %>% 
   mutate(change = (as.numeric(TotalBookValueLandBuildingsAmt) - lag(as.numeric(TotalBookValueLandBuildingsAmt))) / lag(as.numeric(TotalBookValueLandBuildingsAmt)) * 100) %>%
   mutate(change_abs = abs(change))
 changes <- changes[,c(1,2,3,10,11,12)]
@@ -239,7 +245,8 @@ bigger<-changes %>%
     labs(x = "Fiscal Year", y = "Book Value Land Buildings Amount % Change", 
          color = "Company Name")+
     theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))
+        legend.text = element_text(size = 2))+
+    annotate("text", x = max(df$x), y = tail(df$y, n = 1), label = "Label")
 
 ```
 
@@ -250,11 +257,21 @@ bigger<-changes %>%
     geom_line()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount")+
-    theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))
+    labs(x = "Fiscal Year", y = "Total Book Value Land Buildings Amount",color = "Company Name")+
+    theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
+        axis.title = element_text(size = 7, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 7, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.key.size = unit(1, 'mm'),
+        legend.text = element_text(size=4))+
+  #geom_text(data = bigger %>% group_by(organization_name) %>% slice_tail(n = 1), aes(label = organization_name),hjust = -0.1, vjust = 0,size =2 )+
+  ylim(-30000,15000)
+  
+                                                        
 
 ```
+
 
 
 ```{r}
@@ -281,7 +298,9 @@ positive <-changes %>%
         axis.text.x = element_text(size = 7, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=2))
+        legend.text = element_text(size=2))+geom_text(aes(label = name),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
 ```
 
 ```{r}
@@ -372,37 +391,44 @@ buildings %>%
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7))
+        legend.text = element_text(size=7))+
+  geom_text(aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
 ```
 ```{r}
 # sum 
 buildings %>% 
+  filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
   group_by(state, fiscal_year) %>% 
   summarise(
     mean = mean(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
     median = median(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
     max = max(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
     min = min(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
-    sum = sum(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE)
-  ) %>% 
+    sum = sum(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE)) %>% 
   arrange(desc(sum)) %>% 
   ggplot(aes(x = fiscal_year, y = sum, color = state))+
   geom_point()+
   geom_line()+
   theme_bw()+
   scale_color_viridis(discrete = TRUE, option="A")+
-  labs(x = "Fiscal Year", y = "Sum of Total Book Values", color = "State")+
+  labs(x = "Fiscal Year", y = "Sum of Total Book Values by State", color = "State")+
  theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
         axis.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7))
+        legend.text = element_text(size=7)) +
+  geom_text(aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
 ```
 ```{r}
 # company reporting
 buildings %>% 
+  filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
   group_by(state, fiscal_year) %>% 
   summarise(
     Number = n()
@@ -423,7 +449,10 @@ buildings %>%
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7))
+        legend.text = element_text(size=7))+
+  geom_text(aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
 ```
 
 
@@ -479,7 +508,7 @@ ranking_state<-rbind(rank2014,rank2015,rank2016,rank2017,rank2018,rank2019,rank2
 ```{r}
 # rank by absolute sum 
 ggplot(ranking_state, aes(x = Year, y = sum, color = state))+
-  geom_point()+
+  #geom_point()+
   geom_line()+
   theme_bw()+
   scale_color_viridis(discrete=TRUE, option="A")+
@@ -493,7 +522,10 @@ ggplot(ranking_state, aes(x = Year, y = sum, color = state))+
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=4))
+        legend.text = element_text(size=4))+
+  geom_text(aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
   
 ```
 
@@ -514,7 +546,9 @@ ggplot(ranking_state, aes(x = Year, y = rank, color = state))+
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=4))+
-  scale_y_reverse()
+  scale_y_reverse()+
+  geom_text(aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5)
 ```
 
 
