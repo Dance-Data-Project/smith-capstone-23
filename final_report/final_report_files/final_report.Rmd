@@ -430,7 +430,7 @@ include_graphics(here('final_report/images/ranking-contributions.pdf'))
 
 ### Reported Endowment Balances over time - Is the Math right?  
 
-> Due to time constraints within our project, we did not have the opportunity to reach out to any companies regarding their miscalculations or negative expense reports.  We hope to do this in the future, prior to this report being published. 
+> Due to time constraints within our project, we did not have the opportunity to reach out to any companies regarding their miscalculations or reporting of negative expenses.  We recommend doing this prior to this report being published. 
 
 Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  We calculated the end of year balance (see the equation below), and then compared our calculated balance to the reported end of year balance.  The majority of calculations are concordant; however, we noted discrepancies in thirteen companies.  Discrepancies range from \$-20,000 (Orlando Ballet, 2016) to \$8,301,066 (Atlanta Ballet, 2017). Due to the scaling of the below figure, differences in reported and calculated balance below a hundred thousand dollars are difficult to see.  
 
