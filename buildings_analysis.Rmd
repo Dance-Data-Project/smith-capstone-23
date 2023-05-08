@@ -159,24 +159,24 @@ building_summary
 ```{r}
 # ranking
 
-data2014<-buildings %>% filter(fiscal_year==2014) %>% unique()
-data2015<-buildings %>% filter(fiscal_year==2015) %>% unique()
-data2016<-buildings %>% filter(fiscal_year==2016) %>% unique()
-data2017<-buildings %>% filter(fiscal_year==2017) %>% unique()
-data2018<-buildings %>% filter(fiscal_year==2018) %>% unique()
-data2019<-buildings %>% filter(fiscal_year==2019) %>% unique()
-data2020<-buildings %>% filter(fiscal_year==2020) %>% unique()
-data2021<-buildings %>% filter(fiscal_year==2021) %>% unique()
+data2014<-buildings %>% filter(fiscal_year==2014) %>% unique() %>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2015<-buildings %>% filter(fiscal_year==2015) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2016<-buildings %>% filter(fiscal_year==2016) %>% unique() %>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2017<-buildings %>% filter(fiscal_year==2017) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt)) 
+data2018<-buildings %>% filter(fiscal_year==2018) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2019<-buildings %>% filter(fiscal_year==2019) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2020<-buildings %>% filter(fiscal_year==2020) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
+data2021<-buildings %>% filter(fiscal_year==2021) %>% unique()%>% mutate(TotalBookValueLandBuildingsAmt = as.numeric(TotalBookValueLandBuildingsAmt))
 
 
-data2014$rank = rank(data2014$TotalBookValueLandBuildingsAmt)
-data2015$rank = rank(data2015$TotalBookValueLandBuildingsAmt)
-data2016$rank = rank(data2016$TotalBookValueLandBuildingsAmt)
-data2017$rank = rank(data2017$TotalBookValueLandBuildingsAmt)
-data2018$rank = rank(data2018$TotalBookValueLandBuildingsAmt)
-data2019$rank = rank(data2019$TotalBookValueLandBuildingsAmt)
-data2020$rank = rank(data2020$TotalBookValueLandBuildingsAmt)
-data2021$rank = rank(data2021$TotalBookValueLandBuildingsAmt)
+data2014$rank = rank(-data2014$TotalBookValueLandBuildingsAmt)
+data2015$rank = rank(-data2015$TotalBookValueLandBuildingsAmt)
+data2016$rank = rank(-data2016$TotalBookValueLandBuildingsAmt)
+data2017$rank = rank(-data2017$TotalBookValueLandBuildingsAmt)
+data2018$rank = rank(-data2018$TotalBookValueLandBuildingsAmt)
+data2019$rank = rank(-data2019$TotalBookValueLandBuildingsAmt)
+data2020$rank = rank(-data2020$TotalBookValueLandBuildingsAmt)
+data2021$rank = rank(-data2021$TotalBookValueLandBuildingsAmt)
 
 rankings <- rbind(data2014,data2015,data2016,data2017,data2018,data2019,data2020,data2021)
 ```
@@ -184,7 +184,7 @@ rankings <- rbind(data2014,data2015,data2016,data2017,data2018,data2019,data2020
 ```{r}
 # ranking vis
 
-ggplot(rankings, aes(x = fiscal_year, y = rank, color = organization_name.x))+
+ggplot(rankings %>% filter(fiscal_year!=2014&fiscal_year!=2021), aes(x = fiscal_year, y = rank, color = organization_name.x))+
   geom_line()+
   theme_bw()+
   theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
@@ -193,12 +193,51 @@ ggplot(rankings, aes(x = fiscal_year, y = rank, color = organization_name.x))+
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=2))+
+        legend.position = "none")+
   scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
   scale_y_reverse()+
   labs(x = "Fiscal Year",
       y = "Ranking of Book Values",
-      color = "Company Names")
+      color = "Company Names") +
+  geom_text(data = rankings %>% filter(fiscal_year != 2014 & fiscal_year != 2021) %>% group_by(organization_name.x) %>% slice_tail(n =1),aes(label = organization_name.x),size = 1.5, color = "black")
+```
+```{r}
+# companies have a change in ranking larger than 10 
+rankings <- rankings %>% 
+  mutate(rank_change = abs(rank - lag(rank)))
+```
+
+
+```{r}
+#filter out rank change > 20
+larger20<-rankings%>%
+  filter(rank_change >= 20) %>% 
+  filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
+  select(fiscal_year, EIN, organization_name.x,business_state_cd, rank, rank_change) %>% 
+  ggplot(aes(x=fiscal_year, y = rank, color = organization_name.x))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.position = "none")+
+  scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
+  scale_y_reverse()+
+  labs(x = "Fiscal Year",
+      y = "Ranking of Book Values",
+      color = "Company Names") +
+  geom_text(data = rankings %>% 
+              filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
+              group_by(organization_name.x) %>% slice_tail(n =1),
+            aes(label = organization_name.x),size = 1.5, color = "black"
+            , fontface = "bold", color = "white", 
+            fill = "black", label.padding = unit(0.4, "lines"), 
+            show.legend = FALSE, geom = "label")
+larger20
+ggplotly(larger20)
 ```
 
 
@@ -209,13 +248,17 @@ changes<-buildings %>%
   group_by(name) %>% 
   mutate(change = (as.numeric(TotalBookValueLandBuildingsAmt) - lag(as.numeric(TotalBookValueLandBuildingsAmt))) / lag(as.numeric(TotalBookValueLandBuildingsAmt)) * 100) %>%
   mutate(change_abs = abs(change))
-changes <- changes[,c(1,2,3,10,11,12)]
+changes <- changes[,c(2,3,11,13,14,15,16,17)]
 
 ```
-
+geom_text(data = changes %>% 
+                    group_by(name) %>% 
+                    slice_tail(n = 1), aes(label = name),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)
 ```{r}
 # change overall
-  ggplot(changes, aes(x = fiscal_year, y = change, color = as.factor(organization_name)))+
+  ggplot(changes, aes(x = fiscal_year, y = change, color = as.factor(name)))+
     geom_point()+
     geom_line(stat = "identity")+
     theme_bw()+
@@ -224,35 +267,51 @@ changes <- changes[,c(1,2,3,10,11,12)]
          color = "Company Name")+
     theme(legend.key.size = unit(1, "mm"),
         legend.text = element_text(size = 2))
+  
 
 ```
 
 ```{r}
 smaller<-changes %>% 
-  filter(change_abs <= 100)
+  filter(change_abs <= 100) %>% 
+  mutate(name = stringr::str_to_title(name)) %>% 
+  unique()
 
 bigger<-changes %>% 
-  filter(change_abs > 100)
+  filter(change_abs > 100) %>% 
+  mutate(name = stringr::str_to_title(name)) %>% 
+  unique()
 ```
 
 ```{r}
 #change smaller than 100%
-  ggplot(smaller, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
-    #geom_point()+
-    geom_line(stat = "identity")+
+ggplot(smaller %>% 
+         filter(fiscal_year!=2014 & fiscal_year!=2021) %>% 
+         filter(change != 0), aes(x = fiscal_year, 
+                                                          y = change, 
+                                                          color = as.factor(name)))+
+    geom_point()+
+    geom_line()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
-    labs(x = "Fiscal Year", y = "Book Value Land Buildings Amount % Change", 
-         color = "Company Name")+
-    theme(legend.key.size = unit(1, "mm"),
-        legend.text = element_text(size = 2))+
-    annotate("text", x = max(df$x), y = tail(df$y, n = 1), label = "Label")
-
+    labs(x = "Fiscal Year", y = "Compnies with changes less than 100%",color = "Company Name")+
+    theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
+        axis.text.x = element_text(size = 10, angle = 25),
+        strip.text = element_text(face="bold",size = 5),
+        legend.position = "none")+
+  geom_text(data = smaller %>% filter(fiscal_year!=2014 & fiscal_year!=2021) %>% 
+         filter(change != 0) %>% group_by(name) %>% slice_tail(n = 1), aes(label = name),
+            hjust = -0.1, vjust = 0, size = 2 )+
+  xlim(2015,2021)
 ```
+
 
 ```{r}
 # changes larger than 100%
-  ggplot(bigger, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
+
+  ggplot(bigger, aes(x = (fiscal_year), y = change, color = as.factor(name)))+
     geom_point()+
     geom_line()+
     theme_bw()+
@@ -265,14 +324,52 @@ bigger<-changes %>%
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=4))+
-  #geom_text(data = bigger %>% group_by(organization_name) %>% slice_tail(n = 1), aes(label = organization_name),hjust = -0.1, vjust = 0,size =2 )+
-  ylim(-30000,15000)
-  
-                                                        
+  geom_text(data = bigger %>% group_by(name) %>% slice_tail(n = 1), aes(label = name),hjust = -0.1, vjust = 0, size = 2 )
+  #ylim(-30000,15000)
+
+```
+```{r}
+smaller %>% 
+  select(name, fiscal_year, change) %>% 
+  arrange(desc(change)) %>% 
+  filter(change != 0) %>% 
+  rename(
+    `Fiscal Year` = fiscal_year,
+    `Company Name` = name,
+    `% Change` = change
+  ) %>% 
+  make_table(title = "Companies with % Change smaller than 1000")
+```
+
+```{r}
+bigger %>% 
+  select(name, fiscal_year, change) %>% 
+  arrange(desc(change)) %>% 
+  rename(
+    `Fiscal Year` = fiscal_year,
+    `Company Name` = name,
+    `% Change` = change
+  ) %>% 
+  make_table(title = "Companies with % Change larger than 1000")
 
 ```
 
+```{r}
+data<-buildings %>% select(fiscal_year, organization_name.x, TotalBookValueLandBuildingsAmt) %>%
+  rename(name = organization_name.x)
 
+# changes equal to 0
+changes %>% 
+  filter(change == 0) %>%
+  select(name, fiscal_year) %>% 
+  left_join(data, by = c(name, fiscal_year)) %>% 
+  rename(
+    `Fiscal Year` = fiscal_year,
+    `Company Name` = name
+  ) %>% 
+  unique() %>% 
+  make_table(title = "Companies with no % Change in Building and Land")
+```
 
 ```{r}
 negative <-changes %>% 
@@ -298,16 +395,17 @@ positive <-changes %>%
         axis.text.x = element_text(size = 7, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=2))+geom_text(aes(label = name),
+        legend.text = element_text(size=2))+
+  geom_text(aes(label = name),
             nudge_x = 0.1, hjust = 0, vjust = -0.5,
             size = 2)
 ```
 
 ```{r}
 
-  ggplot(positive, aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
+  ggplot(positive,aes(x = (fiscal_year), y = change, color = as.factor(organization_name)))+
     geom_point()+
-    geom_line(stat = "identity")+
+    geom_line()+
     theme_bw()+
     scale_color_viridis(discrete=TRUE,begin=.2,end=.8,option = "A")+
     labs(x = "Fiscal Year", y = "Companies with Postivie Change in Book Values", color = "Company Name")+
@@ -317,7 +415,11 @@ positive <-changes %>%
         axis.text.x = element_text(size = 10, angle = 25),
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=2))
+        legend.text = element_text(size=2))+
+  geom_text(data = positive %>% group_by(organization_name) %>% slice_tail(n=1), aes(label = organization_name),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5,
+            size = 2)+
+  xlim(2015,2022)
 ```
 ```{r}
 positive %>% 
@@ -334,7 +436,8 @@ changes %>%
     Median = median(change,na.rm=TRUE),
     Max = max(change,na.rm=TRUE),
     Min = min(change,na.rm=TRUE)
-  )
+  ) %>% 
+  make_table(title = "Summary of % Changes in Book Values")
 ```
 
 ```{r}
@@ -347,9 +450,13 @@ changes %>%
 ```{r}
 changes %>% 
   arrange(desc(change)) %>% 
+  filter(change != Inf) %>% 
   na.omit() %>% 
   filter(change>100) %>% 
-  select(fiscal_year, organization_name,change)
+  select(fiscal_year, organization_name.x,change) %>% 
+  mutate(`Fiscal Year` = fiscal_year,
+         `Company Name` = organization_name.x,
+         `% Change` = change)
 ```
 
 ```{r}
@@ -368,34 +475,7 @@ buildings<-buildings %>%
   left_join(state, by = "EIN")
 ```
 
-```{r}
-# median
-buildings %>% 
-  group_by(state, fiscal_year) %>% 
-  summarise(
-    mean = mean(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
-    median = median(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
-    max = max(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE),
-    min = min(as.numeric(TotalBookValueLandBuildingsAmt), na.rm=TRUE)
-  ) %>% 
-  arrange(desc(median)) %>% 
-  ggplot(aes(x = fiscal_year, y = median, color = state))+
-  geom_point()+
-  geom_line()+
-  theme_bw()+
-  scale_color_viridis(discrete=TRUE, option = "A")+
-  labs(x = "Fiscal Year", y = "Median of Building Book Values",color = "State")+
-  theme(plot.title = element_text(size = 13, face = "bold", hjust = .5),
-        axis.title = element_text(size = 12, face = "bold"),
-        plot.subtitle = element_text(size = 5, face = "italic", hjust = .5),
-        axis.text.x = element_text(size = 10, angle = 25),
-        strip.text = element_text(face="bold",size = 5),
-        legend.key.size = unit(1, 'mm'),
-        legend.text = element_text(size=7))+
-  geom_text(aes(label = state),
-            nudge_x = 0.1, hjust = 0, vjust = -0.5,
-            size = 2)
-```
+
 ```{r}
 # sum 
 buildings %>% 
@@ -450,9 +530,25 @@ buildings %>%
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=7))+
-  geom_text(aes(label = state),
+  geom_text(data = buildings %>% 
+                    filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
+                    group_by(state, fiscal_year) %>% 
+                    summarise(
+                      Number = n()
+                    ) %>% 
+                    unique() %>% group_by(state) %>% slice_tail(n = 1), aes(label = state),
             nudge_x = 0.1, hjust = 0, vjust = -0.5,
             size = 2)
+```
+```{r}
+#Companies number in 2020
+buildings %>% 
+  filter(fiscal_year != 2014 & fiscal_year != 2021) %>% 
+  group_by(state, fiscal_year) %>% 
+  summarise(
+    Number = n()
+  ) %>% 
+  unique() %>% filter(fiscal_year == 2020) %>% arrange(desc(Number))
 ```
 
 
@@ -492,14 +588,14 @@ rank2021<-data2021 %>%
   summarise(sum = sum(as.numeric(TotalBookValueLandBuildingsAmt)))%>% 
   mutate(Year = 2021)
 
-rank2014$rank = rank(rank2014$sum)
-rank2015$rank = rank(rank2015$sum)
-rank2016$rank = rank(rank2016$sum)
-rank2017$rank = rank(rank2017$sum)
-rank2018$rank = rank(rank2018$sum)
-rank2019$rank = rank(rank2019$sum)
-rank2020$rank = rank(rank2020$sum)
-rank2021$rank = rank(rank2021$sum)
+rank2014$rank = rank(-rank2014$sum)
+rank2015$rank = rank(-rank2015$sum)
+rank2016$rank = rank(-rank2016$sum)
+rank2017$rank = rank(-rank2017$sum)
+rank2018$rank = rank(-rank2018$sum)
+rank2019$rank = rank(-rank2019$sum)
+rank2020$rank = rank(-rank2020$sum)
+rank2021$rank = rank(-rank2021$sum)
 
 ranking_state<-rbind(rank2014,rank2015,rank2016,rank2017,rank2018,rank2019,rank2020,rank2021)  
   
@@ -523,15 +619,14 @@ ggplot(ranking_state, aes(x = Year, y = sum, color = state))+
         strip.text = element_text(face="bold",size = 5),
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=4))+
-  geom_text(aes(label = state),
-            nudge_x = 0.1, hjust = 0, vjust = -0.5,
-            size = 2)
+  geom_text(data = ranking_state %>% group_by(state) %>% slice_tail(n = 1), aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5, size = 3)
   
 ```
 
 ```{r}
 ggplot(ranking_state, aes(x = Year, y = rank, color = state))+
-  geom_point()+
+  #geom_point()+
   geom_line()+
   theme_bw()+
   scale_color_viridis(discrete=TRUE, option="A")+
@@ -547,8 +642,8 @@ ggplot(ranking_state, aes(x = Year, y = rank, color = state))+
         legend.key.size = unit(1, 'mm'),
         legend.text = element_text(size=4))+
   scale_y_reverse()+
-  geom_text(aes(label = state),
-            nudge_x = 0.1, hjust = 0, vjust = -0.5)
+  geom_text(data = ranking_state %>% group_by(state) %>% slice_tail(n = 1), aes(label = state),
+            nudge_x = 0.1, hjust = 0, vjust = -0.5, size = 3)
 ```
 
 
