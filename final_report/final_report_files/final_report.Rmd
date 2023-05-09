@@ -28,8 +28,6 @@ type: article
 status: submit
 bibliography: DDPCitations.bib
 csl: ieee.cls
-abstract: | 
-   To understand how we can advance equity in dance, it is crucial to understand existing financial structures and incentives that shape these companies' success. Assessment of publicly available tax documents on dance companies over the past decade can provide important insights into how different companies fared financially over this time period. Additionally, this work can provide an important basis of understanding for future analyses on the impact of  the pandemic on existing trends on the financial performance. By analyzing publicly available  Form 990 documents on 169 dance companies across the United States, we present information on companies' endowments, investments, compensation of employees, and sources of labor. In the process, we also bring light to issues of data quality to consider when analyzing Form 990 documents.
 keywords: |
   Endowment; Non-Profit; Volunteer Labor; Dance.
 acknowledgement: |
@@ -47,6 +45,7 @@ header-includes:
    - \usepackage{caption}
    - \captionsetup[figure]{font=scriptsize}
    - \usepackage{subfig}
+   - \usepackage{babel}
 ---
 
 
@@ -59,7 +58,6 @@ library(tidyverse)
 library(kableExtra)
 
 ```
-
 
 # Introduction  
 
