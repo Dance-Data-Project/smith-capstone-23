@@ -348,7 +348,7 @@ $$\scriptsize{\text{Annual Growth Rate} = \frac{ ( \text{End Value} + \text{Othe
 This adjustment is important because we want to see how much of the change from the beginning of year balance to the end of year balance is due to the investments, not, for example, a large contribution.
 
 
-```{r, fig.height = 17, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.pos="h"}
+```{r, fig.height = 19, fig.cap = "\\label{fig:annual-growth-endowment}Annual growth rate of a company's endowment when adjusting for contributions and withdrawals, compared to the annual growth S\\&P 500 for the corresponding time period.", fig.pos="h"}
 
 # replace NAs with 0's
 end_sp <-  end_sp %>%

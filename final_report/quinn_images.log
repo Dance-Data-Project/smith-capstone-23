@@ -1,11 +1,11 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.4.21)  3 MAY 2023 20:59
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.5.7)  8 MAY 2023 22:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **quinn_images.tex
 (./quinn_images.tex
 LaTeX2e <2022-11-01> patch level 1
-L3 programming layer <2023-04-20> (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
+L3 programming layer <2023-05-05> (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2022/07/02 v1.4n Standard LaTeX document class
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/base/size10.clo
 File: size10.clo 2022/07/02 v1.4n Standard LaTeX file (size option)
@@ -130,7 +130,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/unicode-math/unicode-math.sty (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/l3kernel/expl3.sty
-Package: expl3 2023-04-20 L3 programming layer (loader) 
+Package: expl3 2023-05-05 L3 programming layer (loader) 
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
 File: l3backend-xetex.def 2023-04-19 L3 backend support: XeTeX
 \g__graphics_track_int=\count267
@@ -1028,10 +1028,10 @@ File: quinn_images_files/figure-latex/unnamed-chunk-20-1.pdf Graphic file (type 
 <use quinn_images_files/figure-latex/unnamed-chunk-20-1.pdf>
 [13] [14] [15] (./quinn_images.aux) ) 
 Here is how much of TeX's memory you used:
- 20381 strings out of 478634
- 379115 string characters out of 5845874
- 1866704 words of memory out of 5000000
- 40208 multiletter control sequences out of 15000+600000
+ 20381 strings out of 478680
+ 379115 string characters out of 5846923
+ 1866879 words of memory out of 5000000
+ 40162 multiletter control sequences out of 15000+600000
  519877 words of font info for 101 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  86i,17n,122p,1009b,369s stack positions out of 10000i,1000n,20000p,200000b,200000s
