@@ -384,7 +384,7 @@ end_sp %>%
   geom_line() +
   geom_point(alpha = .5, size = .3, show.legend=FALSE) +
   geom_hline(linetype=2, color="darkred", yintercept=.05, alpha=.5) +
-  facet_wrap(~organization_name, scales= "free_y", ncol=4) +
+  facet_wrap(~organization_name, ncol=4) +
   theme_c() +
   scale_x_continuous(breaks = 2010:2021) +
   scale_y_continuous(labels=scales::percent) +
@@ -400,9 +400,8 @@ end_sp %>%
         axis.text.x = element_text(size = 8, angle=30),
         strip.text.x = element_text(size =13),
         axis.title = element_text(size =20)) +
-  guides(color = guide_legend(override.aes = list(linewidth=3))) +
-  ylim(-.1,.25)
-
+  guides(color = guide_legend(override.aes = list(linewidth=3))) + 
+    coord_cartesian(ylim=c(-0.1, .29))
 
 
 
