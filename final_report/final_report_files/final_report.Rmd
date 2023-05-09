@@ -36,8 +36,8 @@ conflictsofinterest: |
   The authors declare no conflict of 
   interest. 
 abbreviations:
-  - short: DDP  ®
-    long: Dance Data Project  ®
+  - short: DDP®
+    long: Dance Data Project
   - short: IRS
     long: Internal Revenue Service
 output: rticles::mdpi_article
@@ -45,7 +45,6 @@ header-includes:
    - \usepackage{caption}
    - \captionsetup[figure]{font=scriptsize}
    - \usepackage{subfig}
-   - \usepackage{babel}
 ---
 
 
@@ -59,65 +58,89 @@ library(kableExtra)
 
 ```
 
+# Executive Summary: 	
+
+In an effort to advance equity in dance, this report examines existing financial structures and incentives that shape dance companies’ fiscal viability. This report was produced in conjunction with a team of students from the Smith College Statistical & Data Sciences Capstone, hereafter referred to as the capstone team. 
+
+The capstone team reviewed publicly-available tax forms from 169 dance companies in the United States for information on their endowments over time, use of labor, compensation, investments, and other assets. When comparing against the S&P 500 as a measure of the state of the stock market, the capstone team found that the trends in companies’ endowments closely follow those in the stock market in general, but some companies do [diverge from these general trends](#endowment-time). Notably, some companies do not invest their endowments for most years on file (e.g., Dance Theatre of Harlem, Eugene Ballet, or the American Repertory Ballet).
+
+Form 990 requires companies to estimate the company’s total number of volunteers that did any amount of volunteer work during the fiscal year. Unpaid labor is especially important to investigate because the Bureau of Labor Statistics indicates that 76.6% of the workforce is female, and the wage gap is especially apparent in dance [@jikar_gender_2022]. In terms of labor usage, the West region uses the most combined employee and volunteer labor, but the South region has the highest percentage of companies with more volunteers than employees. The Team also determined that the fraction of compensation going to top executives is generally consistent from 2014 - 2020, with a median near 10%. There is more variability in the fraction paid to top executives for smaller companies. These trends in executive compensation will be important to track as filings are released for the pandemic years. A major value of this research is its impact on future data advocacy in regard to dance companies in the United States. This project also provides a framework for the analysis of Form 990 data, including publicly available code, to bring more transparency to the financial side of the dance industry. Of note, a major limitation of this paper is that it relied on publicly-available, online tax documents which may contain errors or false reporting. Additionally, the IRS is currently behind in posting recent tax documents as well as updated amendments, so few filings are available for the fiscal year 2021, and no filings beyond 2021. The Dance Data Project does not seek to make inferences based on the data presented here; rather, Dance Data Project (DDP®) records and reports the data as it is reported on the IRS website. 
+
 # Introduction  
-
-## Scope 
-
-As a matter of transparency and public accountability, tax documents filed by nonprofit corporations in the United States have always theoretically been available to the public, but it wasn’t until the development of electronic tax filing systems through the IRS that these tax documents became easily accessible for analysis. Online tax filing systems have been available since the late 1990’s, but the 2019 Taxpayer First Act required all nonprofits to electronically file their tax returns [@ely_research_2023]. This legislation changed the landscape for public accessibility of the financial information of nonprofits as well as presented novel research opportunities for data activism. Incorrect reporting, inequitable wealth distribution, and tax fraud by nonprofit organizations has always happened, but mandatory online reporting allows data analysts to identify suspected cases and draw attention to them [@ely_research_2023].
 
 ## Inequality in the Arts  
 
-Financial discrepancies by nonprofits commonly impact those already at social and economic disadvantage, such as women and girls. The study of women and gender has consistently drawn focus to inequitable distribution of wealth between men and women. One of the most heavily researched phenomena regarding wealth inequality is the wage gap between men and women that persists even when they have the same education, experience, skills, and job titles [@jikar_gender_2022]. Contrary to the popular opinion that the gender wage gap is narrowing, Weichselbaumer & Winter-Ebmer [@weichselbaumer_meta-analysis_2005] showed that financial returns in relation to skills and education are increasingly higher for men than for women. Even less research has been done on the wage gap for transgender or non-binary individuals. Additionally, compounding factors such as lack of corporate oversight and socially-imposed gender roles further entrench the gender pay gap into everyday life [@noauthor_handbook_2013]. Further understanding the wage gap in female-dominated fields, such as in dance, can inform future solutions to lessen the inequitable distribution of wealth between men and women.   
+Discrepancies in how nonprofits report financial data can impact those already at a social and economic disadvantage, such as women and girls [@fuchs_where_2021]. The study of women and gender has consistently drawn focus to the inequitable distribution of wealth between men and women. One of the most heavily researched phenomena regarding wealth inequality is the wage gap between men and women that persists even when they have the same education, experience, skills, and job titles [@jikar_gender_2022]. Contrary to the popular opinion that the gender wage gap is narrowing, Weichselbaumer & Winter-Ebmer [@weichselbaumer_meta-analysis_2005] demonstrated that financial returns in relation to skills and education are increasingly higher for men than for women. Even less research has been done on the wage gap for transgender or non-binary individuals. Additionally, compounding factors such as lack of corporate oversight and socially-imposed gender roles further entrench the gender pay gap into everyday life [@noauthor_handbook_2013]. Further understanding the wage gap in female-dominated fields, such as in dance, can inform future solutions to lessen the inequitable distribution of wealth between men and women.   
 
 The wage gap has long been exacerbated by disproportionate pay in the arts, and especially dance, in part because the vast majority of entry-level dancers are women and girls [@jikar_gender_2022]. Additionally, unpaid labor in dance is much more commonplace than in other industries [@noauthor_handbook_2013]. Because dance is a performing art, many companies that employ dancers are entitled to government subsidies and tax breaks; however, there are no current regulations to ensure that this governmental assistance is used to lessen unpaid and underpaid labor by dancers [@fuchs_where_2021]. Unrestricted financial assistance may worsen existing inequalities in the field of dance by enabling company owners and executives to profit while retaining unpaid and underpaid labor, so further understanding how this assistance is used is essential in combating the problem.   
 
-## Dance and Tax Returns
-
-In the United States, nonprofit organizations file either a Form 900 or a Form 990 EZ with the IRS each year. These documents include, but are not limited to, information on the organization’s geographic location, number of employees and volunteers, operating costs, income, compensation, and net assets. Additionally, some nonprofits are required to fill out Schedule D forms alongside their 990 filings if they have certain additional assets. This information is more accessible than ever now that the government has required nonprofit organizations to electronically file them. Yet, much of the public does not understand the terms on publicly available tax forms nor does the average person possess the skills to readily analyze hundreds of tax forms every year [@lamothe_examining_2023]. Thus, data scientists can play a very important role in analyzing these forms filed by dance companies and presenting findings to the public. Further elucidating the financial practices of nonprofit organizations 1)  in the field of dance, 2) in pandemic-related economic shifts and 3) through geographical analysis can help inform proper solutions to a wide range of issues, including the gender pay gap in dance. 
-
 ## The Dance Data Project
 
-We completed this project in collaboration with our project sponsor, the Dance Data Project ® (also known as the DDP ® ). The Dance Data Project®  is a non-profit organization dedicated to equality in the arts. Founded in 2015 by former ballet dancer and philanthropist Elizabeth Yntema, the DDP ® uses data and research to promote transparency, accountability, and action towards gender equality in dance.   
+The capstone team completed this project in collaboration with our project sponsor, the Dance Data Project (also known as DDP®). The Dance Data Project is a non-profit organization dedicated to equality in the arts. Founded in 2015 by philanthropist Elizabeth Yntema, the DDP® uses data and research to promote transparency, accountability, and action toward gender equality in dance.   
 
-The DDP ® collects, analyzes, and presents data to outline lack of leadership opportunities for female directors, choreographers, composers, set, costume, lighting designers, and back-of-house positions in dance. The organization seeks to create a world where all dancers, regardless of gender, race, ethnicity, or socioeconomic status, have equal access to opportunities and resources in the dance world. The organization also advocates for removing barriers for female employment and advancement in this industry, such as lack of parental and elder leave, day care system, and protocol for sexual harassment by presenting their findings on television news such as MSNBC and publishing articles in magazines such as *Vogue* and *People*. Through its data-driven research, advocacy, and education efforts, the DDP ®  works to create a more equitable and inclusive dance community where all individuals have the opportunity to pursue their passion for dance.
+DDP collects, analyzes, and presents data to outline the lack of leadership opportunities for female directors, choreographers, composers, set, costume, lighting designers, and back-of-house positions in dance. The organization seeks to create a world where all dancers, regardless of gender, race, ethnicity, or socioeconomic status, have equal access to opportunities and resources in the dance world. The organization also advocates for removing barriers to female employment and advancement in this industry, such as lack of parental and elder leave, daycare system, and protocol for sexual harassment by presenting their findings on television news such as [NBC/NOW](https://www.youtube.com/watch?t=2532&v=eWL_r5Gq2Vk&feature=youtu.be)  and publishing articles in magazines such as [*New York Times*](https://www.nytimes.com/2022/01/21/arts/dance/gender-gap-ballet.html), *National Public Radio*, [*Forbes*](https://www.forbes.com/sites/kimelsesser/2019/09/12/a-gender-gap-in-ballet-seriously/?sh=7b9f066d2be6), and [*Fortune*](https://fortune.com/2022/01/25/board-diversity-cant-find-women-pipeline-problem/). Through its data-driven research, advocacy, and education efforts, DDP works to create a more equitable and inclusive dance community where all individuals have the opportunity to pursue their passion for dance.
+
+## Scope 
+
+As a matter of transparency and public accountability, tax documents filed by nonprofit corporations in the United States have always theoretically been available to the public, but it wasn’t until the development of electronic tax filing systems through the IRS that these tax documents became easily accessible for analysis. Online tax filing systems have been available since the late 1990s, but the [2019 Taxpayer First Act](https://www.congress.gov/bill/116th-congress/house-bill/3151) required all nonprofits to electronically file their tax returns [@ely_research_2023]. This legislation changed the landscape for public accessibility of the financial information of nonprofits as well as presented critical research opportunities for data activism. Incorrect reporting, inequitable wealth distribution, and tax fraud by nonprofit organizations have always happened, but mandatory online reporting allows data analysts to identify suspected cases and draw attention to them [@ely_research_2023].
+
+
+## The Dance Economy & IRS Form 990s
+
+In the United States, nonprofit organizations file either a Form 900 or a Form 990 EZ with the IRS each year. These documents include but are not limited to information on the organization’s geographic location, number of employees and volunteers, operating costs, income, compensation, and net assets. Additionally, some nonprofits are required to fill out Schedule D forms alongside their 990 filings if they have certain additional assets (i.e. endowment funds, real estate, investment income). Each organization reports these values for their own fiscal years. It is important to understand that companies have different dates for their fiscal years, so one company may report a fiscal year ending in February and another may report their fiscal year ending in September. This causes significant variability when analyzing 990 forms from different companies [@ely_research_2023].
+
+ Form 990 data is more accessible than ever now and the government has required nonprofit organizations to electronically file them. Yet, much of the public does not understand the terms on publicly available tax forms, nor does the average person possess the skills to readily analyze hundreds of tax forms every year [@lamothe_examining_2023]. Thus, data scientists can play a very important role in analyzing these forms filed by dance companies and presenting findings to the public. Further elucidating the financial practices of nonprofit organizations 1) in the field of dance, 2) in pandemic-related economic shifts and 3) through geographical analysis can help inform proper solutions to a wide range of issues, including difference in cost of living and performance season in different regions and the different features in regional gender pay gap in dance. 
+
+
 
 ## Current Study 
 
-This project was a preliminary analysis of publicly available financial information on dance companies in the United States. Results were collected for and shared with Dance Data Project ®  for any publications or future analyses that they perform. Because little analysis has been done on financial practices of dance companies in the United States, our exploratory approach examined broad research areas regarding how dance companies manage endowments, employment, and properties.   
+This project provides a preliminary analysis of publicly available financial information on dance companies in the United States. Results were collected and shared with Dance Data Project for any publications or future analyses that they perform. Because little previously publicly available research has been published regarding the financial practices of dance companies in the United States, our exploratory approach examined broad research areas regarding how dance companies manage endowments, employment, and properties.   
 
+The bulk of this report consists of examining how companies’ financial resources (particularly endowments) behave over time, in comparison to one another, and in comparison to the S&P 500. The use of volunteer labor alongside the use of paid employment labor and how geographical location impacts the use of each type of labor is also investigated. 
 
-The bulk of our report consists of examining how companies’ financial resources (particularly endowments) behave over time, in comparison to one another, and in comparison to the S&P 500. We also look into the use of volunteer labor alongside the use of paid employment labor and how geographical location impacts the use of each type of labor. 
-
-The data source for this project is a collection of IRS Form 990’s and IRS Form 990 EZ’s from dance companies in the United States. These publicly available tax documents are required annual filings for nonprofits^[Most major dance companies are nonprofits.] and include information such as the  number of employees and volunteers, compensation to employees, geographical location, and annual revenue.  As part of the Form 990’s, companies with certain financial assets must report Schedule D forms, which contain data  on endowment funds as well as building values and other assets.  We primarily present analysis based on Schedule D of the Form 990.  Our analysis seeks to capture trends in how these companies have managed their assets and endowments, primarily in the time span of 2014 to 2020, with the goal of bringing transparency to the financial side of the dance industry.
+The data source for this project is a collection of IRS Form 990 and IRS Form 990 EZ from dance companies in the United States; as a result, the dataset utilized for this project only contained IRS Form 990s which have been accepted, processed, and published online by the IRS. These publicly available tax documents are required annual filings for nonprofits^[Most major dance companies are nonprofits.] and include information such as the number of employees and volunteers, compensation to employees, geographical location, and annual revenue.  As part of Form 990s, companies with certain financial assets must report Schedule D forms, which contain data on endowment funds as well as building values and other assets. The analysis is primarily presented based on Schedule D of Form 990.  This analysis seeks to capture trends in how these companies have managed their assets and endowments, primarily in the time span of 2014 to 2020, with the goal of bringing transparency to the financial side of the dance industry.
 
 # Ethics Statement  
 
-This project included signing a non-disclosure agreement with Dance Data Project ® in which each group member agreed to keep specific collections of data produced by DDP ® confidential. Still, data that was collected during our analyses was not covered by the NDA but was still sensitive. The potential impact of this information getting into the wrong hands would be harmful to the Dance Data Project ®  and their ability to publish the findings. Certain information could be used by dance companies to silence the DDP’s ®  message or competitors could publish and get recognition for DDP’s ®  proprietary information. Therefore, each team member was especially careful not to disclose any information that may harm DDP’s ® work to third parties. 
+This project included signing a non-disclosure agreement with Dance Data Project in which each group member agreed to keep specific collections of data produced by DDP® confidential.   
+In these analyses, the team assumed the values from the most recent filings were correct. Amended filings were used when available; however, it is possible that companies have made amendments that have not yet been released by the IRS. As of January 2023, written returns are no longer accepted. The social harm that could occur from this assumption is that dance companies who accidentally misreport their tax documents may be identified in the following analyses as violating ethical or financial norms. In order to prevent this, the team and DDP® collaborated to reach out to companies to ask for clarification of the below findings before potentially publishing their name. 
 
-We also assumed that data reported on the IRS 990, 990EZ, and Schedule D forms was accurate unless identifiable discrepancies were found or amendments were reported. The social harm that could occur from this assumption is dance companies who accidentally misreport on their tax documents may be identified in our analyses as violating ethical or financial norms. In order to prevent this, our team and DDP ® collaborated to reach out to companies to ask for clarification of our findings before potentially publishing their name. 
-
-Finally, all of us have training in data science, but we are not dancers. Because none of us have lived experience in dance, we cannot provide personal expertise in analyzing this data. Additionally, our group all identifies as female and we have limited racial diversity and no input from the Black community. The standpoints of dancers, men, and people of diverse backgrounds in data analyses may offer a more comprehensive understanding of the context behind our dataset. In order to reduce our bias (although it was not possible to change our social identities), we spoke with our project sponsors about how to approach this data that may impact other social groups. 
+Finally, all of the capstone team have training in data science. Because none of the Team members have a background in dance, the Team members cannot provide personal expertise in analyzing this data. Additionally, the capstone team all identifies as female and has limited racial diversity with no input from the Black community. The standpoints of dancers, men, and people of diverse backgrounds in data analyses may offer a more comprehensive understanding of the context behind the utilized dataset. In order to reduce bias (although it was not possible to change the team’s social identities), the capstone team spoke with the Dance Data Project about how to approach this data that may impact other social groups. 
 
 # Detailed Methodology   
 
 ## Data Acquisition  
-Data files were gathered by Andrew Hoekstra, data consultant from DDP ® , prior to February 8th, 2022 from publicly available IRS APIs.  Form 990s were downloaded as XMLs.  Our sample contained 169 US dance companies in total, with Form 990s submitted between 2015 and 2022, thus representing fiscal years 2014 through 2021.  For Schedule D in particular, companies are required to report endowment totals up to 4 fiscal years prior, thus our endowment data spans 2010 to 2021.
+
+Data files were gathered by Andrew Hoekstra, data consultant from DDP®, prior to February 8th, 2022 from publicly available IRS APIs.  Form 990s were downloaded as XMLs.  The sample contained 169 US dance companies in total, with Form 990s submitted between 2015 and 2022, thus representing fiscal years 2014 through 2021; however, as more recent filings are currently unavailable through the IRS, not all companies who filed in 2022 are represented in fiscal year 2021 within this analysis. For Schedule D in particular, companies are required to report endowment totals up to 4 fiscal years prior, thus the utilized endowment data spans 2010 to 2021.
  
 ## Initial Wrangling & Filtering   
-Form 990 can be completed in three different formats: Form 990, Form 900-EZ, and Form 990-T.  We excluded all Form 990-Ts because these forms do not contain relevant information on variables considered in our analyses.   Additionally, when a company amended a filing, and hence had multiple filings corresponding to a single fiscal year, we took the amended filing.
+
+Form 990 can be completed in three different formats: Form 990, Form 900-EZ, and Form 990-T.  All Form 990-Ts were excluded because these forms do not contain relevant information on variables considered in the following analyses.   Additionally, when a company amended a filing, and hence had multiple filings corresponding to a single fiscal year, the amended filing was used.
  
 ## Quality Assurance
 
-Because in a single filing, a company reports years for several endowment variables not only for the current year but for the prior year, two years back, three years back, and four years back, we can check if filings across years are concordant.
+Because in a single filing, a company reports years for several endowment variables not only for the current year but for the prior year, two years back, three years back, and four years back, filings across years can be cross-referenced to ensure they are concordant.
 
-For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, we can check whether the value they reported for 2016 in the 2020 filing (in the four years back column) was indeed what they reported in 2016 (in the current year column). Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When we identified these discrepancies, we reached out to the companies to clarify which values were correct  (Table \ref{table:discrep}). We received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct. Aspen Santa Fe noted that there are issues with the filing for fiscal year 2020 filing that have been addressed in an amendment that is not yet publicly available; the values for Aspen Santa Fe we use in this report are from the released 2020 filing that is not amended.
+For example, when a company reports in their 2020 filing the beginning of year endowment balance for years 2016 through 2020, the value they reported for 2016 in the 2020 filing (in the four years back column) can be cross-referenced with what they reported in 2016 (in the current year column) to ensure reporting consistency. Reporting was highly consistent across the companies considered; however, there were some notable discrepancies, particularly in earlier years.  When these discrepancies were identified, the capstone team reached out to the companies to clarify which values were correct  (Table \ref{table:discrep}). The team received prompt responses from BalletMet and Pittsburgh Ballet, who confirmed the more recently reported values were correct. 
 
-Because discrepancies were typically in earlier years, and our communications with the companies who did respond noted their most recently reported values were correct, in our analyses we took the most recent data available. For example, we took values for 2016-2020 from the 2020 filing instead of taking the current year values for the filing from each year separately. 
+Because discrepancies were typically in earlier years, and our communications with the companies who did respond noted their most recently reported values were correct, in our analyses the most recent data available was used. For example, values for 2016-2020 were taken from the 2020 filing instead of taking the current year's values for the filing from each year separately. 
+
+Another result of this approach is that it is possible to look back through the fiscal year 2010 in some cases since although filings only go back to 2014, each filing has data going back four years.
 
 
-Another result of this approach is that we can look back through 2010 in some cases, since although we only have filings that go back to 2014, each filing has data going back four years.
+# *Nota Bene* regarding Aspen Santa Fe Ballet  {#asfb}
+
+\label{sec:asfb}
 
 
+There are a couple of important notes to make about Aspen Santa Fe as we interpret the figures in this report. 
+
+For one, Aspen Santa Fe transferred a large proportion of its endowment to the entity [Aspen Santa Fe Ballet Endowment Inc](https://projects.propublica.org/nonprofits/organizations/821009713) (EIN 821009713) in 2018. This must be considered when interpreting the changes in endowment over time.
+
+Additionally, Aspen Santa Fe Ballet shuttered its professional company in March 2020. 
+
+According to their executive director and accountant, there were issues with Aspen Santa Fe Ballet’s filing for the fiscal year 2020, which have been amended. However, this amended filing has not yet been released by the IRS, thus unable to be included in this analysis.   
 
 ```{r, fig.cap="\\label{table:discrep}"}
 
@@ -125,30 +148,30 @@ Another result of this approach is that we can look back through 2010 in some ca
  tribble(
    ~Company, ~Discrepancy,
   "Aspen Santa Fe",
-"The current year value for other expenditures for fiscal year 2018 is $6,906,449, but in 2019 the prior year value for other expenditures is $6,356,449 and, in accordance with the 2019 report, in 2020 the two years back value is $6,356,449.",
+"The current year value for other expenditures for fiscal year 2018 is $6,906,449, but in 2019 the prior year value for other expenditures is $6,356,449 and, in accordance with the 2019 report, in 2020 the two years back value is $6,356,449. The DDP has corresponded with Aspen Santa Fe Ballet regarding this discrepancy; however, the amended return is not available through the IRS at this point in time.",
 
 "BalletMet", 
 "In 2015, the current year beginning of year balance is reported as $262,509, but then in 2016, the prior year beginning year balance is said to be $235,225; future year filings are in accordance with the $235,225 value.",
 
 
 "Ballet Arizona",
-"In the 2016 and 2017 filings, the beginning of year balance corresponding to fiscal years 2016 and 2017 were reported as $101,399. However, in the 2018 filing the value for 2016 was reported to be $601,399, and the value corresponding to 2017 was reported as $4,126,424.",
+"In the 2016 and 2017 filings, the beginning of year balance corresponding to fiscal years 2016 and 2017 was reported as $101,399. However, in the 2018 filing, the value for 2016 was reported to be $601,399, and the value corresponding to 2017 was reported as $4,126,424.",
 
 "The Alabama Ballet",
-"In the filings for fiscal years 2016, 2017, and 2018,  the beginning and end of year balances are marked as $250,000 for all included years. However, in 2019, the value reported for the prior year (2018)  is $477,040, and in the filing for fiscal year 2020, the values are not concordant with the $250,000 value.",
+"In the filings for fiscal years 2016, 2017, and 2018,  the beginning and end of year balances are marked as $250,000 for all included years. However, in 2019, the value reported for the prior year (2018)  is $477,040, and in the filing for the fiscal year 2020, the values are not concordant with the $250,000 value.",
 
 
 "Fort Wayne Ballet",
-"In the 2017 filing, the beginning of year balance is $1,264,981. However, in the 2018 filing, the beginning of year balance for the prior year is reported as $1,291,109 (second image below, and then the 2019 and 2020 filings both report the value corresponding to 2017 as $1,413,780. There are similar discrepancies for the end of year balances.",
+"In the 2017 filing, the beginning-of-year balance is $1,264,981. However, in the 2018 filing, the beginning of year balance for the prior year is reported as $1,291,109 (second image below, and then the 2019 and 2020 filings both report the value corresponding to 2017 as $1,413,780. There are similar discrepancies for the end of year balances.",
 
 "Joffrey Ballet",
-"First, in the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. Additionally, the reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years.",
+"In the filing for the 2015 fiscal year, the value corresponding to 2015 is $1,443,297, and the value corresponding to the 2014 filing is recorded as $170,360.  However, in 2016, the value corresponding to 2015 is reported as $1,136,139, and the value for 2014 is reported as $35,600. Additionally, the reported contributions amount (under Part V: endowment funds)  for the filing on fiscal year 2016 is $236,579, but in 2017 the contributions amount reported for the prior year (2016) is $278,281; the value of $278,281 is reported in following years.",
 
 "The San Francisco Ballet",
 "In San the tax filings corresponding to fiscal year 2015, the beginning of year balance for 2013, 2014, and 2015 are reported as $174.  These values are in accordance with the fiscal year 2016 filing, and the beginning of year balance for 2016 is also reported as $174.  However, in the filing for the 2017 fiscal year, the reported beginning of year balance for the prior year (2016) was $107,033,575, for two years back (2015) it was  105,867,946, for three years back (2014) it was 92,513,161, and for four years back (2013) it was $79,137,681.",
 
 "Pittsburgh Ballet Theatre",
-"In the filing for fiscal year 2018, the current year net investment earnings/losses/gains is $475,508, but in the filing for fiscal year 2019, the value $556,273 is reported for the prior year (2018), and in the 2020 filing again we see the value $556,273 for 2 years back (2018). Also, in the filing corresponding to fiscal year 2020, the reported investment earnings/losses/gains is $147,166, but in the 2021 filing the prior year value is reported as $172,248."
+"In the filing for the fiscal year 2018, the current year net investment earnings/losses/gains is $475,508, but in the filing for the fiscal year 2019, the value $556,273 is reported for the prior year (2018), and in the 2020 filing again, the value $556,273 for 2 years back (2018). Also, in the filing corresponding to the fiscal year 2020, the reported investment earnings/losses/gains is $147,166, but in the 2021 filing the prior year value is reported as $172,248."
 
 ) %>%
   kbl(caption = "\\label{table:discrep}Companies Reached Out to Regarding Discrepancies",
@@ -166,25 +189,34 @@ Another result of this approach is that we can look back through 2010 in some ca
 
 ## Standard Definitions 
 
-Before going into our findings, below we provide a set of standard definitions on fundamental concepts we use throughout our analyses. 
-
+Below a set of standard definitions on fundamental concepts used throughout these analyses is provided. 
 
 | Term | Definition | 
 |:------|:----------|
-| Endowment |  The form 990 uses the definition of the endowment (and types of endowments) from the [Financial Accounting Standards Board](https://asc.fasb.org/MasterGlossary), which defines an endowment fund as “An established fund of cash, securities, or other assets to provide income for the maintenance of a not-for-profit entity (NFP). The use of the assets of the fund may be with or without donor-imposed restrictions.”
-| Rank | When ranking by a numeric variable, we defined the rank of 1 to be the highest rank among all companies, with subsequent ranks indicating a lower rank relative to other companies. When two companies had identical rankings, their ranking was taken as the average was taken. For example, the ranking of (1,2,3) would be (1,2.5,2.5). In this work, the precise values of the rankings are less relevant than their orderings.
+| Endowment | Form 990 uses the definition of the endowment (and types of endowments) from the [Financial Accounting Standards Board](https://asc.fasb.org/MasterGlossary), which defines an endowment fund as “An established fund of cash, securities, or other assets to provide income for the maintenance of a not-for-profit entity (NFP). The use of the assets of the fund may be with or without donor-imposed restrictions.”
+| Rank | When ranking by a numeric variable, defined as the rank of 1 to be the highest rank among all companies, with subsequent ranks indicating a lower rank relative to other companies. When two companies had identical rankings, their ranking was taken as the average was taken. For example, the ranking of (1,2,3) would be (1,2.5,2.5). In this work, the precise values of the rankings are less relevant than their orderings.
 | Percent Change |The percent change is $\frac{\text{End Value} - \text{Beginning Value}}{\text{Beginning Value}} \times 100.$   | 
-| S&P 500 | The Standard and Poor's 500 Index is a standard index used as a benchmark to describe the behavior of the stock market overall. The index includes 500 top publicly traded companies and is weighted by the market value of stocks currently held by stakeholders, where companies with higher market value receive higher weight.  | 
-| Compound Annual Growth Rate | The compound growth rate (CAGR) describes a company’s average growth over multiple years.  It is useful as a smoothed metric to look over growth over a set of years and compare companies in the same time period. For a time period of $t$ years, we compute the annual growth rate as ${\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{\text{End Year} - \text{Beginning Year}}}-1}$. | 
+| S&P 500 | The Standard and Poor's 500 Index is a standard index used as a benchmark to describe the behavior of the stock market overall. The index includes 500 top publicly traded companies and is weighted by the market value of stocks currently held by stakeholders, where companies with higher market value receive a higher weight.  | 
+| Compound Annual Growth Rate | The compound growth rate (CAGR) describes a company’s average growth over multiple years.  It is useful as a smoothed metric to look over growth over a set of years and compare companies in the same time period. For a time period of $t$ years, the annual growth rate is computed as ${\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beginning Value}}\right)^{\frac{1}{\text{End Year} - \text{Beginning Year}}}-1}$. | 
 
 
 
 # Findings 
 
 ## Endowments   
+
 [Endowments](https://www.investopedia.com/terms/e/endowment.asp) are donated funds to nonprofit organizations which are invested.  Endowments are typically designed to maintain initial donations (principal funds); the investment income produced by the invested donation can be utilized for specific purposes.  Depending on endowment management and policies, some organizations can remove a certain amount of principal assets from their endowment per year.  
 
+### Key Takeaways  
 
+- The majority of dance companies hold their endowment in the permanent endowment category, and few companies have dramatic changes in where they hold their endowments over time (\ref{fig:endowment-type}). Exceptions, that is, companies where the fraction held in any endowment category varies substantially over time, include Fort Wayne Ballet, San Francisco Ballet, Nashville Ballet, Atlanta Ballet, and the Washington Ballet.       
+-  Forty-seven companies report an endowment at least once (Table \ref{table:filled-scheduled}).    
+-  NOT TO BE PUBLISHED:  Companies such as The Sarasota Ballet, Atlanta Ballet, and others miscalculate their end-of-year-balance.    
+- Some endowments (e.g. Atlanta Ballet, Orlando Ballet, San Francisco Ballet) severely drop in value within a fiscal year (Figure \ref{fig:below-40}).  
+- Other endowments (e.g. Joffrey Ballet) more than doubled within a fiscal year.  (Figure \ref{fig:above-200}).   
+- Consistency of growth or shrinkage of endowment is not determined by organization size (measured through most recent endowment balance and employee number) 
+(Figures \ref{fig:pc-consist} and \ref{fig:endo-size}).  
+- 
 
 ### Types of Endowments
 
@@ -193,12 +225,12 @@ There are [three categories](https://www.irs.gov/instructions/i990sd) of endowme
 \begin{itemize}
 \item \textbf{Term endowments} (temporarily restricted endowments) are funds that are donor-restricted, which means they are meant to be used for a certain amount of time or until a particular event. 
 \item \textbf{Permanent endowments} are endowment funds from donor-restricted gifts where the initial fund must be invested; however gains or losses from these investments can be used by the organization.  
-\item \textbf{Board-designated or quasi-endowment} are funds that were internally designated for specific use but are not donor-restricted.  Investment gains and losses are typically utilized; however, the principal funds can be expended at any time.
+\item \textbf{Board-designated or quasi-endowment} are funds that were internally designated for a specific use but are not donor-restricted.  Investment gains and losses are typically utilized; however, the principal funds can be expended at any time.
 \end{itemize}
 
 
 
-Most dance companies have their endowment funds primarily in the permanent endowment category, whereas the proportion held as a board designated/quasi-endowment is typically less than 25%, as is the proportion held as a temporarily restricted endowment (\ref{fig:endowment-type}). For the majority of companies, the proportions held in each category are fairly consistent across the years. In fact, some companies held their endowment in a single category across all years on file (Table \ref{table:endowment-type-table}).
+Most dance companies have their endowment funds primarily in the permanent endowment category, whereas the proportion held as a board-designated/quasi-endowment is typically less than 25%, as is the proportion held as a temporarily restricted endowment (\ref{fig:endowment-type}). For the majority of companies, the proportions held in each category are fairly consistent across the years. In fact, some companies held their endowment in a single category across all years on file (Table \ref{table:endowment-type-table}).
 
 \begin{table}
 
@@ -257,7 +289,7 @@ However, there are several notable exceptions to the general trend of consistenc
 
 
 
-```{r proportion-endowment-categories-most-variable, fig.cap = "\\label{fig:prop-most-variable} Proportions of endowments in each designated category over time for the 5 companies with the most variability. We defined the most variable companies by considering the maximum standard deviation in the proportion in any one category."}
+```{r proportion-endowment-categories-most-variable, fig.cap = "\\label{fig:prop-most-variable} Proportions of endowments in each designated category over time for the 5 companies with the most variability. The most variable companies is defined by considering the maximum standard deviation in the proportion in any one category."}
 
 include_graphics(here('final_report/images/prop_endowment_type_most_variable.pdf'))
 
@@ -266,8 +298,8 @@ include_graphics(here('final_report/images/prop_endowment_type_most_variable.pdf
 
 ### Which Companies Have Endowments?   
 
-As we discuss these endowment analyses, one of the most fundamental questions about endowments is how many companies report them, and how that varies over time.
-To report endowments, nonprofits fill out Schedule D in Form 990.  Out of 169 dance companies we investigated, 47 reported endowments at least once in Schedule D (Table \ref{table:filled-scheduled}).
+One of the most fundamental questions about endowments is how many companies report them, and how the number of companies reporting endowments varies over time.
+To report endowments, nonprofits fill out Schedule D in Form 990.  Out of the 169 dance companies investigated, 47 reported endowments at least once in Schedule D (Table \ref{table:filled-scheduled}).
 
 
 
@@ -326,7 +358,8 @@ last_row <-tibble(Yes = filled_out_at_least_once,
                   group="Reported an Endowment\nat Least Once")
 
 filed_by_year <-filed_by_year %>%
-  bind_rows(last_row) 
+  bind_rows(last_row) %>%
+  select(fiscal_year, Yes, No, group)
 
 filed_by_year %>%
   select(-group) %>%
@@ -349,7 +382,7 @@ filed_by_year %>%
 
 ### Consistency of Endowment Reporting
 
-In investigating frequency of reporting endowments, we can see that most companies who report an endowment continue to consistently do so across their 990 filings (Figure \ref{fig:gap-plot}).  Some, however, including Oregon Ballet Theater and Ballet Des Moines, begin reporting an endowment well after their first filed 990.  Other companies such as The Charleston Ballet, Colorado Ballet, and American Repertory Ballet stop reporting endowments.  
+In investigating the frequency of reporting endowments, it is apparent that most companies who report an endowment continue to consistently do so across their 990 filings (Figure \ref{fig:gap-plot}).  Some, however, including Oregon Ballet Theater and Ballet Des Moines, begin reporting an endowment well after their first filed 990.  Other companies such as The Charleston Ballet, Colorado Ballet, and American Repertory Ballet stopped reporting endowments.  
 
 
 ```{r fig.cap = "\\label{fig:gap-plot}Continuity of filings among dance companies; gaps in a companies' filings correspond to missing fiscal years."}
@@ -362,13 +395,13 @@ include_graphics(here('final_report/images/gap_plot_endowment.png'))
 
 Ranking companies can be useful to see how endowments did relative to each other rather than looking at the raw values, which are on immensely different scales.
 
-When we look at the rankings of the beginning of year balance of companies' endowments, we see immediately that the top 7 companies, New York City Ballet, San Francisco Ballet, Houston Ballet, Alvin Ailey American Dance Theater, American Ballet Theatre, Pacific Northwest Ballet, and Boston Ballet, see no changes in ranking from 2013 to 2020 (Figure \ref{fig:rank-endowments}) .
+When viewing the rankings of the beginning of year balance of companies' endowments, it is immediately apparent that the top 7 companies, New York City Ballet, San Francisco Ballet, Houston Ballet, Alvin Ailey American Dance Theater, American Ballet Theatre, Pacific Northwest Ballet, and Boston Ballet, see no changes in ranking from 2013 to 2020 (Figure \ref{fig:rank-endowments}).
 
 Below the top 7, there are more shifts in the rankings across time, with some companies changing dramatically in ranking. This includes:
 
 
 \begin{itemize}
-\item A dramatic decrease in Aspen Santa Fe Ballet’s ranking from 2018 through 2020
+\item A dramatic decrease in Aspen Santa Fe Ballet’s ranking from 2018 through 2020, due to the company’s decisions noted  \hyperref[sec:asfb]{previously}.
 \item A marked increase in: 
 \subitem - Joffrey Ballet’s ranking
 \subitem - Orlando Ballet’s ranking
@@ -384,9 +417,15 @@ include_graphics(here('final_report/images/rank_of_beginning_year_balance.pdf'))
 
 ```
 
-When we add information on how these companies ranked in contributions (Figure \ref{fig:rank-endowments-color-contribution}), we see that although some organizations that are top ranked in endowment balance are also top ranked in mean contributions, several of the companies that experienced notable changes in their rankings also were ranked high in contributions, in particular, Orlando Ballet and Joffrey Ballet. 
+The relationship between contributions and endowments warrants exploration since both of these sources of funds can enhance a company’s financial well-being.
 
+When the lines for each company from Figure \ref{fig:rank-endowments} are colored by how these companies ranked in contributions (Figure \ref{fig:rank-endowments-color-contribution}), a couple of trends are clear. For one, companies that are ranked high in endowments tend to rank high in contributions, for example, New York City Ballet is top-ranked in both endowments and contributions. Similarly, companies ranking low in endowments tend to rank low in contributions.
 
+Notably, several of the companies that experienced notable changes in their rankings also were ranked high in contributions, in particular, Orlando Ballet and Joffrey Ballet. 
+
+High contributions, in these cases, may have contributed to Orlando Ballet’s and Joffrey Ballet’s enormous growth in their endowments across time, which may enhance their financial stability in years to come. 
+
+Understanding how contributions relate to changes in endowment balances is important in understanding how these contributions impact companies long-term.
 
 ```{r, fig.cap="\\label{fig:rank-endowments-color-contribution}Rank of the endowment beginning of year balance over time, where the color indicates the ranking of the mean contributions received over all years on file for the company."}
 
@@ -397,9 +436,9 @@ include_graphics(here('final_report/images/rank-endowments-color-contribution.pd
 
 ```
 
-Looking more closely at the relationship between contribution rankings and beginning of year balance rankings, in Figure \ref{fig:balancecont}, there is a strong relationship between how a company ranks with regard to their contributions relative to the other companies and how a company ranks in the endowment beginning of year balance. That is, when companies are ranked high in the beginning of year balance, they tend to rank high in contributions as well. As we would expect, this trend holds across the full set of fiscal years considered. 
+Looking more closely at the relationship between contribution rankings and beginning-of-year balance rankings, in Figure \ref{fig:balancecont}, there is a strong relationship between how a company ranks with regard to their contributions relative to the other companies and how a company ranks in the endowment beginning of year balance. That is, when companies are ranked high at the beginning of the year balance, they tend to rank high in contributions as well. As expected, this trend holds across the full set of fiscal years considered. 
 
-However, the rankings are often not identical. If they were, all points would fall on the red line, which represents an exact correspondence between rankings. In some cases, a company consistently ranks higher in contributions relative to the beginning of year balance. We summarize whether the contributions or beginning of year balance tends to rank higher for a given company in Figure \ref{fig:balancecontbar}. For example, Ballet West ranked higher in the endowment beginning of year balance for each year available (2016-2020), while Nashville Ballet ranked higher in contributions than beginning of year balance for every year on file (2011 - 2022).
+However, the rankings are often not identical. If they were, all points would fall on the red line, which represents an exact correspondence between rankings. In some cases, a company consistently ranks higher in contributions relative to the beginning-of-year balance. Whether the contributions or beginning-of-year balance tends to rank higher for a given company is summarized in Figure \ref{fig:balancecontbar}. For example, Ballet West ranked higher in the endowment beginning-of-year balance for each year available (2016-2020), while Nashville Ballet ranked higher in contributions than the beginning-of-year balance for every year on file (2011 - 2022).
 
 ```{r compare-rankings-balance-contributions, out.width='75%', fig.cap = "\\label{fig:balancecont} Comparing the rankings of beginning of year balance of the endowment to the ranking of contributions recieved."}
 
@@ -416,7 +455,7 @@ include_graphics(here('final_report/images/compare-rankings-balance-contribution
 
 
 
-In contrast to what we saw in the rankings of the beginning of year balance (Figures \ref{fig:rank-endowments-color-contribution} and \ref{fig:rank-endowments}, we see in Figure \ref{fig:rankings-contributions} that the rankings of contributions are much less consistent.
+In contrast to the observations in the rankings of the beginning of year balance (Figures \ref{fig:rank-endowments-color-contribution} and \ref{fig:rank-endowments}, Figure \ref{fig:rankings-contributions} demonstrates that the rankings of contributions are much less consistent. It is clear that contributions are a less stable source of funding for these companies, and the amount companies receive year to year varies considerably. 
 
 ```{r ranking-contributions,  fig.cap ="\\label{fig:rankings-contributions}The rankings of contributions over time, by organization."}
 
@@ -426,35 +465,37 @@ include_graphics(here('final_report/images/ranking-contributions.pdf'))
 ```
 
 
-### Reported Endowment Balances over time - Is the Math right?  
+### NOT TO BE PUBLISHED: Reported Endowment Balances over time - Is the Math right?  
 
-> Due to time constraints within our project, we did not have the opportunity to reach out to any companies regarding their miscalculations or reporting of negative expenses.  We recommend doing this prior to this report being published. 
 
-Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  We calculated the end of year balance (see the equation below), and then compared our calculated balance to the reported end of year balance.  The majority of calculations are concordant; however, we noted discrepancies in thirteen companies.  Discrepancies range from \$-20,000 (Orlando Ballet, 2016) to \$8,301,066 (Atlanta Ballet, 2017). Due to the scaling of the below figure, differences in reported and calculated balance below a hundred thousand dollars are difficult to see.  
+> Due to time constraints within our project, the capstone team did not have the opportunity to reach out to any companies regarding their miscalculations or reporting of negative expenses. The team recommends doing this prior to this report being published. 
+
+
+Theoretically, one can calculate an endowment’s fiscal year end balance based on all information provided in Schedule D.  The end-of-year balance was calculated (see the equation below) and then compared our calculated balance to the reported end-of-year balance.  The majority of calculations are concordant; however, discrepancies were noted in thirteen companies.  Discrepancies range from \$-20,000 (Orlando Ballet, 2016) to \$8,301,066 (Atlanta Ballet, 2017). Due to the scaling of the below figure, differences in reported and calculated balances below a hundred thousand dollars are difficult to see.  
 
 $$\text{Calculated Year End Balance} = \text{Beginning Year Balance} + \text{Contributions} +$$
 $$ \text{Investment Earnings or Losses} - |\text{Administrative Expenditures}| -$$
 $$|\text{Other Expenditures}| - | \text{Grants or Scholarships}| \tag{1}$$
 
-For values related to expenses (administrative expenditures, other expenditures, grants or scholarships), we took the absolute value to ensure all were positive numbers.  Four companies (Ballet Hispánico, Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem) report their other expenditures as a negative value; thus, when calculating end year balance, subtracting a negative value would result in an additive, not subtractive, effect. 
+For values related to expenses (administrative expenditures, other expenditures, grants, or scholarships), the absolute value was used to ensure all were positive numbers.  Four companies (Ballet Hispánico, Atlanta Ballet, Miami City Ballet, and Dance Theatre of Harlem) report their other expenditures as a negative value; thus, when calculating end-of-year balance, subtracting a negative value would result in an additive, not subtractive, effect. 
 
-We see the difference in the extent of discrepancies when we take the absolute value (Figure \ref{fig:miscalc} (a)), as in equation (1), versus when we do not  (Figure \ref{fig:miscalc} (b)). There are less discrepancies when we do take the absolute value.
+The difference in the extent of discrepancies when the absolute value is taken (Figure \ref{fig:miscalc} (a)), as in equation (1), versus when it is not  (Figure \ref{fig:miscalc} (b)). There are fewer discrepancies when the absolute value is taken.
 
-Since we compute the difference by taking $\text{Reported End Balance} - \text{Calculated End Balance}$, negative values indicate the calculated end balance was larger than the reported, and positive values indicate the reported end balance was larger. The calculated differences are split between being negative or positive.
+Since the difference was computed by taking $\text{Reported End Balance} - \text{Calculated End Balance}$, negative values indicate the calculated end balance was larger than the reported, and positive values indicate the reported end balance was larger. The calculated differences are split between being negative or positive.
 
-Atlanta Ballet has the largest discrepancy in (a); however, we see that if we don't take the absolute value and take the negatives as is (b), the values are concordant.  The opposite issue occurs for Miami City Ballet, whereby in (a) with the absolute value, they are concordant.  However, in (b) without absolute value of expenses, they appear eight times.  Both of these situations stem from reports of negative values in an expenses column, although they are mirrored situations.  Thus, this raises the question as to how negative expenses should be dealt with.
+Atlanta Ballet has the largest discrepancy in (a); however, if the absolute value isn’t used and the negatives as is used in (b), the values are concordant. The opposite issue occurs for Miami City Ballet, whereby in (a) with the absolute value, they are concordant.  However, in (b) without the absolute value of expenses, they appear eight times.  Both of these situations stem from reports of negative values in an expenses column, although they are mirrored situations.  Thus, this raises the question of how negative expenses should be dealt with.
 
-Considering panel (a), most companies only miscalculate once; however, there are multiple miscalculations for Fort Wayne Ballet, Atlanta Ballet, and Ballet Arizona. Of note, some of these differences were trivial (e.g., \$10). Eugene Ballet does not report an end year balance for 2011, yet reports a beginning balance of \$45,000, hence the -\$45,000 difference we see for this year.
+Considering panel (a), most companies only miscalculate once; however, there are multiple miscalculations for Fort Wayne Ballet, Atlanta Ballet, and Ballet Arizona. Of note, some of these differences were trivial (e.g., \$10). Eugene Ballet does not report an end-of-year balance for 2011, yet reports a beginning balance of \$45,000, hence the -\$45,000 difference for this year.
 
-```{r, fig.show='hold',out.width='50%', fig.cap="\\label{fig:miscalc}Comparing the reported end of year balance to that we computed based on other reported variables. Calculation is done with the absolute value in (a) and without in (b). Each organization is in a different color." }
+```{r, fig.show='hold',out.width='50%', fig.cap="\\label{fig:miscalc}Comparing the reported end of year balance to that were computed based on other reported variables. Calculation is done with the absolute value in (a) and without in (b). Each organization is in a different color." }
 
 include_graphics(here('final_report/images/diff_end_bal.png'))
 include_graphics(here('final_report/images/diff_end_bal_no_abs.png'))
 ```
 
-We summarize the discrepancies found by taking the absolute value (e.g. panel (a) of the above figure) in Figure \ref{fig:miscalc-by-comp}.  When taking the absolute value, the company who misreports the most is Fort Wayne Ballet with three miscalculations. 
+We summarize the discrepancies found by taking the absolute value (e.g. panel (a) of the above figure) in Figure \ref{fig:miscalc-by-comp}.  When taking the absolute value, the company that misreports the most is Fort Wayne Ballet with three miscalculations. 
 
-In future work involving end balance, we chose to utilize the reported end year balance, as we are still uncertain how to handle negative expenses.  Thus, we could potentially be utilizing values which are incorrectly reported.  End balance is involved in calculations for two examinations in particular: 4.1.5 with Annual Percent Change and 4.1.6 Compound Growth Rate.  Any erroneous end year balances will thus produce inaccurate figures.  Thus, for companies whereby an incongruence was identified (either with or without absolute value), we cannot be certain whether our calculated Compound Growth Rate or Annual Percent Change accurately reflect those companies’ endowment growth or behavior.
+In future work involving end balance, the reported end-of-year balance was utilized, as it is still uncertain how to handle negative expenses.  Thus, values that are incorrectly reported might possibly be used.  End balance is involved in calculations for two examinations in particular: 4.1.5 with Annual Percent Change and 4.1.6 Compound Growth Rate.  Any erroneous end-of-year balances will thus produce inaccurate figures.  Thus, for companies whereby an incongruence was identified (either with or without absolute value), it is not certain whether our calculated Compound Growth Rate or Annual Percent Change accurately reflects those companies’ endowment growth or behavior.
 
 ```{r miscalc-by-comp, fig.cap="\\label{fig:miscalc-by-comp}Number of observations where there was a discrepancy between the calculated and reported end of year balance, using the absolute value equation given in equation (1).", out.width="50%"}
 
@@ -463,31 +504,31 @@ include_graphics(here('final_report/images/miscalc_end_bal.png'))
 ```
 
 
-### How Endowments Did Over Time   
+### Change in Endowments Over Time 
 
-Annual percent change is the percent change from one value to the next at the end of a year-long period. With regard to endowment balances, the annual percent change in endowment balance is a comparison between the endowment at the beginning of the fiscal year and the endowment of the end of the fiscal year, which allows us to interpret by what percent the endowment has grown or shrunk.  Charting percent change over time allows us to view endowment behavior over time; further, we can compare percent changes between companies to get a sense for trends in how different companies' endowments change.  
+Annual percent change is the percent change from one value to the next at the end of a year-long period. With regard to endowment balances, the annual percent change in endowment balance is a comparison between the endowment at the beginning of the fiscal year and the endowment at the end of the fiscal year, which allows interpretation of the percentage by which the endowment has grown or shrunk.  Charting percent change over time facilitates viewing endowment behavior over time; further, one can compare percent changes between companies to get a sense of trends in how different companies' endowments change.  
 
-To provide some context on the interpretation of percent change, we first state a couple of standard definitions.
+With regard to the interpretation of percent change, a couple of standard definitions are first stated. 
 
 The relative change, which represents how much a value has changed relative to its initial value, is 
 
 $$\text{Relative change} = \dfrac{\text{End Value} - \text{Start Value}}{ \text{Start Value}}.$$ 
 
-The effect of considering relative change means that we can more easily compare companies that have enormously different beginning of year balance sizes. For a company with a small endowment, a difference of 10,000 may be substantial, while the same difference would be minimal if the company has over a million in its endowment.
+The effect of considering relative change facilitates comparison between companies that have enormously different beginning-of-year balance sizes. For a company with a small endowment, a difference of $10,000 may be substantial, while the same difference would be minimal if the company has over a million dollars in its endowment.
 
 The percent change, which is the relative change in percentage form, is simply $\text{Relative Change} \times 100$.
 
 
-When we are considering the percent change within a fiscal year, that is, from the beginning of year balance to the end of year balance, a couple of examples of the interpretation include^[For a relative change of value $R$, it can be more intuitive to interpret it by considering the expression $\text{End Value} = (R+1) \times \text{Start Value}.$ That is, if we have a relative change, we simply add 1 to it and multiply it by the starting value to acquire the end value.
+When considering the percent change within a fiscal year, that is, from the beginning of year balance to the end of year balance, a couple of examples of the interpretation include^[For a relative change of value $R$, it can be more intuitive to interpret it by considering the expression $\text{End Value} = (R+1) \times \text{Start Value}.$ That is, if a relative change is identified, 1 is added to it and it is multiplied by the starting value to acquire the end value.
 ]:
-
+ 
 * If the percent change is $-50\%$, the endowment's value at the end of the fiscal year is half of what it was at the beginning. 
-* If the percent change is $100\%$, the endowment's value at the end of the fiscal year is twice that it was at the beginning.  
+* If the percent change is $100\%$, the endowment's value at the end of the fiscal year is twice what it was at the beginning.  
 * If the percent change is $-100\%$, the endowment's value dropped to zero throughout the fiscal year.  
 
-We calculated each company’s within-year percent change of endowment balance, as this allows us to compare the performance of different companies' endowments over time.  A positive percent change indicates growth within the fiscal year; a negative percent change indicates loss.  
+We calculated each company’s within-year percent change of endowment balance, as this allows for comparison of the performance of different companies' endowments over time.  A positive percent change indicates growth within the fiscal year; a negative percent change indicates a loss.  
 
-The percent change of most companies falls between -100% and 200% (Figure \ref{fig:perc-change-endow}).  There are notable outliers, however, such as Joffrey Ballet in 2016 with a ~3,000% increase (\ref{fig:perc-change-endow-all}).  By focusing on lines between -100% and 200%, we can see a trend appearing, with many companies growing and shrinking at similar rates around similar times.  Thus, plotting the within-year percent change of the S&P 500 as a proxy for the stock market, we can see that many companies' endowment balances reflect the performance of the stock market; this is unsurprising, given the inherent invested nature of endowments.  To assess companies’ "raw" performance--in other words, how they managed their endowments outside of their investment returns--we adjusted all percent changes for investment earnings or losses, which flattened the stock market trend (Figure \ref{fig:flat}).  We use this flattened plot to investigate large decreases and increases in endowment funds, as well as long term behavior of endowments. 
+The percent change of most companies falls between -100% and 200% (Figure \ref{fig:perc-change-endow}).  There are notable outliers, however, such as Joffrey Ballet in 2016 with a ~3,000% increase (\ref{fig:perc-change-endow-all}).  By focusing on lines between -100% and 200%, a trend appears with many companies growing and shrinking at similar rates around similar times.  Thus, plotting the within-year percent change of the S&P 500 as a proxy for the stock market, many companies' endowment balances reflect the performance of the stock market; this is unsurprising, given the inherent invested nature of endowments.  To assess companies’ "raw" performance--in other words, how they managed their endowments outside of their investment returns--we adjusted all percent changes for investment earnings or losses, which flattened the stock market trend (Figure \ref{fig:flat}).  The capstone team used this flattened plot to investigate large decreases and increases in endowment funds, as well as the long-term behavior of endowments. 
 
 
 ```{r,  fig.cap="\\label{fig:perc-change-endow-all} Percent change in endowment balance over time, including the full range of percent changes, revealing several clear outliers." , out.width="80%"}
@@ -501,15 +542,15 @@ include_graphics(here('final_report/images/pc_endow_zoom.png'))
 
 ```
 
-```{r flat, fig.cap="\\label{fig:flat} Adjusting for investment earnings or losses when computing the endowment percent changes flattens the trends we see when using the unadjusted endowment values.", out.width="80%"}
+```{r flat, fig.cap="\\label{fig:flat} Adjusting for investment earnings or losses when computing the endowment percent changes flattens the trends observable when using the unadjusted endowment values.", out.width="80%"}
 
 include_graphics(here('final_report/images/pc_endow_flat.png'))
 
 ```
 
-Examining particular companies (Figure \ref{fig:below-40}), we can see that eight companies reduce their endowment by over 40% (e.g. Percent Change lower than -40%) across multiple years.  There are eight companies that do so (Table 4) Aspen Santa Fe Ballet, Atlanta Ballet, First State Ballet Theatre, Nashville Ballet, Orlando Ballet, San Francisco Ballet, and The Washington Ballet.  Some of these companies reduce their endowments by over 40% multiple times.  While we cannot say for certain why more companies have such severe reductions in endowment balance, reductions can indicate a variety of situations for a company, such as: dispersing their funds into a new fiscal entity^[Aspen Santa Fe Ballet transferred most of their endowment into Aspen Santa Fe Ballet Endowment Inc in 2018, causing their 90% reduction of funds.], struggling financial in a given fiscal year, spending newly-unrestricted funds, or purchasing large items such as a building.  Few companies severely reduce their endowment, thus the majority of US dance companies with endowments are able to maintain their savings and receive income from their endowments.
+Examining particular companies (Figure \ref{fig:below-40}), it is apparent that eight companies reduce their endowment by over 40% (e.g. Percent Change lower than -40%) across multiple years.  There are eight companies that do so (Table 4) Aspen Santa Fe Ballet, Atlanta Ballet, First State Ballet Theatre, Nashville Ballet, Orlando Ballet, San Francisco Ballet, and The Washington Ballet.  Some of these companies reduce their endowments by over 40% multiple times.  While it is not certain why more companies have such severe reductions in endowment balance, reductions can indicate a variety of situations for a company, such as: dispersing their funds into a new fiscal entity^[Aspen Santa Fe Ballet transferred most of their endowment into Aspen Santa Fe Ballet Endowment Inc in 2018; see the note on Aspen Santa Fe in the [previous section](#asfb).], struggling financially in a given fiscal year, spending newly-unrestricted funds, or purchasing large items such as a building.  Few companies severely reduce their endowment, thus the majority of US dance companies with endowments are able to maintain their savings and receive income from their endowments.
 
-```{r, fig.cap = "\\label{fig:below-40} Companies that reduce their endowment by over 40 percent.", out.width="80%"}
+```{r, fig.cap = "\\label{fig:below-40} Companies that reduce their endowment by over 40 percent.", out.width="100%"}
 include_graphics(here('final_report/images/pc_below_40.png'))
 ```
 
@@ -552,7 +593,7 @@ The Washington Ballet & -57.6 & 1212247 & 621423 & 2017\\
 \end{tabular}
 \end{table}
 
-Additionally, we can see that eight companies increased their endowment by over 200% (percent Change higher than 200%) across multiple years, which means they at minimum tripled their endowment (\ref{fig:above-200}). These eight companies are: Atlanta Ballet, Ballet Arizona, Ballet Hispánico, First State Ballet Theatre, Fort Wayne Ballet, Joffrey Ballet, Nashville Ballet, and Orlando Ballet.  Such dramatic increases are potentially indicative of large donations, liquidation of assets such as buildings, or aggregation of funds from separate endowment accounts.
+Additionally, eight companies increased their endowment by over 200% (percent Change higher than 200%) across multiple years, which means they at minimum tripled their endowment (\ref{fig:above-200}). These eight companies are Atlanta Ballet, Ballet Arizona, Ballet Hispánico, First State Ballet Theatre, Fort Wayne Ballet, Joffrey Ballet, Nashville Ballet, and Orlando Ballet.  Such dramatic increases are potentially indicative of large donations, liquidation of assets such as buildings, or aggregation of funds from separate endowment accounts.
 
 
 ```{r, fig.cap="\\label{fig:above-200} Annual percent change for companies that increased their endowment over 200 percent."}
@@ -593,7 +634,7 @@ Orlando Ballet & 547.7 & 338943 & 2212808 & 2017\\
 \end{tabular}
 \end{table}
 
-To examine the behavior of endowments, we ranked each company by its consistency over time.  We define consistency by ranking companies by their standard deviation of a company’s percent change across all years on file.  The smaller the standard deviation, the more consistent the company’s endowment behavior was, thus the higher the rank. (Figure \ref{fig:pc-consist}).  We find that many companies who have consistent balances tend to not make large adjustments to their percent change.  Further, consistency in endowment does not appear to be related to company size (Figure \ref{fig:endo-size}), as measured by both endowment total balance and number of employees.
+To examine the behavior of endowments, each company was ranked by its consistency over time. Consistency is defined by ranking companies by their standard deviation of a company’s percent change across all years on file.  The smaller the standard deviation, the more consistent the company’s endowment behavior was, thus the higher the rank. (Figure \ref{fig:pc-consist}).  Many companies that have consistent balances tend to not make large adjustments to their percent change.  Further, consistency in endowment does not appear to be related to company size (Figure \ref{fig:endo-size}), as measured by both the endowment total balance and the number of employees.
 
 ```{r, fig.cap="\\label{fig:pc-consist}"}
 
@@ -610,11 +651,11 @@ include_graphics(here('final_report/images/consist_by_employ_count.png'))
 ```
 
 
-### Compound Annual Growth Rate
+### Compound Annual Growth Rate {#endowment-time}
 
-The compound annual growth rate is a useful way to summarize the performance of different endowments over the same time period, since the variability in annual growth rates can make it difficult to see broader trends. We can think of this rate where, if the value grew by this same rate each year, would give us the end value at the end of the time period considered. 
+The compound annual growth rate is a useful way to summarize the performance of different endowments over the same time period since the variability in annual growth rates can make it difficult to see broader trends. One can think of this rate where, if the value grew by this same rate each year, it would produce the end value at the end of the time period considered. 
 
-When we look at compound annual growth rate in this setting, we want to account for withdrawals and contributions to separate how endowments are doing due to investment decisions versus how they change due to large contributions or withdrawals. 
+When looking at the compound annual growth rate in this setting, it is helpful to account for withdrawals and contributions to separate how endowments are doing due to investment decisions versus how they change due to large contributions or withdrawals. 
 
 The basic formula for the compound growth rate over $t$ years is
 
@@ -622,20 +663,20 @@ $${\text{Compound Annual Growth Rate} = \left( \frac{\text{End Value}}{\text{Beg
 
 Withdrawals as reported on the 990 include other expenditures, grants and scholarships, and administrative expenses.
 
-This means we can compute the withdrawals for any given year and company as 
+This means it is possible to compute the withdrawals for any given year and company as 
 
 $$\small{\text{Withdrawals} = \text{Other Expenditures} +\text{Administrative Expenses} +\text{Administrative Expenses} + \text{Grants and Scholarships}}.$$
 
-To adjust for contributions and expenditures, we define the Compound Annual Growth Rate as
+To adjust for contributions and expenditures, the Compound Annual Growth Rate is defined as
 $${\left( \frac{\text{End Value} + \sum_{i=1}^{t-1} \text{Withdrawals} - \sum_{i=1}^{t-1} \text{Contributions}  }{\text{Beginning Value}} \right)^{\frac{1}{t}}-1}.$$
 
-Adding back the withdrawals and subtracting off the contributions allows us to see differences that are due specifically to investment choices. Otherwise, we would not be able to tell whether a large increase in endowment funds in a particular year was due to investment gains or a large contribution. 
+Adding back the withdrawals and subtracting off the contributions facilitates visualization of differences in endowments that are due specifically to investment choices. Otherwise, it would not be possible to tell whether a large increase in endowment funds in a particular year was due to investment gains or a large contribution. 
 
-In Figure \ref{fig:compound-growth}, we compare the compound growth rates of the companies to the compound growth rate of the S&P 500 over the same time period, where we use the S&P 500 as a benchmark to indicate how the stock market is doing overall. Variations in the S&P 500 across companies for a given time interval are due to differences in their fiscal years. While Ballet Arizona and San Francisco have enormous differences when considering the time intervals 2011 to 2020 and 2015 to 2020, it is unclear whether these changes are truly this large in magnitude or if the differences are due to discrepancies in reporting. Although we reached out to both companies to clarify discrepancies in early years, we received no reply. 
+In Figure \ref{fig:compound-growth}, the compound growth rates of the companies to the compound growth rate of the S&P 500 over the same time period are compared, where the S&P 500 is used as a benchmark to indicate how the stock market is doing overall. Variations in the S&P 500 across companies for a given time interval are due to differences in their fiscal years. While Ballet Arizona and San Francisco have enormous differences when considering the time intervals 2011 to 2020 and 2015 to 2020, it is unclear whether these changes are truly this large in magnitude or if the differences are due to discrepancies in reporting. Although the capstone team reached out to both companies to clarify discrepancies in the early years, the capstone team received no reply. 
 
-A substantial proportion (about 40% of the companies for the 2011-2020 time period, and about 50% of companies for the 2015-2020 and 2017-2020 time periods) had a compound annual growth rate less than 0.05%. We see the same concept at a more granular level considering the annual growth rates in Figure \ref{fig:annual-growth-endowment}.
+A substantial proportion (about 40% of the companies for the 2011-2020 time period, and about 50% of companies for the 2015-2020 and 2017-2020 time periods) had a compound annual growth rate of less than 0.05%. The same concept is observable at a more granular level considering the annual growth rates in Figure \ref{fig:annual-growth-endowment}.
 
-```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500 for three time periods. Not all companies are present in each plot, since not all companies have data going back the same number of years. Of note, year to year differences in the compound annual growth rate of the S\\&P 500 are due to differences in companies' fiscal years."}
+```{r, fig.cap = "\\label{fig:compound-growth}Compound annual growth rates for all organizations compared to the compound annual growth rate for the S\\&P 500 for three time periods. Not all companies are present in each plot since not all companies have data going back the same number of years. Of note, year-to-year differences in the compound annual growth rate of the S\\&P 500 are due to differences in companies' fiscal years."}
 
 include_graphics(here('final_report/images/compound-growth.pdf'))
 
@@ -650,9 +691,21 @@ include_graphics(here('final_report/images/annual-growth.pdf'))
 
 ## Volunteer & Paid Labor  
 
+### Key Takeaways  
+
+- The highest proportion of companies who rely more on volunteer labor than paid employees is the South, then the Midwest, followed by the West, then Mid-America, New England, and then the Mid-Atlantic.  
+- The percentage paid to C-Suite employees ranges from 0% to a little over 30%, and is fairly constant over the years.  
+
+
 ### Volunteer Labor and Geography
 
-As we see in Figure \ref{fig:type-region-bar}, the South has the most companies who use more volunteers than employees with 68% of all reported companies volunteers, followed by the Midwest, then the West, then Mid-America, New England, and finally the Mid-Atlantic. 
+Overall, more labor (both volunteer and employee) is used in the West, followed by the Mid-Atlantic, then the South, then the Midwest, then Mid-America, and finally New England. Of these regions, the one with the highest proportion of companies who rely more on volunteer labor than paid employees is the South, then the Midwest, followed by the West, then Mid-America, New England, and then the Mid-Atlantic.
+
+In Figure \ref{fig:type-region-bar}, the South has the most companies who use more volunteers than employees with 68% of all reported companies volunteers, followed by the Midwest, then the West, then Mid-America, New England, and finally the Mid-Atlantic. 
+
+
+
+
 
 ```{r, fig.cap="\\label{fig:type-region-bar}Total number of laborers reported for each region in the 2019 fiscal year, colored by the number of companies who report either more employees or more volunteers"}
 
@@ -662,7 +715,7 @@ include_graphics(here('final_report/images/type_region_bar.png'))
 ```
 
 
- In Figure \ref{fig:ratio-region}, we show the 1st, 2nd, 3rd, and 4th quantiles of total volunteer labor. We ranked individual companies by the total number of volunteers they reported and then computed the quantiles. The share within each quantile is shown by region.
+ Figure \ref{fig:ratio-region}, shows the 1st, 2nd, 3rd, and 4th quantiles of total volunteer labor. Individual companies were ranked by the total number of volunteers they reported and then computed the quantiles. The share within each quantile is shown by region.
  
  
 ```{r, fig.cap="\\label{fig:ratio-region}Share of volunteer use for each region by quantile using individual companies."}
@@ -673,29 +726,29 @@ include_graphics(here('final_report/images/ratio_bar_region.png'))
 We visualize the percentage of total labor that was volunteer labor by state across the United States in Figure \ref{fig:us-map}.
 
  
-```{r, fig.cap ="\\label{fig:us-map}Share of volunteer labor among all labor by state. States, where we do not have data, are in gray."}
+```{r, fig.cap ="\\label{fig:us-map}Share of volunteer labor among all labor by state. States, which do not have data, are in gray."}
 
 include_graphics(here('final_report/images/vol_map.png'))
 
 ```
  
  
-### Compensation toTop Employees 
+### Compensation to Top Employees 
 
 
-As we think about paid and unpaid labor in the dance industry, it is also useful to look at how compensation is distributed among paid employees.
+While thinking about paid and unpaid labor in the dance industry, it is also useful to look at how compensation is distributed among paid employees.
 
-In Part IX of the Form 990, companies report compensation going to the set of  top employees -- in particular, “officers, directors, trustees, and key employees”; we refer to this set of top employees as C-Suite employees. Additionally, they report the total compensation to all employees. 
+In Part IX of Form 990, companies report compensation going to the set of top employees -- in particular, “officers, directors, trustees, and key employees”; this set of top employees is referred to as C-Suite employees. Additionally, they report the total compensation to all employees. 
 
-This information allows us to compare what percent of total employee compensation was going to C-Suite employees. For this analysis, we only included companies with more than 45 employees. This choice was due to the extent of variability in the percentages paid to C-Suite employees in companies smaller than this threshold size, since there are some years where smaller companies report zero compensation to C-Suite employees. 
+This information allows for a comparison of what percent of total employee compensation was going to C-Suite employees. For this analysis, only companies with more than 45 employees were included. This choice was due to the extent of variability in the percentages paid to C-Suite employees in companies smaller than this threshold size since there are some years where smaller companies report zero compensation to C-Suite employees. 
 
-Of note, Aspen Santa Fe Ballet has previously contacted DDP ® regarding C-Suite compensation, as they amended their fiscal year 2020 990s; however, as the IRS is behind in its uploading of amended returns, we do not have the corrected information.
+Of note, Aspen Santa Fe Ballet has previously contacted DDP® regarding C-Suite compensation, as they amended their fiscal year 2020 990s; however, as the IRS is behind in its uploading of amended returns, the corrected information is not publicly available.
 
-The percentage paid to C-Suite employees ranges from 0% to a little over 30%, and is fairly constant over the years (Figure \ref{fig:frac-comp} ) . The median for each fiscal year was close to 10%. However, we do see with the limited data available for 2021 that percentages appear to increase following the onset of the pandemic; this trend will be important to consider as more data from 2021 is released.  
+The percentage paid to C-Suite employees ranges from 0% to a little over 30%, and is fairly constant over the years (Figure \ref{fig:frac-comp} ). The median for each fiscal year was close to 10%. However, the limited data available for 2021 shows that percentages appear to increase following the onset of the pandemic; this trend will be important to consider as more data from 2021 is released.  
 
-In Figure \ref{fig:csuite-comp-bar}, where we summarize the difference in the percentage of total compensation paid to C-Suite employees in 2020 to that in 2015, we see there’s actually fairly even split between companies that increased the percent paid to C-Suite employees versus those that decreased the percent going to C-Suite employees.
+In Figure \ref{fig:csuite-comp-bar}, where the difference in the percentage of total compensation paid to C-Suite employees in 2020 to that in 2015 is summarized, there’s actually a fairly even split between companies that increased the percent paid to C-Suite employees versus those that decreased the percent going to C-Suite employees.
 
-```{r, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that was paid to officers, directors, trustees, or key employees, as reported in Part IX of the Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included."}
+```{r, fig.height=8.5, fig.cap="\\label{fig:frac-comp} percent of the total compensation paid to employees that were paid to officers, directors, trustees, or key employees, as reported in Part IX of Form 990. Highlighted in the first panel are the 10 companies that had the greatest change in the percent paid to C-Suite employees from the earliest year on file to the latest. Only companies with more than 45 employees and that reported complete data for more than 5 years are included."}
 
 
 include_graphics(here('final_report/images/frac-comp.pdf'))
@@ -703,21 +756,30 @@ include_graphics(here('final_report/images/frac-comp.pdf'))
 ```
 
 
-```{r, fig.cap = "\\label{fig:csuite-comp-bar} Comparing the percent of total compensation paid to C-Suite employees in 2015 to that in 2020. Since we are subtracting the 2015 percent from the 2020 percent, positive values indicate a greater percent of compensation went to C-Suite employees in 2020, while negative values indicate a smaller percent of compensation went to C-Suite employees in 2020."}
+```{r, fig.cap = "\\label{fig:csuite-comp-bar} Comparing the percent of total compensation paid to C-Suite employees in 2015 to that in 2020. Since the 2015 percent were subtracted from the 2020 percent, positive values indicate a greater percentage of compensation went to C-Suite employees in 2020, while negative values indicate a smaller percentage of compensation went to C-Suite employees in 2020."}
 
 include_graphics(here('final_report/images/csuite-comp-bar.pdf'))
 
 ```
 
 
-## Buildings 
+## Buildings  
 
-In-person performances are a huge part of dance companies’ business, and many of shows are held in companies’ own theaters. Therefore, analyzing how each company’s endowment of buildings and lands, especially their book values, is important in understanding how these companies are faring economically. 
-In this analysis, we define book values as the value of the asset recorded on the balance sheet, as reported in Part VI of Schedule D of the Form 990. For all the analyses included below, the book values are summed from all the buildings and lands owned by the company.
+### Key Takeaways    
+- Most companies have stable building endowments except those that went through major buying or saving behaviors.  
+- For those companies that went through major changes in buying or selling behaviors in buildings and lands, no specific patterns as found in years or regions.  
+- The state that has the most companies might not have the highest sum of buildings book values, which indicates that different states have different niches for dance companies.  
 
-In the following plots, we consider one quantile at a time because these values are on such different scales, with some companies approaching $8 \times 10^7$ in book values, while others had less than $1 \times 10^5$.
 
-### The Trend in Property Book Values (high/medium/low by quantile)
+In-person performances are a huge part of dance companies’ business, and many shows are held in companies’ theaters. Therefore, analyzing how each company’s endowment of buildings and lands, especially their book values, is important in understanding how these companies are faring economically. 
+
+In this analysis, book values were defined as the value of the asset recorded on the balance sheet, as reported in Part VI of Schedule D of Form 990. For all the analyses included below, the book values are summed from all the buildings and lands owned by the company.
+
+In the following plots, we split the companies into groups (high, medium, and low) based on their book values to visualize companies that had book values in a similar range.  This makes trends more clear because companies’ book values are on such different scales, with some companies approaching $8 \times 10^7$ in book values, while others had less than $1 \times 10^5$. Companies were divided into these three groups based on the quantile of their building's book value in 2020.
+
+
+
+### Trends in Property Book Values (high/medium/low by quantile)
 
 
 ```{r, fig.cap="\\label{fig:high}", out.width='80%'}
@@ -735,15 +797,14 @@ include_graphics(here('final_report/images/low.png'))
 
 ```
 
-In Figures \ref{fig:high}, \ref{fig:medium}, and \ref{fig:low}, we see the percent changes in buildings’ book values for each company from 2014 to 2021. We divided companies into three groups based on their building's book value: high, medium, and low, based on the quantile of their book values in 2020. Companies with notable changes for each category are:
+In Figures \ref{fig:high}, \ref{fig:medium}, and \ref{fig:low}, the percent changes in buildings’ book values for each company from 2014 to 2021 are presented. Companies with notable changes for each category are:
 
 * Major: New York City Ballet, Ballet Memphis, Tulsa Ballet.   
 * Medium: Smuin Ballet   
-* Low: Saint Louis Ballet, Les Ballets Eloelle/Grandiva, Ballet Palm Beach, Ballet   
-
+* Low: Saint Louis Ballet, Les Ballets Eloelle/Grandiva, Ballet Palm Beach
 
 ### Percent change in Building Book Values
-
+2
 
 ```{r}
 
@@ -751,8 +812,7 @@ include_graphics(here('final_report/images/percentage_building.png'))
 
 ```
 
-Most companies did not go through large changes in book values of buildings in their endowment besides depreciation. The companies went through larger changes include Utah Metropolitan Ballet, Post:ballet, Ballet Memphis, Philadanco, New Ballet San Jose, Sacramento Ballet, Marigny Opera Ballet, and Ballet Idaho.
-
+Most companies have decreased building book values over time except those companies that went through major changes in selling and buying buildings. The companies went through larger changes including Utah Metropolitan Ballet, Post:Ballet, Ballet Memphis, Philadanco, New Ballet San Jose, Sacramento Ballet, Marigny Opera Ballet, and Ballet Idaho.
 
 
 ###  Percent Change in Ranking
@@ -780,31 +840,85 @@ We can see from the mean that many extreme values exist in terms of changes in t
 
 ## Data Quality 
 
-As stated in the introduction, online reporting of tax returns by dance companies has facilitated this research; however, a long-standing issue with publicly-available tax reporting is there is no guarantee that mistakes are not made and published. Therefore, a significant part of our analyses were focused on checking the quality, completeness, and aberrations in values reported on the 990 forms. We found many discrepancies indicating non-concordance concerning the end of year balances and beginning year balances within the same year for many companies, where the values reported don't match indicating missing information. Additionally, values reported for previous years did not match what certain companies actually filed for those years with no apparent explanation. Many companies we reached out to for clarification did not respond. This issue should be addressed in future analyses. Implications for missing or inaccurate reporting on form 990s and 990EZs include misinforming the public. Data analyses run on inaccurate information may also draw false conclusions towards financial practices of certain companies that don’t really exist. Informing dance companies on the importance of proper tax reporting may help address these errors in the future. 
+As stated in the introduction, online reporting of tax returns by dance companies has facilitated this research; however, a long-standing issue with publicly-available tax reporting is there is no guarantee that mistakes are not made and published. Therefore, a significant part of our analyses was focused on checking the quality, completeness, and aberrations in values reported on the 990 forms. Many discrepancies were found indicating non-concordance concerning the end-of-year balances and beginning-of-year balances within the same year for many companies, where the values reported don't match indicating missing information. Additionally, values reported for previous years did not match what certain companies actually filed for those years with no apparent explanation. Many companies the capstone team reached out to for clarification did not respond. This issue should be addressed in future analyses. Implications for missing or inaccurate reporting on Form 990s and 990EZs include misinforming the public. Data analyses run on inaccurate information may also draw false conclusions about the financial practices of certain companies that don’t really exist. Informing dance companies of the importance of proper tax reporting may help address these errors in the future. 
 
 ## Endowments and the S&P 500
 
-Our analyses have demonstrated that the trends of the stock market, and particularly the S&P 500, heavily influence percent change in the endowments of many companies. Other companies perform very differently from the S&P 500. This indicates that companies significantly differ in their investment behavior. Some companies differ in their investment behavior. Some companies, such as Oregon Ballet Theatre and Aspen Santa Fe Ballet, did not invest their endowments at all. Others, including San Fransico Ballet, Arizona Ballet, Joffrey Ballet, and Houston Ballet, saw substantial investment gains over the years we analyzed. This has significant implications for the individual dancers employed by these companies in terms of compensation opportunities as well as job security. A company that does not earn investment income risks long-term operation deficits due to inflation and unforeseen expenses. Therefore, it is important to continue to examine changes in endowments for dance companies over time and clearly communicate these findings to the dance world. 
+Our analyses have demonstrated that the trends of the stock market, and particularly the S&P 500, heavily influence percent change in the endowments of many companies. Other companies perform very differently from the S&P 500. This indicates that companies significantly differ in their investment behavior. Some companies differ in their investment behavior. Some companies, such as Oregon Ballet Theatre and Aspen Santa Fe Ballet, did not invest their endowments at all. Others, including San Francisco Ballet, Arizona Ballet, Joffrey Ballet, and Houston Ballet, saw substantial investment gains over the years that were analyzed. This has significant implications for the individual dancers employed by these companies in terms of compensation opportunities as well as job security. A company that does not earn investment income risks long-term operation deficits due to inflation and unforeseen expenses. Therefore, it is important to continue to examine changes in endowments for dance companies over time and clearly communicate these findings to the dance world. 
 
 ## Employee and Volunteer Labor
 
 ### By Geographical Region	
 
-Overall, more labor (both volunteer and employee) is used in the West, followed by the Mid-Atlantic, then the South, then the Midwest, then Mid-America, and finally New England. Of these regions, the one with the highest proportion of companies who rely more on volunteer labor than paid employees is the Midwest, followed by the West, then Mid-America, New England, and then the Mid-Atlantic. This indicates that a few things could be happening in the world of dance. First, in regions with high rates of volunteer labor, there may be a higher percentage of community engagement. This is especially true for companies such as Eugene Dance in Oregon from the West region, which reports a significant number of volunteers but generates significant community support for their productions. Secondly, in regions with high rates of employee labor, state, and local governments may subsidize compensation costs which increase companies’ ability to hire and pay their employees. Since dance is known to be an industry with a disproportionate amount of unpaid labor, it is especially important to understand where and why these discrepancies occur.
+The most volunteer labor is used in the South, followed by the Midwest, followed by the West, then Mid-America, New England, and then the Mid-Atlantic. There are several possible explanations for trends in labor usage that are beyond the scope of what can be analyzed with Form 990 data. This indicates that a few things could be happening in the world of dance. First, in regions with high rates of volunteer labor, there may be a higher percentage of community engagement. This is especially true for companies such as Eugene Dance in Oregon from the West region, which reports a significant number of volunteers but generates significant community support for their productions. Secondly, in regions with high rates of employee labor, state, and local governments may subsidize compensation costs which increase companies’ ability to hire and pay their employees. Since dance is known to be an industry with a disproportionate amount of unpaid labor, it is especially important to understand where and why these discrepancies occur.
 
-## Compensation and Building Value
+## Compensation 
 
-We also examined the fraction of compensation going to senior executives (i.e. their C-Suite employees) is generally consistent. Future research should track trends of executive compensation throughout the pandemic. Additionally, the pattern of how dance companies use their building endowment is inconsistent. Further investigation is required to fully understand why and how real estate is used by these companies. 
+The fraction of compensation going to senior executives (i.e. their C-Suite employees) is generally consistent, with a median of close to 10% across all years on file. Future research should track trends of executive compensation throughout the pandemic since the (limited) data available showed the fraction going to C-Suite employees increased from 2020 to 2021. 
 
-The wide-ranging impacts of these understandings may lead to greater awareness by unpaid and underpaid laborers in dance, accountability for dance companies, and more equity in the dance industry.  We hope this work provides motivation for further investigation of dance companies’ publicly available 990 data to better understand the financial performance and decisions of dance companies, as well as other companies in the performing arts.
+
+## Building Values
+
+Additionally, the pattern of how dance companies use their building endowment is inconsistent. Further investigation is required to fully understand why and how real estate is used by these companies. 
+
+The wide-ranging impacts of these understandings may lead to greater awareness by unpaid and underpaid laborers in dance, accountability for dance companies, and more equity in the dance industry. The capstone team hopes this work motivates further investigation of dance companies’ publicly available 990 data to better understand the financial performance and decisions of dance companies, as well as other companies in the performing arts.
 
 
 # Limitations
 
-Our analyses were not without limitations. First, certain companies have discrepancies in their End-of-Year and Beginning-of-Year balances. We used End-of-Year balances to calculate the percent change in endowments of all dance companies, so some information may be misrepresented based on these discrepancies. Additionally, data on a finer time scale, for example at the monthly time scale rather than the yearly, would be more informative for studying how investments did over time; however, 990 Forms only provide this data annually. Another limitation of this work is the analysis of compensation. The Form 990 provides summarized information across total employees, along with some information about compensation to C-Suite executives. However, we cannot tell directly from this data which of these employees are dancers, and as such, we cannot tell how dancers are being compensated relative to other employees. Finally, a significant number of companies did not report their number of employees and/or their number of volunteers. This led to missing data that was left out the geographical and unpaid labor analyses. Nine states (New Hampshire, Vermont, Kansas, Wyoming, South Dakota, North Dakota, Montana, Hawaii, and Alaska) did not have any companies in this analysis.
+Our analyses were not without limitations. First, certain companies have discrepancies in their End-of-Year and Beginning-of-Year balances. End-of-Year balances were used to calculate the percent change in endowments of all dance companies, so some information may be misrepresented based on these discrepancies. Additionally, data on a finer time scale, for example at the monthly time scale rather than the yearly, would be more informative for studying how investments did over time; however, 990 Forms only provide this data annually. Another limitation of this work is the analysis of compensation. The Form 990 provides summarized information across total employees, along with some information about compensation to C-Suite executives. However, it is not directly clear from this data which of these employees are dancers, and as such, it is not clear how dancers are being compensated relative to other employees. Finally, a significant number of companies did not report their number of employees and/or their number of volunteers. This led to missing data that was left out of the geographical and unpaid labor analyses. Nine states (New Hampshire, Vermont, Kansas, Wyoming, South Dakota, North Dakota, Montana, Hawaii, and Alaska) did not have any companies in this analysis.
 
 # Future Research   
 
-Because the IRS is greatly behind on releasing Form 990s, we only have data from 2021 for a smaller subset of companies, 29 companies in total. That said, the effect of the COVID-19 pandemic on all trends we have examined here is a crucial area of future research. Because the federal government issued billions of dollars in public subsidies, trends throughout the pandemic would be helpful to identify whether these subsidies helped those intended. Similarly, we would like to see if the COVID-19 pandemic has changed the way companies used and reported their building endowment found in this study, Lockdown policies in each state might change how in-person performances were held, and companies might shut down certain performance centers due to prolonged quarantine. Therefore, future research on buildings' book values should be conducted after more data in 2021 and 2022 is uploaded. Yet, to date, no comprehensive analysis has been done on the wage gap in dance throughout the pandemic. Once tax documents through 2022 are filed for these companies, future research can examine how wages, income, operations, and unpaid labor at dance companies have evolved throughout the pandemic. 
+Because the IRS is [behind on releasing Form 990s](https://www.propublica.org/article/irs-hasnt-released-nearly-half-million-nonprofit-tax-records), only data from a smaller subset of companies exists for 2021, which includes 29 companies in total. That said, the effect of the COVID-19 pandemic on all trends examined here is a crucial area of future research. Because the federal government issued billions of dollars in public subsidies, trends throughout the pandemic would be helpful to identify whether these subsidies helped those intended. Similarly, it would be interesting to see if the COVID-19 pandemic has changed the way companies used and reported their building endowment found in this study, Lockdown policies in each state might change how in-person performances were held, and companies might shut down certain performance centers due to prolonged quarantine. Therefore, future research on buildings' book values should be conducted after more data in 2021 and 2022 is uploaded. Yet, to date, no comprehensive analysis has been done on the wage gap in dance throughout the pandemic. Once tax documents through 2022 are filed for these companies, future research can examine how wages, income, operations, and unpaid labor at dance companies have evolved throughout the pandemic. 
+
+
+
+# What We’ve Learned and Suggested Capstone Future Steps (NOT TO BE PUBLISHED)
+
+## Discrepancies     
+
+- Reporting of endowment values across years in Schedule D is not always consistent. Correspondence from companies the capstone team has heard from so far has indicated that the most recently reported values are correct, so the analyses were structured to take the most recent data available rather than the current-year reported value to be true.
+- A limit of our current understanding of reporting endowment data is what companies mean when they report negatives. In particular, are negatives in the expenses erroneous, or do they indicate something meaningful? In some cases, taking the expenses to be positive makes the calculated end-of-year balance concordant with the reported end-of-year balance, but in other cases taking the expenses to be positive causes a discrepancy to arise. These nuances will be important to future analyses of Form 990 data, so clarifying what companies mean when they report negative values in expenses in Schedule D is a useful area for future work. 
+- Preparing emails to companies with these discrepancies is important, but very time-consuming, so allocating enough time if this needs to be done is advised. It took our team several days of labor to put together emails.   
+- It might be worth asking companies who skip reporting 990s in certain years why they do so because there were some gaps in filings.  
+
+## Endowments Over Time   
+
+- Information can be best analyzed and assessed using comparable measurements, e.g. rankings and percent change, as endowment totals are widely varied between companies.    
+- Further, in plots that contain main different companies over time, it is difficult to tell the difference between companies.  Plots in the future should contain either separate tables with a color key, highlighted outliers, or other means of communicating which line refers to which company.  
+- Endowments can be transferred between different entities (e.g. Aspen Santa Fe Ballet). It would be worth checking this for more companies, and figuring out the best way to examine the exact transfer of funds.    
+- In the future, examining various metrics in finance for evaluating investment behavior, e.g., Sharpe’s Ratio,  or average performance, may provide a more comprehensive understanding of companies’ investment decisions.    
+- More broadly, questions regarding the beginning of an endowment warrant further attention. In particular, at what point does a company typically create an endowment? Is that based on the size of the budget and years in business?  
+
+## Unpaid Labor    
+
+- Geographical region is very important when considering how much volunteer labor is used.  
+- It may also be interesting to analyze the companies with the largest endowments or net revenue and how much they use volunteer labor.    
+- It is unknown how the breakdown of the types of volunteers they have: those volunteers could be dancers, or other individuals engaging in the various kinds of work needed to keep a dance company going.   
+
+## Building Value Analyses    
+
+- There is a substantial amount of variability in the trends in building book values over time. Future work may evaluate specific companies with large changes and incorporate outside information on what decisions these changes correspond to (for example, if there is a purchase of a specific building for the company reported on their website or a news source).   
+- It may also be interesting to study the relationship between changes in building book values and a company’s endowment size, revenue, or other variables reported in Form 990.   
+
+## Compensation   
+
+- Doing a gender analysis of C-suite employees and their pay throughout the pandemic AND in geographical regions might be an interesting step once the 2021 990s are published.  However, this would require outside data, since gender is not reported on Form 990s.   
+- It may also be interesting to look at how much employees are paid in various companies and regions (not just C-suite ones).    
+
+## Pandemic    
+
+- Once the IRS releases filings for fiscal years 2020, 2021, and 2022, looking into how the trends presented here to change over the pandemic year will be informative for understanding how dance companies fared financially throughout the pandemic and the choices they made to navigate this tumultuous period.    
+- When studying the impact of the pandemic, fiscal year *end date* not just *end year* should be utilized for time series analyses, as a company whose 2020 fiscal year ends in March will have gone through very different events within their fiscal year as a company whose 2020 fiscal year ends in September.    
+- Incorporating state-level COVID-19 policy information (e.g., restrictions on large gatherings, or restaurant closures) may provide insight into how companies fared during the pandemic across locations. This would affect companies’ abilities to rehearse or perform throughout the pandemic.
+- Understanding how endowments and trends in volunteer/paid labor will be crucial for understanding how the pandemic impacted dance companies.   
+
+## Relating Endowment Work to the DDP’s Other Analyses    
+
+- Our work here focused strictly on Form 990 data, but the DDP has covered a collection of other topics on these dance companies. Relating metrics related to gender equity to compensation or endowment trends may be an interesting avenue for future exploration.    
+- Endowment compared to gender equity.   
+- Unpaid labor utilization to gender equity.    
+
 
 
